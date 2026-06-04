@@ -1,349 +1,1583 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Skateboard Workshop App</title>
+<title>Skate Workshop</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--o:#FC5200;--o2:#ff7a40;--od:rgba(252,82,0,.13);--g:rgba(255,255,255,.06);--gb:rgba(255,255,255,.09);--t2:rgba(255,255,255,.52);--t3:rgba(255,255,255,.26);--green:#32d74b;--blue:#0a84ff;--purple:#bf5af2;--gold:#ffd60a}
-html,body{height:100%;background:#000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#fff;overflow:hidden;-webkit-font-smoothing:antialiased}
-#app{width:100%;max-width:430px;height:100vh;margin:0 auto;display:flex;flex-direction:column;overflow:hidden;background:#000;position:relative}
-@supports(height:100dvh){#app{height:100dvh}}
-@media(min-width:500px){body{display:flex;align-items:center;justify-content:center;background:#0a0500}#app{height:90vh;max-height:844px;border-radius:40px;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 40px 100px rgba(0,0,0,.9),0 0 60px rgba(252,82,0,.06)}}
-#splash{position:absolute;inset:0;background:#000;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s}
-.sp-icon{width:96px;height:96px;border-radius:24px;background:linear-gradient(145deg,#FC5200,#ff7a40);display:flex;align-items:center;justify-content:center;margin-bottom:22px;font-size:36px;font-weight:900;color:#fff;letter-spacing:-2px;box-shadow:0 0 60px rgba(252,82,0,.5)}
-.sp-h{font-size:26px;font-weight:900;letter-spacing:-1px;margin-bottom:5px}
-.sp-s{font-size:11px;color:var(--t3);letter-spacing:2.5px}
-.sp-bar{width:72px;height:2px;background:rgba(255,255,255,.1);border-radius:2px;margin-top:44px;overflow:hidden}
-.sp-fill{height:100%;width:0;background:linear-gradient(90deg,var(--o),var(--o2));border-radius:2px;transition:width 1.8s ease-out}
-.sb{height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px 20px 0}
-.scr{display:none;flex-direction:column;flex:1;overflow:hidden}
-.scr.on{display:flex}
-#tab{height:80px;padding:8px 0 22px;background:rgba(8,8,8,.96);border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-around;flex-shrink:0;z-index:10}
-.ti{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;min-width:60px;padding:4px 0;opacity:.32;transition:opacity .15s;position:relative;-webkit-user-select:none;user-select:none}
-.ti.on{opacity:1}
-.ti-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,.45);margin-top:1px}
-.ti.on .ti-lbl{color:var(--o)}
-.ti-dot{position:absolute;top:2px;right:8px;width:6px;height:6px;border-radius:50%;background:var(--o)}
-.sc{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
-.sc::-webkit-scrollbar{display:none}
-.hdr{padding:6px 20px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.hdr-h{font-size:28px;font-weight:900;letter-spacing:-1px}
-.hdr-s{font-size:13px;color:var(--t2);margin-top:2px}
-.bhdr{padding:10px 14px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;background:rgba(0,0,0,.85)}
-.bk{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#fff;font-size:18px;flex-shrink:0;font-family:inherit}
-.ibtn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0}
-.sl{font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--t3);text-transform:uppercase;padding:16px 20px 8px}
-.dv{height:1px;background:rgba(255,255,255,.06);margin:0 20px}
-.av{border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
-.tag{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
-.to{background:var(--od);color:var(--o)}.tg{background:rgba(50,215,75,.12);color:var(--green)}
-.tb{background:rgba(10,132,255,.12);color:var(--blue)}.tgr{background:rgba(255,255,255,.07);color:var(--t2)}
-.tpu{background:rgba(191,90,242,.12);color:var(--purple)}
-.tbdg{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.15)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;cursor:pointer;font-family:inherit;font-weight:700;border-radius:14px;transition:opacity .12s;-webkit-user-select:none;user-select:none}
-.btn:active{opacity:.75}
-.btn-o{background:var(--o);color:#fff;padding:15px 22px;font-size:16px;box-shadow:0 8px 24px rgba(252,82,0,.3)}
-.btn-g{background:rgba(255,255,255,.08);color:#fff;padding:13px 18px;font-size:15px;border:1px solid rgba(255,255,255,.09)}
-.btn-sm{padding:8px 12px;font-size:13px;border-radius:10px}
-#toast{position:fixed;top:56px;left:50%;transform:translateX(-50%) translateY(-130px);background:rgba(20,20,20,.98);border:1px solid rgba(252,82,0,.2);border-radius:18px;padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:9999;min-width:250px;max-width:320px;box-shadow:0 20px 50px rgba(0,0,0,.7);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
-#toast.show{transform:translateX(-50%) translateY(0)}
-.t-ic{font-size:22px;flex-shrink:0}
-.t-tt{font-size:13px;font-weight:700;margin-bottom:2px}
-.t-bd{font-size:12px;color:var(--t2)}
-#s-login{background:#000;position:relative;overflow:hidden}
-.lg-glow{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:400px;height:300px;border-radius:50%;background:radial-gradient(ellipse,rgba(252,82,0,.15),transparent 70%);pointer-events:none}
-.lg-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 28px;position:relative;z-index:1}
-.lg-logo{width:70px;height:70px;border-radius:20px;background:linear-gradient(145deg,#FC5200,#ff7a40);display:flex;align-items:center;justify-content:center;margin-bottom:18px;font-size:24px;font-weight:900;color:#fff;box-shadow:0 14px 40px rgba(252,82,0,.35)}
-.lg-title{font-size:24px;font-weight:900;letter-spacing:-1px;margin-bottom:4px;text-align:center}
-.lg-sub{font-size:13px;color:var(--t2);text-align:center;margin-bottom:22px;line-height:1.55}
-.if{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.09);border-radius:13px;padding:14px 16px;color:#fff;font-size:16px;font-family:inherit;outline:none}
-.if:focus{border-color:var(--o)}
-.ig{width:100%;margin-bottom:12px}
-.il{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
-.rr{display:flex;gap:9px;margin-bottom:18px}
-.rp{flex:1;padding:12px 8px;border-radius:12px;border:1.5px solid rgba(255,255,255,.09);background:rgba(255,255,255,.06);color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:inherit}
-.rp.on{border-color:var(--o);background:var(--od);color:var(--o)}
-.odv{display:flex;align-items:center;gap:10px;margin:12px 0}
-.odv-l{flex:1;height:1px;background:rgba(255,255,255,.08)}
-.odv span{font-size:11px;color:var(--t3)}
-.soc{width:100%;padding:13px;border-radius:13px;border:1.5px solid rgba(255,255,255,.09);background:rgba(255,255,255,.06);color:#fff;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;font-family:inherit;margin-top:11px}
-.hero{margin:0 16px 14px;border-radius:22px;padding:20px;background:linear-gradient(145deg,rgba(35,12,0,.95),rgba(15,5,0,.98));border:1px solid rgba(252,82,0,.14);position:relative;overflow:hidden}
-.hero::after{content:"🛹";position:absolute;bottom:-10px;right:12px;font-size:68px;opacity:.07;transform:rotate(-12deg)}
-.h-lbl{font-size:11px;color:var(--o);font-weight:700;letter-spacing:.8px;margin-bottom:4px}
-.h-nm{font-size:23px;font-weight:900;letter-spacing:-.8px;margin-bottom:4px}
-.h-sb{font-size:13px;color:var(--t2);line-height:1.5}
-.h-tags{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
-.srow{display:flex;gap:8px;margin:0 16px 14px}
-.sst{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:13px 8px;text-align:center}
-.ssn{font-size:22px;font-weight:900;color:var(--o)}
-.ssl{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.4px;margin-top:2px}
-.vc{margin:0 16px 11px;border-radius:20px;overflow:hidden;background:#0c0c0c;border:1px solid rgba(255,255,255,.08);cursor:pointer}
-.vc:active{opacity:.85}
-.vt{width:100%;height:148px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.pr{width:52px;height:52px;border-radius:50%;background:rgba(252,82,0,.9);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;box-shadow:0 8px 28px rgba(252,82,0,.4)}
-.vm{padding:11px 13px;display:flex;align-items:center;gap:10px}
-.vi{flex:1}
-.vtt{font-size:14px;font-weight:700}
-.vsb{font-size:12px;color:var(--t2);margin-top:2px}
-.ar{display:flex;align-items:center;gap:13px;padding:13px 20px;cursor:pointer}
-.ar:active{background:rgba(255,255,255,.04)}
-.ai{flex:1}.an{font-size:15px;font-weight:700}.as{font-size:12px;color:var(--t2);margin-top:1px}
-.srch{margin:0 16px 14px;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:11px 14px;color:var(--t3);font-size:14px}
-.ac{margin:0 16px 9px;border-radius:20px;padding:15px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:13px;cursor:pointer}
-.ac:active{opacity:.8}.aci{flex:1}.acn{font-size:15px;font-weight:700}.acs{font-size:12px;color:var(--t2);margin-top:2px}
-.act{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.od-w{position:relative}.od-d{position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid #0c0c0c}
-.tkc{margin:0 16px 9px;border-radius:20px;padding:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:13px}
-.tki{flex:1}.tkn{font-size:14px;font-weight:700}
-.tktr{height:4px;background:rgba(255,255,255,.07);border-radius:4px;margin-top:8px;overflow:hidden}
-.tkf{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--o),var(--o2))}
-.tkp{font-size:11px;font-weight:700;color:var(--o);margin-top:5px}
-.cstrip{display:flex;gap:7px;padding:0 16px 14px;overflow-x:auto}.cstrip::-webkit-scrollbar{display:none}
-.cd{min-width:52px;height:68px;border-radius:14px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;flex-shrink:0}
-.cd.on{background:var(--o);border-color:var(--o);box-shadow:0 6px 20px rgba(252,82,0,.3)}
-.cd.dot{border-color:rgba(252,82,0,.3)}.cdn{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.4px}
-.cd.on .cdn{color:rgba(255,255,255,.6)}.cdnum{font-size:17px;font-weight:800}
-.cdd{width:5px;height:5px;border-radius:50%;background:var(--o)}.cd.on .cdd{background:rgba(255,255,255,.6)}
-.scc{margin:0 16px 9px;border-radius:20px;padding:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:13px;cursor:pointer}
-.scc:active{opacity:.8}
-.sc-tb{min-width:50px;height:50px;border-radius:12px;background:var(--od);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
-.sc-t{font-size:12px;font-weight:900;color:var(--o)}.sc-a{font-size:9px;font-weight:700;color:var(--o);opacity:.6;letter-spacing:.4px}
-.sc-i{flex:1}.sc-nm{font-size:14px;font-weight:700}.sc-dt{font-size:12px;color:var(--t2);margin-top:2px}
-.mr{display:flex;align-items:center;gap:13px;padding:13px 20px;cursor:pointer}
-.mr:active{background:rgba(255,255,255,.04)}
-.maw{position:relative;flex-shrink:0}
-.mbdg{position:absolute;top:-2px;right:-2px;min-width:17px;height:17px;border-radius:50%;background:var(--o);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #000;padding:0 2px}
-.mi{flex:1;min-width:0}.mrow{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px}
-.mn{font-size:15px;font-weight:700}.mtime{font-size:11px;color:var(--t3);margin-left:8px}
-.mp{font-size:13px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mp.u{color:#fff;font-weight:500}
-.cmsg{flex:1;overflow-y:auto;padding:14px 15px;display:flex;flex-direction:column;gap:7px}
-.cmsg::-webkit-scrollbar{display:none}
-.bbl{max-width:80%;padding:10px 13px;border-radius:18px;font-size:14px;line-height:1.55;word-break:break-word}
-.bbl.out{background:var(--o);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
-.bbl.in{background:rgba(255,255,255,.09);color:#fff;align-self:flex-start;border-bottom-left-radius:4px;border:1px solid rgba(255,255,255,.08)}
-.bbl small{display:block;font-size:10px;opacity:.5;margin-top:3px;text-align:right}
-.btm{text-align:center;font-size:11px;color:var(--t3);font-weight:600;padding:4px 0}
-.cbar{padding:10px 13px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:9px;flex-shrink:0;background:rgba(0,0,0,.9)}
-.cin{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);border-radius:22px;padding:11px 16px;color:#fff;font-size:15px;font-family:inherit;outline:none}
-.csnd{width:40px;height:40px;border-radius:50%;background:var(--o);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:18px;color:#fff}
-.csnd:active{opacity:.75}
-.vplr{width:100%;height:210px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;background:linear-gradient(155deg,#1a0800,#000 55%)}
-.vp-em{position:absolute;font-size:88px;opacity:.05}
-.vp-c{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:13px;width:100%}
-.vp-pl{width:60px;height:60px;border-radius:50%;cursor:pointer;background:rgba(252,82,0,.9);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 32px rgba(252,82,0,.38);font-size:20px}
-.vp-pl:active{opacity:.8}
-.vp-sc{width:80%;height:3px;background:rgba(255,255,255,.1);border-radius:3px;cursor:pointer}
-.vp-sf{height:100%;background:linear-gradient(90deg,var(--o),var(--o2));border-radius:3px;transition:width .1s}
-.vp-tm{font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.4px}
-.vp-spd{position:absolute;bottom:10px;left:12px;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;color:#fff}
-.abar{display:flex;gap:7px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;overflow-x:auto}
-.abar::-webkit-scrollbar{display:none}
-.at{min-width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;flex-shrink:0}
-.at.on{background:var(--od);border-color:var(--o)}
-.acols{display:flex;gap:6px;margin-left:auto;align-items:center}
-.cdot{width:24px;height:24px;border-radius:50%;cursor:pointer;flex-shrink:0;border:2.5px solid transparent}
-.cdot.on{border-color:rgba(255,255,255,.4)}
-.fbx{margin:12px 15px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:14px}
-.fbl{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:9px}
-.fbta{width:100%;background:transparent;border:none;color:#fff;font-size:14px;font-family:inherit;outline:none;resize:none;line-height:1.65;min-height:80px}
-.vswrap{display:flex;gap:2px;flex-shrink:0}
-.vsp{flex:1;height:175px;position:relative;display:flex;align-items:center;justify-content:center;background:#000}
-.vsl{position:absolute;bottom:7px;left:7px;background:rgba(0,0,0,.65);border-radius:8px;padding:4px 8px;font-size:10px;font-weight:700;border:1px solid rgba(255,255,255,.1);color:#fff}
-.phdr{padding:20px 20px 14px;display:flex;flex-direction:column;align-items:center;text-align:center}
-.pav{width:86px;height:86px;border-radius:50%;background:linear-gradient(145deg,var(--o),var(--o2));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;margin-bottom:12px;box-shadow:0 12px 40px rgba(252,82,0,.25)}
-.pnm{font-size:22px;font-weight:900;letter-spacing:-.7px;margin-bottom:3px}
-.prl{font-size:13px;color:var(--o);font-weight:600}
-.pst{display:flex;margin:14px 16px;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05)}
-.ps{flex:1;padding:13px 0;text-align:center}.ps+.ps{border-left:1px solid rgba(255,255,255,.08)}
-.psn{font-size:19px;font-weight:900;color:var(--o)}.psl{font-size:10px;font-weight:700;color:var(--t3);margin-top:2px;letter-spacing:.4px}
-.setr{display:flex;align-items:center;gap:13px;padding:14px 20px;cursor:pointer}
-.setr:active{background:rgba(255,255,255,.04)}
-.seti{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.setl{flex:1;font-size:15px;font-weight:600}.seta{color:var(--t3);font-size:16px}
-.fc{margin:0 16px 11px;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
-.fch{padding:12px 14px;display:flex;align-items:center;gap:10px}
-.fcn{font-size:14px;font-weight:700}
-.fcb{padding:0 14px 11px;font-size:14px;color:rgba(255,255,255,.7);line-height:1.55}
-.fca{padding:9px 14px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:16px}
-.faa{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:12px;font-weight:600;color:var(--t2)}
-</style></head><body>
-<div id="splash"><div class="sp-icon">SW</div><div class="sp-h">Skateboard Workshop App</div><div class="sp-s">COACHING · ELEVATED</div><div class="sp-bar"><div class="sp-fill" id="spf"></div></div></div>
-<div id="toast"><div class="t-ic" id="t-ic">🛹</div><div><div class="t-tt" id="t-tt"></div><div class="t-bd" id="t-bd"></div></div></div>
+/* ─── RESET & TOKENS ─────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --brand:#FC5200;
+  --brand-dim:rgba(252,82,0,.14);
+  --brand-glow:rgba(252,82,0,.32);
+  --surface:#111;
+  --surface2:#181818;
+  --surface3:#222;
+  --border:rgba(255,255,255,.08);
+  --border2:rgba(255,255,255,.13);
+  --text:rgba(255,255,255,1);
+  --text2:rgba(255,255,255,.55);
+  --text3:rgba(255,255,255,.28);
+  --green:#30d158;
+  --blue:#0a84ff;
+  --purple:#bf5af2;
+  --gold:#ffd60a;
+  --red:#ff453a;
+  --tab-h:82px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --safe-top:env(safe-area-inset-top,0px);
+}
+html{background:#000;height:100%}
+body{
+  background:#000;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  height:100%;
+  overflow:hidden;
+}
+
+/* ─── SHELL ───────────────────────────────────────── */
+#app{
+  position:fixed;inset:0;
+  display:flex;flex-direction:column;
+  background:#000;
+  max-width:430px;
+  margin:0 auto;
+}
+@media(min-width:500px){
+  body{background:#0a0500;display:flex;align-items:center;justify-content:center}
+  #app{position:relative;height:min(100vh,900px);border-radius:44px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 40px 120px rgba(0,0,0,.95),0 0 80px rgba(252,82,0,.06)}
+}
+
+/* ─── SCREENS ─────────────────────────────────────── */
+.screen{
+  display:none;
+  flex-direction:column;
+  flex:1;
+  overflow:hidden;
+  position:absolute;
+  inset:0;
+  background:#000;
+}
+.screen.active{display:flex}
+.scroll{
+  flex:1;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.scroll::-webkit-scrollbar{display:none}
+
+/* ─── NAVIGATION TRANSITIONS ─────────────────────── */
+.screen{transform:translateX(0);transition:transform .32s cubic-bezier(.32,0,.67,0),opacity .32s}
+.screen.slide-in{animation:slideIn .32s cubic-bezier(.32,0,.67,0) both}
+.screen.slide-out{animation:slideOut .28s cubic-bezier(.32,0,.67,0) both}
+.screen.slide-back-in{animation:slideBackIn .32s cubic-bezier(.32,0,.67,0) both}
+.screen.slide-back-out{animation:slideBackOut .28s cubic-bezier(.32,0,.67,0) both}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes slideOut{from{transform:translateX(0)}to{transform:translateX(-28%)}}
+@keyframes slideBackIn{from{transform:translateX(-28%)}to{transform:translateX(0)}}
+@keyframes slideBackOut{from{transform:translateX(0)}to{transform:translateX(100%)}}
+
+/* ─── TOP NAV ─────────────────────────────────────── */
+.nav{
+  flex-shrink:0;
+  padding:calc(var(--safe-top) + 10px) 20px 0;
+  display:flex;align-items:center;
+  min-height:54px;
+  position:relative;
+  z-index:10;
+}
+.nav-title{font-size:17px;font-weight:700;letter-spacing:-.3px;position:absolute;left:50%;transform:translateX(-50%)}
+.nav-large{
+  flex-shrink:0;
+  padding:6px 20px 12px;
+}
+.nav-large-title{font-size:32px;font-weight:900;letter-spacing:-.8px}
+.nav-large-sub{font-size:14px;color:var(--text2);margin-top:3px}
+.nav-back{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.1);
+  border:none;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;flex-shrink:0;
+  font-family:inherit;
+}
+.nav-back:active{background:rgba(255,255,255,.18)}
+.nav-action{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.1);
+  border:none;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;
+  margin-left:auto;
+}
+.nav-action:active{background:rgba(255,255,255,.18)}
+
+/* ─── TAB BAR ─────────────────────────────────────── */
+#tabbar{
+  flex-shrink:0;
+  height:var(--tab-h);
+  padding-bottom:var(--safe-bottom);
+  background:rgba(10,10,10,.96);
+  border-top:1px solid var(--border);
+  display:none;
+  justify-content:space-around;
+  align-items:flex-start;
+  padding-top:10px;
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  z-index:100;
+}
+.tab-item{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;gap:4px;
+  cursor:pointer;padding:2px 0;
+  opacity:.35;
+  transition:opacity .15s;
+  position:relative;
+  -webkit-user-select:none;user-select:none;
+}
+.tab-item.on{opacity:1}
+.tab-item svg{transition:transform .15s}
+.tab-item:active svg{transform:scale(.88)}
+.tab-label{font-size:10px;font-weight:600;color:rgba(255,255,255,.42);letter-spacing:.1px}
+.tab-item.on .tab-label{color:var(--brand)}
+.tab-notif{
+  position:absolute;top:0;right:calc(50% - 18px);
+  width:8px;height:8px;border-radius:50%;
+  background:var(--brand);border:2px solid #000;
+}
+
+/* ─── BUTTONS ─────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:none;cursor:pointer;font-family:inherit;font-weight:600;
+  border-radius:12px;transition:transform .12s,opacity .12s;
+  -webkit-user-select:none;user-select:none;letter-spacing:-.1px;
+}
+.btn:active{transform:scale(.96);opacity:.85}
+.btn-fill{background:var(--brand);color:#fff;padding:14px 22px;font-size:15px;font-weight:700;box-shadow:0 6px 22px var(--brand-glow)}
+.btn-fill-full{width:100%;padding:16px;font-size:16px;font-weight:700;border-radius:14px}
+.btn-ghost{background:var(--surface3);color:#fff;padding:12px 18px;font-size:14px;font-weight:600;border:1px solid var(--border2)}
+.btn-ghost-full{width:100%;padding:15px;font-size:15px;border-radius:14px}
+.btn-sm{padding:7px 14px;font-size:13px;border-radius:10px;font-weight:600}
+.btn-icon{width:36px;height:36px;border-radius:50%;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:17px}
+.btn-icon:active{opacity:.7}
+
+/* ─── CARDS ──────────────────────────────────────── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;
+  overflow:hidden;
+}
+.card-pressable{cursor:pointer;transition:transform .14s,opacity .14s}
+.card-pressable:active{transform:scale(.98);opacity:.9}
+
+/* ─── PILLS / CHIPS ──────────────────────────────── */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+.chip-orange{background:var(--brand-dim);color:var(--brand)}
+.chip-green{background:rgba(48,209,88,.12);color:var(--green)}
+.chip-blue{background:rgba(10,132,255,.12);color:var(--blue)}
+.chip-gray{background:rgba(255,255,255,.08);color:var(--text2)}
+.chip-purple{background:rgba(191,90,242,.12);color:var(--purple)}
+.chip-gold{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.18)}
+
+/* ─── AVATAR ─────────────────────────────────────── */
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0;font-size:15px;letter-spacing:-.5px}
+.av-sm{width:36px;height:36px;font-size:13px}
+.av-md{width:46px;height:46px;font-size:16px}
+.av-lg{width:56px;height:56px;font-size:19px}
+.av-xl{width:80px;height:80px;font-size:26px}
+.av-a{background:linear-gradient(135deg,#FC5200,#ff7a40)}
+.av-b{background:linear-gradient(135deg,#ffd60a,#ff9f0a)}
+.av-c{background:linear-gradient(135deg,#0a84ff,#30d158)}
+.av-d{background:linear-gradient(135deg,#bf5af2,#ff375f)}
+.av-e{background:linear-gradient(135deg,#30d158,#00c7be)}
+.av-me{background:linear-gradient(135deg,#FC5200,#ff7a40)}
+
+/* ─── DIVIDER ────────────────────────────────────── */
+.div{height:1px;background:var(--border);margin:0 20px}
+
+/* ─── SECTION LABEL ──────────────────────────────── */
+.sec-label{
+  font-size:11px;font-weight:700;letter-spacing:1px;
+  color:var(--text3);text-transform:uppercase;
+  padding:16px 20px 8px;
+}
+
+/* ─── INPUT ──────────────────────────────────────── */
+.input{
+  width:100%;background:var(--surface3);
+  border:1.5px solid var(--border2);border-radius:13px;
+  padding:14px 16px;color:#fff;font-size:16px;
+  font-family:inherit;outline:none;
+}
+.input:focus{border-color:var(--brand)}
+
+/* ─── TOAST ──────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:calc(var(--tab-h) + 12px);left:50%;
+  transform:translateX(-50%) translateY(120px);
+  background:rgba(28,28,28,.98);border:1px solid var(--border2);
+  border-radius:14px;padding:11px 16px;
+  display:flex;align-items:center;gap:10px;
+  z-index:9999;min-width:220px;max-width:300px;
+  box-shadow:0 12px 40px rgba(0,0,0,.7);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+#toast.up{transform:translateX(-50%) translateY(0)}
+#toast-icon{font-size:20px;flex-shrink:0}
+#toast-text{font-size:13px;font-weight:600;line-height:1.35}
+#toast-sub{font-size:12px;color:var(--text2)}
+
+/* ─── BOTTOM SHEET ───────────────────────────────── */
+#sheet-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);
+  z-index:200;display:none;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+#sheet{
+  position:fixed;bottom:0;left:50%;
+  transform:translate(-50%,100%);
+  width:100%;max-width:430px;
+  background:#1c1c1e;border-radius:20px 20px 0 0;
+  z-index:201;padding:12px 20px calc(var(--safe-bottom) + 20px);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+#sheet.open{transform:translate(-50%,0)}
+.sheet-handle{width:36px;height:4px;border-radius:4px;background:rgba(255,255,255,.2);margin:0 auto 18px}
+.sheet-title{font-size:17px;font-weight:700;text-align:center;margin-bottom:16px}
+.sheet-row{display:flex;align-items:center;gap:14px;padding:13px 0;cursor:pointer;border-bottom:1px solid var(--border)}
+.sheet-row:last-child{border-bottom:none}
+.sheet-row-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sheet-row-label{font-size:16px;font-weight:500}
+
+/* ══════════════════════════════════════════
+   SCREEN: HOME FEED (STRAVA-STYLE)
+══════════════════════════════════════════ */
+.feed-item{padding:0 0 4px}
+.feed-header{display:flex;align-items:center;gap:12px;padding:14px 16px 10px}
+.feed-header-info{flex:1}
+.feed-author{font-size:15px;font-weight:700}
+.feed-meta{font-size:13px;color:var(--text2);margin-top:1px}
+.feed-media{
+  width:100%;height:220px;
+  background:linear-gradient(160deg,#1a0900 0%,#0e0500 60%,#000 100%);
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.feed-media-bg{position:absolute;font-size:100px;opacity:.05;user-select:none}
+.feed-play{
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(252,82,0,.92);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;position:relative;z-index:1;
+  box-shadow:0 8px 32px rgba(252,82,0,.5);
+  cursor:pointer;transition:transform .15s;
+}
+.feed-play:active{transform:scale(.92)}
+.feed-media-label{
+  position:absolute;bottom:10px;left:10px;
+  background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;padding:3px 9px;
+  font-size:11px;font-weight:700;color:#fff;
+  backdrop-filter:blur(8px);
+}
+.feed-media-dur{
+  position:absolute;bottom:10px;right:10px;
+  background:rgba(0,0,0,.75);border-radius:6px;
+  padding:3px 7px;font-size:11px;font-weight:600;color:rgba(255,255,255,.7);
+}
+.feed-body{padding:10px 16px 6px}
+.feed-title{font-size:15px;font-weight:700;margin-bottom:4px}
+.feed-desc{font-size:14px;color:var(--text2);line-height:1.5}
+.feed-stats{display:flex;gap:18px;padding:10px 16px}
+.feed-stat{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600}
+.feed-stat-val{font-size:15px;font-weight:800}
+.feed-actions{display:flex;border-top:1px solid var(--border);margin-top:4px}
+.feed-action-btn{
+  flex:1;padding:12px 0;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-size:14px;font-weight:600;color:var(--text2);
+  cursor:pointer;transition:background .12s;border:none;background:none;font-family:inherit;
+}
+.feed-action-btn:active{background:rgba(255,255,255,.05)}
+.feed-action-btn.liked{color:var(--red)}
+.feed-divider{height:8px;background:var(--surface);margin:4px 0}
+
+.stories-row{
+  display:flex;gap:12px;padding:12px 16px;overflow-x:auto;
+}
+.stories-row::-webkit-scrollbar{display:none}
+.story{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0}
+.story-ring{
+  width:60px;height:60px;border-radius:50%;padding:2.5px;
+  background:linear-gradient(135deg,var(--brand),#ff9040);
+}
+.story-ring.seen{background:rgba(255,255,255,.2)}
+.story-av{width:100%;height:100%;border-radius:50%;border:2.5px solid #000;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+.story-label{font-size:11px;font-weight:500;color:var(--text2);white-space:nowrap;max-width:64px;overflow:hidden;text-overflow:ellipsis;text-align:center}
+
+/* ══════════════════════════════════════════
+   SCREEN: ATHLETES
+══════════════════════════════════════════ */
+.search-wrap{padding:0 16px 12px;position:relative}
+.search-field{
+  width:100%;background:var(--surface2);border-radius:13px;
+  border:1px solid var(--border);padding:11px 16px 11px 40px;
+  color:#fff;font-size:15px;font-family:inherit;outline:none;
+}
+.search-icon{position:absolute;left:28px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
+.filter-chips{display:flex;gap:8px;padding:0 16px 14px;overflow-x:auto}
+.filter-chips::-webkit-scrollbar{display:none}
+.filter-chip{
+  padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;
+  background:var(--surface2);border:1px solid var(--border2);color:var(--text2);
+  cursor:pointer;flex-shrink:0;white-space:nowrap;transition:all .15s;
+}
+.filter-chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.athlete-card{
+  display:flex;align-items:center;gap:13px;
+  padding:14px 16px;cursor:pointer;transition:background .12s;
+}
+.athlete-card:active{background:rgba(255,255,255,.04)}
+.athlete-card-body{flex:1;min-width:0}
+.athlete-card-name{font-size:16px;font-weight:700}
+.athlete-card-meta{font-size:13px;color:var(--text2);margin-top:2px}
+.athlete-card-tags{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.progress-mini{display:flex;align-items:center;gap:8px;margin-top:8px}
+.progress-bar{flex:1;height:3px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--brand),#ff9040)}
+.progress-label{font-size:11px;font-weight:700;color:var(--brand);white-space:nowrap}
+.online-ring{position:relative}
+.online-dot{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2.5px solid #000}
+
+/* ══════════════════════════════════════════
+   SCREEN: SCHEDULE
+══════════════════════════════════════════ */
+.cal-header{padding:0 16px 14px;display:flex;align-items:center;justify-content:space-between}
+.cal-month{font-size:15px;font-weight:700;color:var(--text2)}
+.cal-nav-btn{width:32px;height:32px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px}
+.cal-week{display:flex;gap:6px;padding:0 16px 16px;overflow-x:auto}
+.cal-week::-webkit-scrollbar{display:none}
+.cal-day{
+  min-width:52px;height:68px;border-radius:14px;
+  background:var(--surface2);border:1.5px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;flex-shrink:0;transition:all .18s;
+}
+.cal-day.today{background:var(--brand);border-color:var(--brand);box-shadow:0 4px 20px var(--brand-glow)}
+.cal-day.has-dot{border-color:rgba(252,82,0,.4)}
+.cal-day-name{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px}
+.cal-day.today .cal-day-name{color:rgba(255,255,255,.65)}
+.cal-day-num{font-size:18px;font-weight:800}
+.cal-day-dot{width:5px;height:5px;border-radius:50%;background:var(--brand)}
+.cal-day.today .cal-day-dot{background:rgba(255,255,255,.7)}
+.session-item{
+  display:flex;align-items:center;gap:13px;
+  padding:14px 16px;cursor:pointer;transition:background .12s;
+}
+.session-item:active{background:rgba(255,255,255,.04)}
+.session-time-block{
+  min-width:52px;height:52px;border-radius:12px;
+  background:var(--brand-dim);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.session-time-num{font-size:13px;font-weight:900;color:var(--brand)}
+.session-time-ampm{font-size:9px;font-weight:700;color:var(--brand);opacity:.65;letter-spacing:.5px}
+.session-body{flex:1}
+.session-name{font-size:15px;font-weight:700}
+.session-detail{font-size:13px;color:var(--text2);margin-top:2px;line-height:1.4}
+
+/* ══════════════════════════════════════════
+   SCREEN: MESSAGES
+══════════════════════════════════════════ */
+.msg-item{
+  display:flex;align-items:center;gap:13px;
+  padding:13px 16px;cursor:pointer;transition:background .12s;
+}
+.msg-item:active{background:rgba(255,255,255,.04)}
+.msg-av-wrap{position:relative;flex-shrink:0}
+.msg-badge{
+  position:absolute;top:-3px;right:-3px;
+  min-width:18px;height:18px;border-radius:9px;
+  background:var(--brand);font-size:10px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  border:2.5px solid #000;padding:0 3px;
+}
+.msg-body{flex:1;min-width:0}
+.msg-row-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px}
+.msg-name{font-size:15px;font-weight:700}
+.msg-time{font-size:12px;color:var(--text3)}
+.msg-preview{font-size:14px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg-preview.unread{color:#fff;font-weight:500}
+
+/* ══════════════════════════════════════════
+   SCREEN: CHAT
+══════════════════════════════════════════ */
+.chat-bubbles{
+  flex:1;overflow-y:auto;
+  padding:12px 16px;
+  display:flex;flex-direction:column;gap:6px;
+}
+.chat-bubbles::-webkit-scrollbar{display:none}
+.bubble{max-width:76%;padding:11px 14px;border-radius:20px;font-size:15px;line-height:1.5;word-break:break-word}
+.bubble.out{background:var(--brand);color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
+.bubble.in{background:var(--surface2);color:#fff;align-self:flex-start;border-bottom-left-radius:5px;border:1px solid var(--border2)}
+.bubble small{display:block;font-size:11px;opacity:.5;margin-top:4px;text-align:right}
+.chat-date-label{text-align:center;font-size:12px;color:var(--text3);font-weight:600;padding:6px 0}
+.chat-bar{
+  padding:10px 14px calc(var(--safe-bottom) + 10px);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:9px;
+  background:#000;flex-shrink:0;
+}
+.chat-input{
+  flex:1;background:var(--surface2);border:1px solid var(--border2);
+  border-radius:22px;padding:11px 16px;color:#fff;font-size:15px;
+  font-family:inherit;outline:none;
+}
+.chat-send{
+  width:40px;height:40px;border-radius:50%;background:var(--brand);
+  border:none;cursor:pointer;color:#fff;display:flex;align-items:center;
+  justify-content:center;font-size:17px;flex-shrink:0;transition:transform .12s;
+}
+.chat-send:active{transform:scale(.9)}
+
+/* ══════════════════════════════════════════
+   SCREEN: VIDEO REVIEW
+══════════════════════════════════════════ */
+.vr-player{
+  width:100%;height:210px;flex-shrink:0;
+  background:linear-gradient(160deg,#200a00,#100500 50%,#000);
+  position:relative;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.vr-bg{position:absolute;font-size:110px;opacity:.04;user-select:none}
+.vr-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.4),transparent 60%)}
+.vr-center{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px;width:100%}
+.vr-play{
+  width:60px;height:60px;border-radius:50%;
+  background:rgba(252,82,0,.95);display:flex;align-items:center;justify-content:center;
+  font-size:22px;box-shadow:0 10px 36px rgba(252,82,0,.5);cursor:pointer;transition:transform .12s;
+}
+.vr-play:active{transform:scale(.92)}
+.vr-scrub-wrap{width:82%;display:flex;flex-direction:column;gap:4px}
+.vr-scrub{height:3px;background:rgba(255,255,255,.18);border-radius:3px;cursor:pointer;position:relative}
+.vr-scrub-fill{position:absolute;left:0;top:0;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--brand),#ff9040);transition:width .08s}
+.vr-scrub-thumb{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:14px;height:14px;border-radius:50%;background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.4);pointer-events:none;
+}
+.vr-times{display:flex;justify-content:space-between;font-size:11px;font-weight:600;color:rgba(255,255,255,.4)}
+.vr-speed{position:absolute;bottom:10px;left:12px;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;color:#fff;cursor:pointer;backdrop-filter:blur(8px)}
+.ann-bar{
+  display:flex;align-items:center;gap:6px;padding:10px 14px;
+  border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;background:#000;
+}
+.ann-bar::-webkit-scrollbar{display:none}
+.ann-tool{
+  min-width:40px;height:40px;border-radius:10px;
+  background:var(--surface2);border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:14px;flex-shrink:0;transition:all .12s;
+}
+.ann-tool.on{background:var(--brand-dim);border-color:var(--brand)}
+.ann-colors{display:flex;gap:6px;margin-left:auto;align-items:center;flex-shrink:0}
+.ann-color{width:24px;height:24px;border-radius:50%;cursor:pointer;transition:transform .12s;border:2.5px solid transparent}
+.ann-color.on{border-color:rgba(255,255,255,.5);transform:scale(1.2)}
+.feedback-card{margin:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px}
+.feedback-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.feedback-ta{width:100%;background:transparent;border:none;color:#fff;font-size:15px;font-family:inherit;outline:none;resize:none;line-height:1.65;min-height:90px}
+.feedback-actions{display:flex;gap:10px;padding:0 16px 20px}
+
+/* ══════════════════════════════════════════
+   SCREEN: VERSUS
+══════════════════════════════════════════ */
+.vs-split{display:flex;flex-shrink:0;height:180px;gap:2px}
+.vs-panel{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.vs-label{
+  position:absolute;bottom:8px;left:8px;
+  background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;padding:4px 9px;font-size:10px;font-weight:700;color:#fff;
+  backdrop-filter:blur(8px);
+}
+.vs-bar{padding:11px 16px;background:#000;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.vs-progress{flex:1;height:3px;background:rgba(255,255,255,.1);border-radius:3px;cursor:pointer;position:relative;overflow:hidden}
+.vs-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:3px;transition:width .3s}
+.vs-tools{display:flex;gap:8px;padding:12px 16px 4px}
+
+/* ══════════════════════════════════════════
+   SCREEN: ATHLETE PROFILE
+══════════════════════════════════════════ */
+.profile-hero{
+  height:170px;position:relative;overflow:hidden;flex-shrink:0;
+  background:linear-gradient(145deg,#280e00,#150600 50%,#000);
+}
+.profile-hero-bg{position:absolute;font-size:130px;opacity:.07;bottom:-20px;right:-10px;user-select:none;transform:rotate(-12deg)}
+.profile-info{padding:0 20px 16px;position:relative}
+.profile-av-wrap{margin-top:-38px;margin-bottom:12px}
+.profile-name{font-size:26px;font-weight:900;letter-spacing:-.6px}
+.profile-role{font-size:14px;color:var(--brand);font-weight:600;margin-top:3px}
+.profile-bio{font-size:14px;color:var(--text2);line-height:1.55;margin-top:8px}
+.profile-stat-row{display:flex;gap:0;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin:14px 20px 0}
+.profile-stat{flex:1;padding:13px 0;text-align:center}
+.profile-stat+.profile-stat{border-left:1px solid var(--border)}
+.profile-stat-num{font-size:20px;font-weight:900;color:var(--brand)}
+.profile-stat-lbl{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.4px;margin-top:2px}
+.setting-row{display:flex;align-items:center;gap:14px;padding:15px 20px;cursor:pointer;transition:background .12s}
+.setting-row:active{background:rgba(255,255,255,.04)}
+.setting-icon-wrap{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.setting-label{flex:1;font-size:16px;font-weight:500}
+.setting-chevron{color:var(--text3);font-size:14px}
+
+/* ══════════════════════════════════════════
+   SCREEN: LOGIN
+══════════════════════════════════════════ */
+#s-login{background:#000;overflow-y:auto}
+#s-login::-webkit-scrollbar{display:none}
+.login-hero{
+  height:240px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding-bottom:24px;position:relative;overflow:hidden;flex-shrink:0;
+}
+.login-glow{
+  position:absolute;width:260px;height:260px;border-radius:50%;
+  background:radial-gradient(circle,rgba(252,82,0,.22),transparent 70%);
+  top:-40px;left:50%;transform:translateX(-50%);
+}
+.login-logo{
+  width:78px;height:78px;border-radius:24px;
+  background:linear-gradient(145deg,#FC5200,#ff7a40);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;box-shadow:0 16px 54px rgba(252,82,0,.45);
+  position:relative;z-index:1;margin-bottom:16px;
+}
+.login-brand{font-size:26px;font-weight:900;letter-spacing:-.6px;position:relative;z-index:1}
+.login-tagline{font-size:14px;color:var(--text2);margin-top:4px;position:relative;z-index:1}
+.login-form{padding:0 24px 32px}
+.role-pick{display:flex;gap:9px;margin-bottom:20px}
+.role-btn{
+  flex:1;padding:12px;border-radius:13px;
+  border:1.5px solid var(--border2);background:var(--surface2);
+  color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;
+  font-family:inherit;transition:all .15s;text-align:center;
+}
+.role-btn.on{border-color:var(--brand);background:var(--brand-dim);color:var(--brand)}
+.or-row{display:flex;align-items:center;gap:12px;margin:16px 0}
+.or-line{flex:1;height:1px;background:var(--border)}
+.or-text{font-size:12px;color:var(--text3);font-weight:600}
+.sso-btn{
+  width:100%;padding:14px;border-radius:13px;
+  border:1.5px solid var(--border2);background:var(--surface2);
+  color:#fff;font-size:15px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-family:inherit;transition:opacity .12s;
+}
+.sso-btn:active{opacity:.75}
+.field-group{margin-bottom:14px}
+.field-label{font-size:12px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px}
+
+/* ══════════════════════════════════════════
+   TRICK TRACKER WIDGET
+══════════════════════════════════════════ */
+.trick-row{display:flex;align-items:center;gap:13px;padding:14px 20px}
+.trick-icon{font-size:22px;flex-shrink:0}
+.trick-body{flex:1}
+.trick-name{font-size:15px;font-weight:700}
+.trick-bar-bg{height:5px;background:rgba(255,255,255,.08);border-radius:5px;margin-top:8px;overflow:hidden}
+.trick-bar-fill{height:100%;border-radius:5px}
+.trick-pct{font-size:12px;font-weight:700;color:var(--brand);margin-top:5px}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast">
+  <div id="toast-icon"></div>
+  <div><div id="toast-text"></div><div id="toast-sub"></div></div>
+</div>
+
+<!-- BOTTOM SHEET -->
+<div id="sheet-overlay" onclick="closeSheet()"></div>
+<div id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="sheet-title"></div>
+  <div id="sheet-body"></div>
+</div>
+
 <div id="app">
-<div class="sb"><span id="stime" style="font-size:15px;font-weight:700">9:41</span><div style="display:flex;gap:6px;font-size:13px">📶&nbsp;🔋</div></div>
 
-<!-- LOGIN -->
-<div class="scr" id="s-login"><div class="lg-glow"></div><div class="lg-wrap">
-<div class="lg-logo">SW</div>
-<div class="lg-title">Skateboard Workshop App</div>
-<div class="lg-sub">Your coaching platform,<br>built for real progress.</div>
-<div style="width:100%">
-<div class="ig"><div class="il">Email</div><input class="if" type="email" value="willy@skateworkshop.com"></div>
-<div class="ig"><div class="il">Password</div><input class="if" type="password" value="password"></div>
-<div style="margin-bottom:18px"><div class="il" style="margin-bottom:7px">I am a</div>
-<div class="rr"><button class="rp on" onclick="setPill(this)">🎿 Coach</button><button class="rp" onclick="setPill(this)">🛹 Athlete</button></div></div>
-<button class="btn btn-o" style="width:100%;margin-bottom:12px" onclick="login()">Sign In</button>
-<div class="odv"><div class="odv-l"></div><span>or</span><div class="odv-l"></div></div>
-<button class="soc" onclick="login()">
-<svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.707A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
-Continue with Google</button>
-</div></div></div>
-
-<!-- HOME -->
-<div class="scr" id="s-home">
-<div class="hdr"><div><div class="hdr-h">Home</div><div class="hdr-s" id="hdate">Monday, June 1</div></div>
-<div class="ibtn" onclick="toast('🎥','New clip from Jake R.','Heelflip attempt — tap to review')">🔔</div></div>
-<div class="sc">
-<div class="hero"><div class="h-lbl">GOOD MORNING ☀️</div><div class="h-nm">Coach Willy 👋</div><div class="h-sb">3 videos pending · Next session in 45 min</div><div class="h-tags"><span class="tag to">3 Pending</span><span class="tag tg">● Live now</span><span class="tag tb">2 New msgs</span></div></div>
-<div class="srow"><div class="sst"><div class="ssn">12</div><div class="ssl">ATHLETES</div></div><div class="sst"><div class="ssn" style="color:#fff">3</div><div class="ssl" style="color:var(--o)">PENDING</div></div><div class="sst"><div class="ssn">47</div><div class="ssl">SESSIONS</div></div><div class="sst"><div class="ssn">4.9</div><div class="ssl">RATING</div></div></div>
-<div class="sl">RECENT SUBMISSIONS</div>
-<div class="vc" onclick="go('s-video')"><div class="vt" style="background:linear-gradient(145deg,#200a00,#100400)"><div style="position:absolute;font-size:70px;opacity:.07">🛹</div><div class="pr">▶</div><span class="tag to" style="position:absolute;top:9px;left:9px">NEW</span><span style="position:absolute;top:9px;right:9px;font-size:11px;color:rgba(255,255,255,.4);font-weight:600">0:34</span></div><div class="vm"><div class="av" style="width:32px;height:32px;background:linear-gradient(135deg,#FC5200,#ff7a40);font-size:12px">AJ</div><div class="vi"><div class="vtt">Kickflip — Front Foot Issue</div><div class="vsb">Alex Johnson · 2h ago</div></div><span class="tag to">Review</span></div></div>
-<div class="vc" onclick="go('s-versus')"><div class="vt" style="background:linear-gradient(145deg,#001428,#000c18)"><div style="position:absolute;font-size:70px;opacity:.06">🏄</div><div class="pr" style="background:rgba(10,132,255,.9);box-shadow:0 8px 28px rgba(10,132,255,.38)">▶</div><span class="tag tb" style="position:absolute;top:9px;left:9px">COMPARE</span><span style="position:absolute;top:9px;right:9px;font-size:11px;color:rgba(255,255,255,.4);font-weight:600">1:12</span></div><div class="vm"><div class="av" style="width:32px;height:32px;background:linear-gradient(135deg,#0a84ff,#30d158);font-size:12px">MR</div><div class="vi"><div class="vtt">Heelflip — Before vs Now</div><div class="vsb">Marcus Reed · Yesterday</div></div><span class="tag tb">Versus</span></div></div>
-<div class="sl">YOUR ATHLETES</div>
-<div class="ar" onclick="switchTab('athletes')"><div class="av" style="width:44px;height:44px;background:linear-gradient(135deg,#FC5200,#ff7a40)">AJ</div><div class="ai"><div class="an">Alex Johnson</div><div class="as">Street · <span style="color:var(--green)">Active now</span></div></div><span class="tbdg">⭐ PRO</span></div>
-<div class="dv"></div>
-<div class="ar" onclick="switchTab('athletes')"><div class="av" style="width:44px;height:44px;background:linear-gradient(135deg,#0a84ff,#30d158)">MR</div><div class="ai"><div class="an">Marcus Reed</div><div class="as">Park · 1h ago</div></div><span class="tag to">PLUS</span></div>
-<div class="dv"></div>
-<div class="ar" onclick="switchTab('athletes')"><div class="av" style="width:44px;height:44px;background:linear-gradient(135deg,#30d158,#00c7be)">SK</div><div class="ai"><div class="an">Sam Kim</div><div class="as">Vert · 3h ago</div></div><span class="tag tb">BASIC</span></div>
-<div style="height:20px"></div></div></div>
-
-<!-- ATHLETES -->
-<div class="scr" id="s-athletes">
-<div class="hdr"><div><div class="hdr-h">Athletes</div><div class="hdr-s">12 active members</div></div><div class="ibtn">➕</div></div>
-<div class="sc">
-<div class="srch">🔍&nbsp;&nbsp;Search athletes...</div>
-<div class="sl">PRO TIER</div>
-<div class="ac"><div class="od-w"><div class="av" style="width:50px;height:50px;background:linear-gradient(135deg,#FC5200,#ff7a40);font-size:17px">AJ</div><div class="od-d"></div></div><div class="aci"><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap"><div class="acn">Alex Johnson</div><span class="tbdg">⭐ PRO</span></div><div class="acs">Street · Los Angeles, CA</div><div class="act"><span class="tag to">14 videos</span><span class="tag tg">Active</span></div></div></div>
-<div class="ac"><div class="av" style="width:50px;height:50px;background:linear-gradient(135deg,#ffd60a,#ff9f0a);font-size:17px">JR</div><div class="aci"><div style="display:flex;align-items:center;gap:7px"><div class="acn">Jake Rivera</div><span class="tbdg">⭐ PRO</span></div><div class="acs">Park · San Diego, CA</div><div class="act"><span class="tag to">9 videos</span><span class="tag tgr">2h ago</span></div></div></div>
-<div class="sl">PLUS TIER</div>
-<div class="ac"><div class="av" style="width:50px;height:50px;background:linear-gradient(135deg,#0a84ff,#30d158);font-size:17px">MR</div><div class="aci"><div class="acn">Marcus Reed</div><div class="acs">Park · Phoenix, AZ</div><div class="act"><span class="tag tb">7 videos</span><span class="tag tgr">Yesterday</span></div></div></div>
-<div class="ac"><div class="av" style="width:50px;height:50px;background:linear-gradient(135deg,#bf5af2,#ff375f);font-size:17px">TW</div><div class="aci"><div class="acn">Tyler Weston</div><div class="acs">Street · Portland, OR</div><div class="act"><span class="tag tpu">5 videos</span><span class="tag tg">Active</span></div></div></div>
-<div class="sl">BASIC TIER</div>
-<div class="ac"><div class="av" style="width:50px;height:50px;background:linear-gradient(135deg,#30d158,#00c7be);font-size:17px">SK</div><div class="aci"><div class="acn">Sam Kim</div><div class="acs">Vert · Seattle, WA</div><div class="act"><span class="tag tgr">3 videos</span><span class="tag tgr">3h ago</span></div></div></div>
-<div class="sl">TRICK PROGRESS — ALEX JOHNSON</div>
-<div class="tkc"><div style="font-size:22px">🛹</div><div class="tki"><div class="tkn">Kickflip</div><div class="tktr"><div class="tkf" style="width:82%"></div></div><div class="tkp">82% — Nearly Consistent</div></div></div>
-<div class="tkc"><div style="font-size:22px">🔄</div><div class="tki"><div class="tkn">Heelflip</div><div class="tktr"><div class="tkf" style="width:55%;background:linear-gradient(90deg,#0a84ff,#30d158)"></div></div><div class="tkp" style="color:#0a84ff">55% — Learning</div></div></div>
-<div class="tkc"><div style="font-size:22px">⚡</div><div class="tki"><div class="tkn">360 Flip</div><div class="tktr"><div class="tkf" style="width:28%;background:linear-gradient(90deg,#bf5af2,#ff375f)"></div></div><div class="tkp" style="color:#bf5af2">28% — In Progress</div></div></div>
-<div style="height:20px"></div></div></div>
-
-<!-- SCHEDULE -->
-<div class="scr" id="s-schedule">
-<div class="hdr"><div><div class="hdr-h">Schedule</div><div class="hdr-s">June 2026</div></div><div class="ibtn">➕</div></div>
-<div class="sc">
-<div class="cstrip"><div class="cd on dot"><div class="cdn">TODAY</div><div class="cdnum">1</div><div class="cdd"></div></div><div class="cd dot"><div class="cdn">TUE</div><div class="cdnum">2</div><div class="cdd"></div></div><div class="cd"><div class="cdn">WED</div><div class="cdnum">3</div></div><div class="cd dot"><div class="cdn">THU</div><div class="cdnum">4</div><div class="cdd"></div></div><div class="cd dot"><div class="cdn">FRI</div><div class="cdnum">5</div><div class="cdd"></div></div><div class="cd"><div class="cdn">SAT</div><div class="cdnum">6</div></div><div class="cd"><div class="cdn">SUN</div><div class="cdnum">7</div></div><div class="cd dot"><div class="cdn">MON</div><div class="cdnum">8</div><div class="cdd"></div></div></div>
-<div class="sl">TODAY · JUNE 1</div>
-<div class="scc"><div class="sc-tb"><div class="sc-t">9:00</div><div class="sc-a">AM</div></div><div class="sc-i"><div class="sc-nm">Alex Johnson</div><div class="sc-dt">Street fundamentals · 60 min · Venice Skatepark</div></div><span class="tag tg">NOW</span></div>
-<div class="scc"><div class="sc-tb"><div class="sc-t">11:00</div><div class="sc-a">AM</div></div><div class="sc-i"><div class="sc-nm">Jake Rivera</div><div class="sc-dt">Park tricks · 45 min · Stoner Skate Plaza</div></div><span class="tag to">SOON</span></div>
-<div class="scc"><div class="sc-tb"><div class="sc-t">2:00</div><div class="sc-a">PM</div></div><div class="sc-i"><div class="sc-nm">Group Session</div><div class="sc-dt">4 athletes · Bowl skating · Lot 11 Skatepark</div></div><span class="tag tb">GROUP</span></div>
-<div class="scc"><div class="sc-tb"><div class="sc-t">4:30</div><div class="sc-a">PM</div></div><div class="sc-i"><div class="sc-nm">Tyler Weston</div><div class="sc-dt">Beginner street · 45 min · 1-on-1</div></div><span class="tag tgr">PM</span></div>
-<div class="sl">UPCOMING — JUNE 2</div>
-<div class="scc"><div class="sc-tb"><div class="sc-t">10:00</div><div class="sc-a">AM</div></div><div class="sc-i"><div class="sc-nm">Marcus Reed</div><div class="sc-dt">Video review + technique · 90 min</div></div><span class="tag tgr">TUE</span></div>
-<div class="scc"><div class="sc-tb"><div class="sc-t">3:00</div><div class="sc-a">PM</div></div><div class="sc-i"><div class="sc-nm">Sam Kim</div><div class="sc-dt">Vert progression · 60 min · Rampage Skatepark</div></div><span class="tag tgr">TUE</span></div>
-<div style="height:20px"></div></div></div>
-
-<!-- MESSAGES -->
-<div class="scr" id="s-messages">
-<div class="hdr"><div><div class="hdr-h">Messages</div><div class="hdr-s">5 conversations</div></div><div class="ibtn">✏️</div></div>
-<div class="sc">
-<div class="srch">🔍&nbsp;&nbsp;Search messages...</div>
-<div class="mr" onclick="openChat('AJ','Alex Johnson','135deg,#FC5200,#ff7a40','Coach I just uploaded the new kickflip attempt 🛹')"><div class="maw"><div class="av" style="width:50px;height:50px;background:linear-gradient(135deg,#FC5200,#ff7a40);font-size:17px">AJ</div><div class="mbdg">3</div></div><div class="mi"><div class="mrow"><div class="mn">Alex Johnson</div><div class="mtime">Now</div></div><div class="mp u">Coach I just uploaded the new kickflip attempt 🛹</div></div></div>
-<div class="dv"></div>
-<div class="mr" onclick="openChat('JR','Jake Rivera','135deg,#ffd60a,#ff9f0a','Can we move tomorrows session to 2pm?')"><div class="maw"><div class="av" style="width:50px;height:50px;background:linear-gradient(135deg,#ffd60a,#ff9f0a);font-size:17px">JR</div><div class="mbdg">1</div></div><div class="mi"><div class="mrow"><div class="mn">Jake Rivera</div><div class="mtime">34m</div></div><div class="mp u">Can we move tomorrow's session to 2pm?</div></div></div>
-<div class="dv"></div>
-<div class="mr" onclick="openChat('MR','Marcus Reed','135deg,#0a84ff,#30d158','Thanks for the heelflip feedback! 🙏')"><div class="maw"><div class="av" style="width:50px;height:50px;background:linear-gradient(135deg,#0a84ff,#30d158);font-size:17px">MR</div></div><div class="mi"><div class="mrow"><div class="mn">Marcus Reed</div><div class="mtime">2h</div></div><div class="mp">Thanks for the heelflip feedback! 🙏</div></div></div>
-<div class="dv"></div>
-<div class="mr" onclick="openChat('TW','Tyler Weston','135deg,#bf5af2,#ff375f','See you at the park Saturday! 🤙')"><div class="maw"><div class="av" style="width:50px;height:50px;background:linear-gradient(135deg,#bf5af2,#ff375f);font-size:17px">TW</div></div><div class="mi"><div class="mrow"><div class="mn">Tyler Weston</div><div class="mtime">Yesterday</div></div><div class="mp">See you at the park Saturday! 🤙</div></div></div>
-<div class="dv"></div>
-<div class="mr" onclick="openChat('SK','Sam Kim','135deg,#30d158,#00c7be','Great work this week! 🤙')"><div class="maw"><div class="av" style="width:50px;height:50px;background:linear-gradient(135deg,#30d158,#00c7be);font-size:17px">SK</div></div><div class="mi"><div class="mrow"><div class="mn">Sam Kim</div><div class="mtime">2d</div></div><div class="mp">You: Great work this week! 🤙</div></div></div>
-</div></div>
-
-<!-- CHAT -->
-<div class="scr" id="s-chat">
-<div class="bhdr"><button class="bk" onclick="go('s-messages');setTab('messages')">←</button><div class="av" id="cav" style="width:34px;height:34px;font-size:13px;background:linear-gradient(135deg,#FC5200,#ff7a40)">AJ</div><div style="flex:1"><div style="font-size:16px;font-weight:700" id="cname">Alex Johnson</div><div style="font-size:11px;color:var(--green)">● Active now</div></div><span style="font-size:20px;cursor:pointer" onclick="toast('📞','Calling...','Connecting voice call')">📞</span></div>
-<div class="cmsg" id="cmsg"><div class="btm">TODAY · 7:14 AM</div><div class="bbl in">Yo Coach Willy! Ready for today 🔥</div><div class="bbl out">Let's get it! Checking your latest clip 👀<small>7:15</small></div><div class="bbl in">Watched your breakdown like 5 times lol</div><div class="bbl out">Reps + review = progress 🤙<small>7:22</small></div><div class="bbl in">Just uploaded the new attempt — back foot is finally clicking 🛹<small>7:38</small></div></div>
-<div class="cbar"><input class="cin" id="cinp" placeholder="Message…"><button class="csnd" onclick="sendMsg()">➤</button></div>
+<!-- ═══════════════════════════════════════
+     SCREEN: LOGIN
+═══════════════════════════════════════ -->
+<div class="screen" id="s-login">
+  <div class="login-hero">
+    <div class="login-glow"></div>
+    <div class="login-logo">🛹</div>
+    <div class="login-brand">Skate Workshop</div>
+    <div class="login-tagline">Coach smarter. Progress faster.</div>
+  </div>
+  <div class="login-form">
+    <div style="margin-bottom:20px">
+      <div style="font-size:12px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">I am a</div>
+      <div class="role-pick" id="role-pick">
+        <button class="role-btn on" onclick="pickRole(this)">🎿&nbsp; Coach</button>
+        <button class="role-btn" onclick="pickRole(this)">🛹&nbsp; Athlete</button>
+      </div>
+    </div>
+    <div class="field-group"><div class="field-label">Email</div><input class="input" type="email" value="willy@skateworkshop.com" placeholder="Email"></div>
+    <div class="field-group"><div class="field-label">Password</div><input class="input" type="password" value="password" placeholder="Password"></div>
+    <button class="btn btn-fill btn-fill-full" style="margin-bottom:14px;margin-top:6px" onclick="doLogin()">Sign In</button>
+    <div class="or-row"><div class="or-line"></div><div class="or-text">OR</div><div class="or-line"></div></div>
+    <button class="sso-btn" onclick="doLogin()">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.707A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+      Continue with Google
+    </button>
+    <div style="text-align:center;margin-top:18px;font-size:13px;color:var(--text3)">Don't have an account? <span style="color:var(--brand);font-weight:600;cursor:pointer" onclick="toast('✉️','Check your email','Signup link sent!')">Sign Up</span></div>
+  </div>
 </div>
 
-<!-- VIDEO -->
-<div class="scr" id="s-video">
-<div class="bhdr"><button class="bk" onclick="go('s-home');setTab('home')">←</button><div style="flex:1"><div style="font-size:16px;font-weight:700">Kickflip Review</div><div style="font-size:11px;color:var(--t2)">Alex Johnson · 0:34</div></div><span class="tag to">PENDING</span></div>
-<div class="vplr"><div class="vp-em">🛹</div><div class="vp-c"><div class="vp-pl" id="vp-pl" onclick="vpTog()">▶</div><div class="vp-sc" onclick="vpSeek(event,this)"><div id="vpf" class="vp-sf" style="width:35%"></div></div><div class="vp-tm" id="vptm">0:12 / 0:34</div></div><div class="vp-spd" onclick="vpSpd(this)">0.5x</div></div>
-<div class="abar"><div class="at on" onclick="annT(this)">✏️</div><div class="at" onclick="annT(this)">➡️</div><div class="at" onclick="annT(this)">⭕</div><div class="at" onclick="annT(this)" style="font-size:13px;font-weight:900">T</div><div class="at" onclick="annT(this)">📐</div><div class="at" onclick="annT(this)">↩️</div><div class="acols"><div class="cdot on" style="background:#FC5200" onclick="annC(this)"></div><div class="cdot" style="background:#32d74b" onclick="annC(this)"></div><div class="cdot" style="background:#0a84ff" onclick="annC(this)"></div><div class="cdot" style="background:#ff453a" onclick="annC(this)"></div></div></div>
-<div class="sc"><div class="fbx"><div class="fbl">Coach Feedback</div><textarea class="fbta">Front foot positioning is much better! ✅
+<!-- ═══════════════════════════════════════
+     SCREEN: FEED (HOME)
+═══════════════════════════════════════ -->
+<div class="screen" id="s-feed">
+  <div class="nav" style="justify-content:space-between">
+    <div style="font-size:22px;font-weight:900;letter-spacing:-.5px">Feed</div>
+    <div style="display:flex;gap:8px">
+      <div class="btn-icon" onclick="toast('🔔','Notifications','3 new activities from your athletes')">🔔</div>
+      <div class="btn-icon" onclick="showSheet('upload')">➕</div>
+    </div>
+  </div>
+  <div class="scroll">
+    <!-- Stories -->
+    <div class="stories-row">
+      <div class="story" onclick="toast('🛹','Your Story','Share a clip with your athletes')">
+        <div class="story-ring"><div class="story-av" style="background:linear-gradient(135deg,#FC5200,#ff7a40);font-size:22px">+</div></div>
+        <div class="story-label">Your Story</div>
+      </div>
+      <div class="story" onclick="toast('🛹','Alex Johnson','New heelflip attempt')">
+        <div class="story-ring"><div class="story-av av av-a">AJ</div></div>
+        <div class="story-label">Alex</div>
+      </div>
+      <div class="story" onclick="toast('🛹','Jake Rivera','Backside 180')">
+        <div class="story-ring"><div class="story-av av av-b">JR</div></div>
+        <div class="story-label">Jake</div>
+      </div>
+      <div class="story" onclick="toast('🛹','Marcus Reed','Park session')">
+        <div class="story-ring seen"><div class="story-av av av-c">MR</div></div>
+        <div class="story-label">Marcus</div>
+      </div>
+      <div class="story" onclick="toast('🛹','Tyler Weston','Street edit')">
+        <div class="story-ring seen"><div class="story-av av av-d">TW</div></div>
+        <div class="story-label">Tyler</div>
+      </div>
+      <div class="story" onclick="toast('🛹','Sam Kim','Vert session')">
+        <div class="story-ring seen"><div class="story-av av av-e">SK</div></div>
+        <div class="story-label">Sam</div>
+      </div>
+    </div>
 
-Keep your front foot at 45° during the flick. Pop timing is clean — back foot syncing nicely.
+    <!-- Feed Item 1 -->
+    <div class="feed-divider"></div>
+    <div class="feed-item">
+      <div class="feed-header">
+        <div class="av av-md av-a" onclick="pushScreen('s-athlete-profile')">AJ</div>
+        <div class="feed-header-info">
+          <div class="feed-author">Alex Johnson</div>
+          <div class="feed-meta">Street · Los Angeles · 2h ago</div>
+        </div>
+        <span class="chip chip-orange">NEW</span>
+      </div>
+      <div class="feed-media" onclick="pushScreen('s-video')">
+        <div class="feed-media-bg">🛹</div>
+        <div class="feed-play">▶</div>
+        <div class="feed-media-label">Kickflip Attempt #12</div>
+        <div class="feed-media-dur">0:34</div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Front foot finally clicking 🛹</div>
+        <div class="feed-desc">Working on that 45° angle you showed me. Pop timing feels way cleaner — can you review the flick?</div>
+      </div>
+      <div class="feed-stats">
+        <div class="feed-stat"><span style="font-size:18px">🛹</span><div><div class="feed-stat-val">82%</div><div style="font-size:11px;color:var(--text3)">Consistency</div></div></div>
+        <div class="feed-stat"><span style="font-size:18px">📈</span><div><div class="feed-stat-val">+14%</div><div style="font-size:11px;color:var(--text3)">vs Last Week</div></div></div>
+        <div class="feed-stat"><span style="font-size:18px">🔁</span><div><div class="feed-stat-val">34</div><div style="font-size:11px;color:var(--text3)">Attempts</div></div></div>
+      </div>
+      <div class="feed-actions">
+        <button class="feed-action-btn" id="like-1" onclick="toggleLike('like-1','❤️','Liked!')">🤍 Like</button>
+        <button class="feed-action-btn" onclick="pushScreen('s-chat')">💬 Comment</button>
+        <button class="feed-action-btn" onclick="pushScreen('s-video')">✏️ Review</button>
+      </div>
+    </div>
 
-Slow the flick, let the board rise to your feet. SO close. 🤙</textarea></div><div style="padding:0 15px 15px;display:flex;gap:9px"><button class="btn btn-g" style="flex:1;border-radius:14px">Save Draft</button><button class="btn btn-o" style="flex:1" onclick="toast('✅','Feedback sent!','Alex Johnson notified');go('s-home');setTab('home')">Send Feedback</button></div></div>
+    <!-- Feed Item 2 -->
+    <div class="feed-divider"></div>
+    <div class="feed-item">
+      <div class="feed-header">
+        <div class="av av-md av-c" onclick="pushScreen('s-athlete-profile')">MR</div>
+        <div class="feed-header-info">
+          <div class="feed-author">Marcus Reed</div>
+          <div class="feed-meta">Park · Phoenix · Yesterday</div>
+        </div>
+        <span class="chip chip-blue">COMPARE</span>
+      </div>
+      <div class="feed-media" onclick="pushScreen('s-versus')" style="background:linear-gradient(160deg,#001530,#000d20)">
+        <div class="feed-media-bg">🏄</div>
+        <div class="feed-play" style="background:rgba(10,132,255,.95);box-shadow:0 8px 32px rgba(10,132,255,.5)">▶</div>
+        <div class="feed-media-label" style="color:var(--blue)">Heelflip — 3 Month Progress</div>
+        <div class="feed-media-dur">1:12</div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Before vs Now 🔥</div>
+        <div class="feed-desc">March to June. Hip rotation has completely transformed. Huge improvement in board control.</div>
+      </div>
+      <div class="feed-stats">
+        <div class="feed-stat"><span style="font-size:18px">📅</span><div><div class="feed-stat-val">90 days</div><div style="font-size:11px;color:var(--text3)">Progress</div></div></div>
+        <div class="feed-stat"><span style="font-size:18px">🎯</span><div><div class="feed-stat-val">55%</div><div style="font-size:11px;color:var(--text3)">Consistency</div></div></div>
+      </div>
+      <div class="feed-actions">
+        <button class="feed-action-btn" id="like-2" onclick="toggleLike('like-2','❤️','Liked!')">🤍 Like</button>
+        <button class="feed-action-btn" onclick="pushScreen('s-chat')">💬 Comment</button>
+        <button class="feed-action-btn" onclick="pushScreen('s-versus')">📐 Versus</button>
+      </div>
+    </div>
+
+    <!-- Feed Item 3 — Coach Post -->
+    <div class="feed-divider"></div>
+    <div class="feed-item">
+      <div class="feed-header">
+        <div class="av av-md av-me">WS</div>
+        <div class="feed-header-info">
+          <div class="feed-author">Willy Santos <span class="chip chip-gold" style="font-size:10px;padding:2px 7px">COACH</span></div>
+          <div class="feed-meta">Tip of the Day · 4h ago</div>
+        </div>
+      </div>
+      <div class="feed-body" style="padding-top:4px">
+        <div class="feed-title">Heelflip mechanics 👊</div>
+        <div class="feed-desc">When learning heelflips, focus on the heel-side edge of your front foot. The flick angle is everything — your foot should exit at about 45° off the board nose. Most people flick too late. Pop first, THEN flick. Video breakdown dropping this week.</div>
+      </div>
+      <div class="feed-actions">
+        <button class="feed-action-btn" id="like-3" onclick="toggleLike('like-3','❤️','Liked!')">🤍 67</button>
+        <button class="feed-action-btn" onclick="pushScreen('s-chat')">💬 14</button>
+        <button class="feed-action-btn" onclick="toast('🔗','Link copied!','Share this tip with athletes')">🔗 Share</button>
+      </div>
+    </div>
+    <div class="feed-divider"></div>
+    <div style="height:20px"></div>
+  </div>
 </div>
 
-<!-- VERSUS -->
-<div class="scr" id="s-versus">
-<div class="bhdr"><button class="bk" onclick="go('s-home');setTab('home')">←</button><div style="flex:1"><div style="font-size:16px;font-weight:700">Versus Mode</div><div style="font-size:11px;color:var(--t2)">Marcus Reed · Heelflip</div></div><span class="tag tb">COMPARE</span></div>
-<div class="vswrap"><div class="vsp" style="background:linear-gradient(145deg,#001428,#000b16)"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:56px;opacity:.07">🛹</div><div class="pr" style="position:relative;z-index:1;width:44px;height:44px;background:rgba(10,132,255,.88)">▶</div><div class="vsl">BEFORE · Mar 2026</div></div><div class="vsp" style="background:linear-gradient(145deg,#200a00,#0e0400)"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:56px;opacity:.07">🏄</div><div class="pr" style="position:relative;z-index:1;width:44px;height:44px">▶</div><div class="vsl" style="color:var(--green);border-color:rgba(50,215,75,.2)">NOW · Jun 2026</div></div></div>
-<div style="padding:10px 16px;background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:9px;flex-shrink:0"><span style="font-size:11px;font-weight:700;color:var(--t3);min-width:28px">0:08</span><div style="flex:1;height:3px;background:rgba(255,255,255,.09);border-radius:3px;cursor:pointer" onclick="this.children[0].style.width=Math.round(Math.random()*60+15)+'%'"><div style="height:100%;width:42%;background:linear-gradient(90deg,#0a84ff,#32d74b);border-radius:3px;transition:width .3s"></div></div><span style="font-size:11px;font-weight:700;color:var(--t3);min-width:28px;text-align:right">1:12</span></div>
-<div class="sc"><div style="padding:12px 15px 8px;display:flex;gap:7px"><button class="btn btn-g btn-sm" style="flex:1">⬛ Frame</button><button class="btn btn-g btn-sm" style="flex:1">🔄 Sync</button><button class="btn btn-g btn-sm" style="flex:1">📐 Overlay</button></div><div class="fbx" style="margin-top:6px"><div class="fbl">Analysis Notes</div><textarea class="fbta">March vs June — massive improvement. Hip rotation 20% cleaner. Keep working on catch height. Progress is real 🔥</textarea></div><div style="padding:0 15px 16px"><button class="btn btn-o" style="width:100%" onclick="toast('📤','Comparison shared!','Marcus Reed can now view this')">Share Comparison</button></div></div>
+<!-- ═══════════════════════════════════════
+     SCREEN: ATHLETES
+═══════════════════════════════════════ -->
+<div class="screen" id="s-athletes">
+  <div class="nav" style="justify-content:space-between">
+    <div style="font-size:22px;font-weight:900;letter-spacing:-.5px">Athletes</div>
+    <div class="btn-icon" onclick="toast('📨','Invite sent!','Invite link copied to clipboard')">➕</div>
+  </div>
+  <div class="scroll">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-field" placeholder="Search athletes, tricks…">
+    </div>
+    <div class="filter-chips" id="filter-chips">
+      <div class="filter-chip on" onclick="setFilter(this)">All</div>
+      <div class="filter-chip" onclick="setFilter(this)">⭐ Pro</div>
+      <div class="filter-chip" onclick="setFilter(this)">Plus</div>
+      <div class="filter-chip" onclick="setFilter(this)">Basic</div>
+      <div class="filter-chip" onclick="setFilter(this)">🟢 Active</div>
+    </div>
+
+    <div class="sec-label">PRO TIER</div>
+    <div class="athlete-card" onclick="pushScreen('s-athlete-profile')">
+      <div class="online-ring"><div class="av av-lg av-a">AJ</div><div class="online-dot"></div></div>
+      <div class="athlete-card-body">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div class="athlete-card-name">Alex Johnson</div>
+          <span class="chip chip-gold">⭐ PRO</span>
+        </div>
+        <div class="athlete-card-meta">Street · Los Angeles, CA · <span style="color:var(--green)">Active now</span></div>
+        <div class="progress-mini">
+          <div class="progress-bar"><div class="progress-fill" style="width:82%"></div></div>
+          <div class="progress-label">82%</div>
+        </div>
+        <div class="athlete-card-tags">
+          <span class="chip chip-orange">14 videos</span>
+          <span class="chip chip-gray">Kickflip</span>
+        </div>
+      </div>
+      <div style="color:var(--text3);font-size:18px">›</div>
+    </div>
+    <div class="div"></div>
+    <div class="athlete-card" onclick="pushScreen('s-athlete-profile')">
+      <div class="av av-lg av-b">JR</div>
+      <div class="athlete-card-body">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div class="athlete-card-name">Jake Rivera</div>
+          <span class="chip chip-gold">⭐ PRO</span>
+        </div>
+        <div class="athlete-card-meta">Park · San Diego, CA · 2h ago</div>
+        <div class="progress-mini">
+          <div class="progress-bar"><div class="progress-fill" style="width:71%"></div></div>
+          <div class="progress-label">71%</div>
+        </div>
+        <div class="athlete-card-tags"><span class="chip chip-orange">9 videos</span><span class="chip chip-gray">Heelflip</span></div>
+      </div>
+      <div style="color:var(--text3);font-size:18px">›</div>
+    </div>
+
+    <div class="sec-label">PLUS TIER</div>
+    <div class="athlete-card" onclick="pushScreen('s-athlete-profile')">
+      <div class="av av-lg av-c">MR</div>
+      <div class="athlete-card-body">
+        <div class="athlete-card-name">Marcus Reed</div>
+        <div class="athlete-card-meta">Park · Phoenix, AZ · Yesterday</div>
+        <div class="progress-mini">
+          <div class="progress-bar"><div class="progress-fill" style="width:55%;background:linear-gradient(90deg,var(--blue),var(--green))"></div></div>
+          <div class="progress-label" style="color:var(--blue)">55%</div>
+        </div>
+        <div class="athlete-card-tags"><span class="chip chip-blue">7 videos</span></div>
+      </div>
+      <div style="color:var(--text3);font-size:18px">›</div>
+    </div>
+    <div class="div"></div>
+    <div class="athlete-card" onclick="pushScreen('s-athlete-profile')">
+      <div class="av av-lg av-d">TW</div>
+      <div class="athlete-card-body">
+        <div class="athlete-card-name">Tyler Weston</div>
+        <div class="athlete-card-meta">Street · Portland, OR · <span style="color:var(--green)">Active</span></div>
+        <div class="progress-mini">
+          <div class="progress-bar"><div class="progress-fill" style="width:38%;background:linear-gradient(90deg,var(--purple),#ff375f)"></div></div>
+          <div class="progress-label" style="color:var(--purple)">38%</div>
+        </div>
+        <div class="athlete-card-tags"><span class="chip chip-purple">5 videos</span></div>
+      </div>
+      <div style="color:var(--text3);font-size:18px">›</div>
+    </div>
+
+    <div class="sec-label">BASIC TIER</div>
+    <div class="athlete-card" onclick="pushScreen('s-athlete-profile')">
+      <div class="av av-lg av-e">SK</div>
+      <div class="athlete-card-body">
+        <div class="athlete-card-name">Sam Kim</div>
+        <div class="athlete-card-meta">Vert · Seattle, WA · 3h ago</div>
+        <div class="progress-mini">
+          <div class="progress-bar"><div class="progress-fill" style="width:28%;background:linear-gradient(90deg,var(--green),#00c7be)"></div></div>
+          <div class="progress-label" style="color:var(--green)">28%</div>
+        </div>
+        <div class="athlete-card-tags"><span class="chip chip-gray">3 videos</span></div>
+      </div>
+      <div style="color:var(--text3);font-size:18px">›</div>
+    </div>
+
+    <div class="sec-label">TRICK TRACKER — ALEX JOHNSON</div>
+    <div class="trick-row"><div class="trick-icon">🛹</div><div class="trick-body"><div class="trick-name">Kickflip</div><div class="trick-bar-bg"><div class="trick-bar-fill" style="width:82%;background:linear-gradient(90deg,var(--brand),#ff9040)"></div></div><div class="trick-pct">82% — Nearly Consistent</div></div></div>
+    <div class="div"></div>
+    <div class="trick-row"><div class="trick-icon">🔄</div><div class="trick-body"><div class="trick-name">Heelflip</div><div class="trick-bar-bg"><div class="trick-bar-fill" style="width:55%;background:linear-gradient(90deg,var(--blue),var(--green))"></div></div><div class="trick-pct" style="color:var(--blue)">55% — Learning</div></div></div>
+    <div class="div"></div>
+    <div class="trick-row"><div class="trick-icon">⚡</div><div class="trick-body"><div class="trick-name">360 Flip</div><div class="trick-bar-bg"><div class="trick-bar-fill" style="width:28%;background:linear-gradient(90deg,var(--purple),#ff375f)"></div></div><div class="trick-pct" style="color:var(--purple)">28% — In Progress</div></div></div>
+    <div style="height:24px"></div>
+  </div>
 </div>
 
-<!-- PROFILE -->
-<div class="scr" id="s-profile">
-<div class="hdr"><div class="hdr-h">Profile</div><div class="ibtn">⚙️</div></div>
-<div class="sc">
-<div class="phdr"><div class="pav">WS</div><div class="pnm">Willy Santos</div><div class="prl">🛹 Head Coach · Skateboard Workshop App</div><div style="margin-top:10px;display:flex;gap:7px;justify-content:center;flex-wrap:wrap"><span class="tbdg">⭐ VERIFIED COACH</span><span class="tag tg">● Available</span></div></div>
-<div class="pst"><div class="ps"><div class="psn">12</div><div class="psl">ATHLETES</div></div><div class="ps"><div class="psn">47</div><div class="psl">SESSIONS</div></div><div class="ps"><div class="psn">4.9★</div><div class="psl">RATING</div></div><div class="ps"><div class="psn">98%</div><div class="psl">RESPOND</div></div></div>
-<div class="sl">COMMUNITY FEED</div>
-<div class="fc"><div class="fch"><div class="av" style="width:36px;height:36px;background:linear-gradient(135deg,#FC5200,#ff7a40);font-size:13px">AJ</div><div style="flex:1"><div class="fcn">Alex Johnson</div><div style="font-size:11px;color:var(--t3)">2h ago</div></div><span class="tag to">Video</span></div><div class="fcb">Finally landed the kickflip consistently!! 6 months of work 🛹🔥 Thanks Coach Willy!</div><div style="width:100%;height:88px;background:linear-gradient(145deg,#1a0800,#0d0d0d);display:flex;align-items:center;justify-content:center;font-size:34px;opacity:.4">🎥</div><div class="fca"><div class="faa">❤️ 24</div><div class="faa">💬 8</div><div class="faa">🔗 Share</div></div></div>
-<div class="fc"><div class="fch"><div class="av" style="width:36px;height:36px;background:linear-gradient(145deg,#FC5200,#ff7a40);font-size:13px">WS</div><div style="flex:1"><div class="fcn">Willy Santos</div><div style="font-size:11px;color:var(--t3)">Yesterday</div></div><span class="tag tpu">Tip</span></div><div class="fcb">Pro tip: when learning heelflips, focus on the heel-side edge of your front foot. The flick angle is everything 👊</div><div class="fca"><div class="faa">❤️ 67</div><div class="faa">💬 14</div><div class="faa">🔗 Share</div></div></div>
-<div class="sl">ACCOUNT</div>
-<div class="setr"><div class="seti" style="background:rgba(252,82,0,.12)">👤</div><div class="setl">Edit Profile</div><div class="seta">›</div></div><div class="dv"></div>
-<div class="setr"><div class="seti" style="background:rgba(10,132,255,.12)">📅</div><div class="setl">Availability</div><div class="seta">›</div></div><div class="dv"></div>
-<div class="setr"><div class="seti" style="background:rgba(50,215,75,.12)">💳</div><div class="setl">Billing & Payments</div><div class="seta">›</div></div><div class="dv"></div>
-<div class="setr"><div class="seti" style="background:rgba(255,214,10,.12)">🏆</div><div class="setl">Specialties & Bio</div><div class="seta">›</div></div><div class="dv"></div>
-<div class="setr"><div class="seti" style="background:rgba(191,90,242,.12)">🎥</div><div class="setl">Video Library (47)</div><div class="seta">›</div></div><div class="dv"></div>
-<div class="setr"><div class="seti" style="background:rgba(255,69,58,.12)">🔔</div><div class="setl">Notifications</div><div class="seta">›</div></div><div class="dv"></div>
-<div class="setr" onclick="signOut()"><div class="seti" style="background:rgba(255,69,58,.08)">🚪</div><div class="setl" style="color:#ff453a">Sign Out</div><div class="seta">›</div></div>
-<div style="height:24px"></div></div></div>
+<!-- ═══════════════════════════════════════
+     SCREEN: SCHEDULE
+═══════════════════════════════════════ -->
+<div class="screen" id="s-schedule">
+  <div class="nav" style="justify-content:space-between">
+    <div style="font-size:22px;font-weight:900;letter-spacing:-.5px">Schedule</div>
+    <div class="btn-icon" onclick="toast('📅','New Session','Session creator coming soon')">➕</div>
+  </div>
+  <div class="scroll">
+    <div class="cal-header">
+      <div class="cal-month">June 2026</div>
+      <div style="display:flex;gap:6px">
+        <div class="cal-nav-btn" onclick="toast('◀','Previous week','')">‹</div>
+        <div class="cal-nav-btn" onclick="toast('▶','Next week','')">›</div>
+      </div>
+    </div>
+    <div class="cal-week">
+      <div class="cal-day today has-dot"><div class="cal-day-name">WED</div><div class="cal-day-num">3</div><div class="cal-day-dot"></div></div>
+      <div class="cal-day has-dot"><div class="cal-day-name">THU</div><div class="cal-day-num">4</div><div class="cal-day-dot"></div></div>
+      <div class="cal-day"><div class="cal-day-name">FRI</div><div class="cal-day-num">5</div></div>
+      <div class="cal-day has-dot"><div class="cal-day-name">SAT</div><div class="cal-day-num">6</div><div class="cal-day-dot"></div></div>
+      <div class="cal-day"><div class="cal-day-name">SUN</div><div class="cal-day-num">7</div></div>
+      <div class="cal-day has-dot"><div class="cal-day-name">MON</div><div class="cal-day-num">8</div><div class="cal-day-dot"></div></div>
+      <div class="cal-day"><div class="cal-day-name">TUE</div><div class="cal-day-num">9</div></div>
+    </div>
 
-<!-- TAB BAR -->
-<div id="tab" style="display:none">
-<div class="ti on" id="ti-home" onclick="switchTab('home')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3L21 10.5V21H15V15H9V21H3V10.5Z" stroke="#FC5200" stroke-width="2" stroke-linejoin="round"/></svg><div class="ti-lbl">Home</div></div>
-<div class="ti" id="ti-athletes" onclick="switchTab('athletes')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="rgba(255,255,255,.4)" stroke-width="1.8"/><path d="M2 21C2 17 5 15 9 15" stroke="rgba(255,255,255,.4)" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="11" r="3" stroke="rgba(255,255,255,.4)" stroke-width="1.8"/><path d="M14 21c0-2.5 1.3-4 3-4s3 1.5 3 4" stroke="rgba(255,255,255,.4)" stroke-width="1.8" stroke-linecap="round"/></svg><div class="ti-lbl">Athletes</div></div>
-<div class="ti" id="ti-schedule" onclick="switchTab('schedule')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="4" stroke="rgba(255,255,255,.4)" stroke-width="1.8"/><path d="M3 9H21M8 2V5M16 2V5" stroke="rgba(255,255,255,.4)" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="14" r="1.2" fill="rgba(255,255,255,.4)"/><circle cx="12" cy="14" r="1.2" fill="rgba(255,255,255,.4)"/><circle cx="16" cy="14" r="1.2" fill="rgba(255,255,255,.4)"/></svg><div class="ti-lbl">Schedule</div><div class="ti-dot"></div></div>
-<div class="ti" id="ti-messages" onclick="switchTab('messages')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 4H20C21.1 4 22 4.9 22 6V16C22 17.1 21.1 18 20 18H6L2 22V6C2 4.9 2.9 4 4 4Z" stroke="rgba(255,255,255,.4)" stroke-width="1.8" stroke-linejoin="round"/></svg><div class="ti-lbl">Messages</div><div class="ti-dot"></div></div>
-<div class="ti" id="ti-profile" onclick="switchTab('profile')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="rgba(255,255,255,.4)" stroke-width="1.8"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="rgba(255,255,255,.4)" stroke-width="1.8" stroke-linecap="round"/></svg><div class="ti-lbl">Profile</div></div>
+    <div class="sec-label">TODAY — JUNE 3</div>
+    <div class="session-item" onclick="pushScreen('s-chat')">
+      <div class="session-time-block"><div class="session-time-num">9:00</div><div class="session-time-ampm">AM</div></div>
+      <div class="session-body">
+        <div class="session-name">Alex Johnson</div>
+        <div class="session-detail">Street fundamentals · 60 min<br>📍 Venice Skatepark</div>
+      </div>
+      <span class="chip chip-green">● LIVE</span>
+    </div>
+    <div class="div"></div>
+    <div class="session-item" onclick="toast('📅','Jake Rivera','Session starting in 2 hours')">
+      <div class="session-time-block"><div class="session-time-num">11:00</div><div class="session-time-ampm">AM</div></div>
+      <div class="session-body">
+        <div class="session-name">Jake Rivera</div>
+        <div class="session-detail">Park tricks · 45 min<br>📍 Stoner Skate Plaza</div>
+      </div>
+      <span class="chip chip-orange">SOON</span>
+    </div>
+    <div class="div"></div>
+    <div class="session-item" onclick="toast('👥','Group Session','4 athletes confirmed')">
+      <div class="session-time-block"><div class="session-time-num">2:00</div><div class="session-time-ampm">PM</div></div>
+      <div class="session-body">
+        <div class="session-name">Group Session</div>
+        <div class="session-detail">Bowl skating · 4 athletes<br>📍 Lot 11 Skatepark</div>
+      </div>
+      <span class="chip chip-blue">GROUP</span>
+    </div>
+    <div class="div"></div>
+    <div class="session-item" onclick="toast('📅','Tyler Weston','4:30 PM session')">
+      <div class="session-time-block"><div class="session-time-num">4:30</div><div class="session-time-ampm">PM</div></div>
+      <div class="session-body">
+        <div class="session-name">Tyler Weston</div>
+        <div class="session-detail">Beginner street · 45 min · 1-on-1</div>
+      </div>
+      <span class="chip chip-gray">PM</span>
+    </div>
+
+    <div class="sec-label">THURSDAY — JUNE 4</div>
+    <div class="session-item" onclick="toast('📅','Marcus Reed','Video review + technique')">
+      <div class="session-time-block"><div class="session-time-num">10:00</div><div class="session-time-ampm">AM</div></div>
+      <div class="session-body">
+        <div class="session-name">Marcus Reed</div>
+        <div class="session-detail">Video review + technique · 90 min</div>
+      </div>
+      <span class="chip chip-gray">THU</span>
+    </div>
+    <div class="div"></div>
+    <div class="session-item" onclick="toast('📅','Sam Kim','Vert progression')">
+      <div class="session-time-block"><div class="session-time-num">3:00</div><div class="session-time-ampm">PM</div></div>
+      <div class="session-body">
+        <div class="session-name">Sam Kim</div>
+        <div class="session-detail">Vert progression · 60 min<br>📍 Rampage Skatepark</div>
+      </div>
+      <span class="chip chip-gray">THU</span>
+    </div>
+    <div style="height:24px"></div>
+  </div>
 </div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN: MESSAGES
+═══════════════════════════════════════ -->
+<div class="screen" id="s-messages">
+  <div class="nav" style="justify-content:space-between">
+    <div style="font-size:22px;font-weight:900;letter-spacing:-.5px">Messages</div>
+    <div class="btn-icon" onclick="toast('✏️','New Message','Select an athlete')">✏️</div>
+  </div>
+  <div class="scroll">
+    <div class="search-wrap" style="padding-top:4px">
+      <span class="search-icon">🔍</span>
+      <input class="search-field" placeholder="Search conversations…">
+    </div>
+    <div class="msg-item" onclick="openChat('AJ','Alex Johnson','linear-gradient(135deg,#FC5200,#ff7a40)','Just uploaded the new kickflip attempt 🛹')">
+      <div class="msg-av-wrap"><div class="av av-lg av-a">AJ</div><div class="msg-badge">3</div></div>
+      <div class="msg-body">
+        <div class="msg-row-top"><div class="msg-name">Alex Johnson</div><div class="msg-time">Now</div></div>
+        <div class="msg-preview unread">Just uploaded the new kickflip attempt 🛹</div>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="msg-item" onclick="openChat('JR','Jake Rivera','linear-gradient(135deg,#ffd60a,#ff9f0a)','Can we move tomorrow\'s session to 2pm?')">
+      <div class="msg-av-wrap"><div class="av av-lg av-b">JR</div><div class="msg-badge">1</div></div>
+      <div class="msg-body">
+        <div class="msg-row-top"><div class="msg-name">Jake Rivera</div><div class="msg-time">34m</div></div>
+        <div class="msg-preview unread">Can we move tomorrow's session to 2pm?</div>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="msg-item" onclick="openChat('MR','Marcus Reed','linear-gradient(135deg,#0a84ff,#30d158)','Thanks for the heelflip feedback! 🙏')">
+      <div class="msg-av-wrap"><div class="av av-lg av-c">MR</div></div>
+      <div class="msg-body">
+        <div class="msg-row-top"><div class="msg-name">Marcus Reed</div><div class="msg-time">2h</div></div>
+        <div class="msg-preview">Thanks for the heelflip feedback! 🙏</div>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="msg-item" onclick="openChat('TW','Tyler Weston','linear-gradient(135deg,#bf5af2,#ff375f)','See you at the park Saturday! 🤙')">
+      <div class="msg-av-wrap"><div class="av av-lg av-d">TW</div></div>
+      <div class="msg-body">
+        <div class="msg-row-top"><div class="msg-name">Tyler Weston</div><div class="msg-time">Yesterday</div></div>
+        <div class="msg-preview">See you at the park Saturday! 🤙</div>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="msg-item" onclick="openChat('SK','Sam Kim','linear-gradient(135deg,#30d158,#00c7be)','Great work this week! 🤙')">
+      <div class="msg-av-wrap"><div class="av av-lg av-e">SK</div></div>
+      <div class="msg-body">
+        <div class="msg-row-top"><div class="msg-name">Sam Kim</div><div class="msg-time">2d</div></div>
+        <div class="msg-preview">You: Great work this week! 🤙</div>
+      </div>
+    </div>
+    <div style="height:24px"></div>
+  </div>
 </div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN: PROFILE
+═══════════════════════════════════════ -->
+<div class="screen" id="s-profile">
+  <div class="nav" style="justify-content:space-between">
+    <div style="font-size:22px;font-weight:900;letter-spacing:-.5px">Profile</div>
+    <div class="btn-icon" onclick="showSheet('settings')">⚙️</div>
+  </div>
+  <div class="scroll">
+    <div class="profile-hero">
+      <div class="profile-hero-bg">🛹</div>
+    </div>
+    <div class="profile-info">
+      <div class="profile-av-wrap">
+        <div class="av av-xl av-me" style="border:3px solid #000;box-shadow:0 0 0 3px var(--brand)">WS</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="profile-name">Willy Santos</div>
+        <span class="chip chip-gold">⭐ VERIFIED</span>
+      </div>
+      <div class="profile-role">🛹 Head Coach · Skateboard Workshop</div>
+      <div class="profile-bio">Pro skater turned coach. Helping athletes level up their street and park game since 2018. Based in LA. Dm for sessions.</div>
+      <div style="display:flex;gap:9px;margin-top:14px">
+        <button class="btn btn-fill" style="flex:1;padding:12px" onclick="toast('📝','Edit Profile','Profile editor opening')">Edit Profile</button>
+        <button class="btn btn-ghost" style="flex:1;padding:12px" onclick="toast('🔗','Link copied!','Share your profile link')">Share</button>
+      </div>
+    </div>
+    <div class="profile-stat-row">
+      <div class="profile-stat"><div class="profile-stat-num">12</div><div class="profile-stat-lbl">ATHLETES</div></div>
+      <div class="profile-stat"><div class="profile-stat-num">47</div><div class="profile-stat-lbl">SESSIONS</div></div>
+      <div class="profile-stat"><div class="profile-stat-num">4.9★</div><div class="profile-stat-lbl">RATING</div></div>
+      <div class="profile-stat"><div class="profile-stat-num">98%</div><div class="profile-stat-lbl">RESPONSE</div></div>
+    </div>
+    <div class="sec-label">ACCOUNT</div>
+    <div class="setting-row" onclick="toast('💳','Billing','$49/mo Coach Pro plan — renews July 1')"><div class="setting-icon-wrap" style="background:rgba(50,209,88,.12)">💳</div><div class="setting-label">Billing & Plan</div><span class="chip chip-green" style="font-size:11px">PRO</span><div class="setting-chevron">›</div></div>
+    <div class="div"></div>
+    <div class="setting-row" onclick="switchTab('schedule')"><div class="setting-icon-wrap" style="background:rgba(10,132,255,.12)">📅</div><div class="setting-label">Availability</div><div class="setting-chevron">›</div></div>
+    <div class="div"></div>
+    <div class="setting-row" onclick="toast('🏆','Specialties','Edit your coaching areas')"><div class="setting-icon-wrap" style="background:rgba(255,214,10,.12)">🏆</div><div class="setting-label">Specialties & Bio</div><div class="setting-chevron">›</div></div>
+    <div class="div"></div>
+    <div class="setting-row" onclick="toast('🎥','Library','47 videos across 12 athletes')"><div class="setting-icon-wrap" style="background:rgba(191,90,242,.12)">🎥</div><div class="setting-label">Video Library</div><div style="color:var(--text3);font-size:14px;margin-right:6px">47</div><div class="setting-chevron">›</div></div>
+    <div class="div"></div>
+    <div class="setting-row" onclick="toast('🔔','Notifications','Push notification settings')"><div class="setting-icon-wrap" style="background:rgba(255,69,58,.12)">🔔</div><div class="setting-label">Notifications</div><div class="setting-chevron">›</div></div>
+    <div class="div"></div>
+    <div class="setting-row" onclick="doSignOut()"><div class="setting-icon-wrap" style="background:rgba(255,69,58,.08)">🚪</div><div class="setting-label" style="color:var(--red)">Sign Out</div></div>
+    <div style="height:24px"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SUB-SCREEN: CHAT
+═══════════════════════════════════════ -->
+<div class="screen" id="s-chat">
+  <div class="nav">
+    <button class="nav-back" onclick="popScreen()">‹</button>
+    <div class="nav-title" style="display:flex;align-items:center;gap:8px;position:static;transform:none;margin:0 auto">
+      <div class="av av-sm av-a" id="chat-av">AJ</div>
+      <div><div style="font-size:16px;font-weight:700" id="chat-name">Alex Johnson</div><div style="font-size:12px;color:var(--green)">● Active now</div></div>
+    </div>
+    <div class="nav-action" onclick="toast('📞','Calling...','Connecting voice call')">📞</div>
+  </div>
+  <div class="chat-bubbles" id="chat-msgs">
+    <div class="chat-date-label">TODAY · 7:14 AM</div>
+    <div class="bubble in">Yo Coach Willy! Ready for today 🔥</div>
+    <div class="bubble out">Let's get it! Checking your latest clip 👀<small>7:15</small></div>
+    <div class="bubble in">Watched your breakdown like 5 times lol</div>
+    <div class="bubble out">Reps + review = progress 🤙<small>7:22</small></div>
+    <div class="bubble in">Just uploaded the new attempt — back foot is finally clicking 🛹<small>7:38</small></div>
+  </div>
+  <div class="chat-bar">
+    <div class="btn-icon" onclick="toast('📎','Attach','Video/image picker opening')">📎</div>
+    <input class="chat-input" id="chat-input" placeholder="Message…">
+    <button class="chat-send" onclick="sendMsg()">↑</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SUB-SCREEN: VIDEO REVIEW
+═══════════════════════════════════════ -->
+<div class="screen" id="s-video">
+  <div class="nav">
+    <button class="nav-back" onclick="popScreen()">‹</button>
+    <div class="nav-title">Kickflip Review</div>
+    <div class="nav-action" onclick="toast('⋯','More options','')">⋯</div>
+  </div>
+  <div class="vr-player">
+    <div class="vr-bg">🛹</div>
+    <div class="vr-overlay"></div>
+    <div class="vr-center">
+      <div class="vr-play" id="vr-play" onclick="vrToggle()">▶</div>
+      <div class="vr-scrub-wrap">
+        <div class="vr-scrub" id="vr-scrub" onclick="vrSeek(event,this)">
+          <div class="vr-scrub-fill" id="vr-fill" style="width:35%"></div>
+          <div class="vr-scrub-thumb" id="vr-thumb" style="left:35%"></div>
+        </div>
+        <div class="vr-times"><span id="vr-cur">0:12</span><span>0:34</span></div>
+      </div>
+    </div>
+    <div class="vr-speed" onclick="vrSpeed(this)">0.5×</div>
+  </div>
+  <div class="ann-bar">
+    <div class="ann-tool on" onclick="annTool(this)">✏️</div>
+    <div class="ann-tool" onclick="annTool(this)">➡️</div>
+    <div class="ann-tool" onclick="annTool(this)">⭕</div>
+    <div class="ann-tool" onclick="annTool(this)" style="font-size:13px;font-weight:900">T</div>
+    <div class="ann-tool" onclick="annTool(this)">📐</div>
+    <div class="ann-tool" onclick="annTool(this)">↩️</div>
+    <div class="ann-colors">
+      <div class="ann-color on" style="background:#FC5200" onclick="annColor(this)"></div>
+      <div class="ann-color" style="background:#30d158" onclick="annColor(this)"></div>
+      <div class="ann-color" style="background:#0a84ff" onclick="annColor(this)"></div>
+      <div class="ann-color" style="background:#ff453a" onclick="annColor(this)"></div>
+    </div>
+  </div>
+  <div class="scroll">
+    <div style="padding:12px 16px 6px;display:flex;align-items:center;justify-content:space-between">
+      <div><div style="font-size:16px;font-weight:700">Alex Johnson</div><div style="font-size:13px;color:var(--text2);margin-top:2px">Kickflip · Attempt #12 · 2h ago</div></div>
+      <span class="chip chip-orange">PENDING REVIEW</span>
+    </div>
+    <div class="feedback-card">
+      <div class="feedback-label">Coach Feedback</div>
+      <textarea class="feedback-ta" placeholder="Add your coaching notes…">Front foot positioning is much better! ✅
+
+Keep your front foot at 45° during the flick. Pop timing is clean — back foot is syncing nicely now.
+
+Slow the flick and let the board rise to your feet. You're SO close. Next session we'll lock this in 🤙</textarea>
+    </div>
+    <div class="feedback-actions">
+      <button class="btn btn-ghost btn-ghost-full" onclick="toast('💾','Draft saved','Feedback saved as draft')">Save Draft</button>
+      <div style="width:10px;flex-shrink:0"></div>
+      <button class="btn btn-fill btn-fill-full" onclick="toast('✅','Feedback sent!','Alex Johnson notified 🔔');popScreen()">Send to Athlete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SUB-SCREEN: VERSUS
+═══════════════════════════════════════ -->
+<div class="screen" id="s-versus">
+  <div class="nav">
+    <button class="nav-back" onclick="popScreen()">‹</button>
+    <div class="nav-title">Versus Mode</div>
+    <div class="nav-action" onclick="toast('📤','Share','Comparison link copied')">↑</div>
+  </div>
+  <div class="vs-split">
+    <div class="vs-panel" style="background:linear-gradient(145deg,#001530,#00091a)">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:70px;opacity:.06">🛹</div>
+      <div class="feed-play" style="background:rgba(10,132,255,.92);box-shadow:0 8px 28px rgba(10,132,255,.45);position:relative;z-index:1">▶</div>
+      <div class="vs-label">BEFORE · March 2026</div>
+    </div>
+    <div class="vs-panel" style="background:linear-gradient(145deg,#200a00,#0f0400)">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:70px;opacity:.06">🏄</div>
+      <div class="feed-play" style="position:relative;z-index:1">▶</div>
+      <div class="vs-label" style="color:var(--green)">NOW · June 2026</div>
+    </div>
+  </div>
+  <div class="vs-bar">
+    <span style="font-size:11px;font-weight:600;color:var(--text3)" id="vs-cur">0:08</span>
+    <div class="vs-progress" onclick="vsSeek(event,this)">
+      <div class="vs-fill" id="vs-fill" style="width:42%"></div>
+    </div>
+    <span style="font-size:11px;font-weight:600;color:var(--text3)">1:12</span>
+  </div>
+  <div class="scroll">
+    <div class="vs-tools">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="toast('🎞️','Frame mode','Step through frame by frame')">⬛ Frame</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="toast('🔄','Synced','Both clips synced to same position')">🔄 Sync</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="toast('📐','Overlay active','Transparency overlay applied')">📐 Overlay</button>
+    </div>
+    <div class="feedback-card" style="margin-top:10px">
+      <div class="feedback-label">Analysis Notes</div>
+      <textarea class="feedback-ta">March vs June — massive improvement in board control. Hip rotation 20% cleaner. Catch height improving each session. Progress is real, keep pushing 🔥</textarea>
+    </div>
+    <div class="feedback-actions">
+      <button class="btn btn-fill btn-fill-full" onclick="toast('📤','Comparison shared!','Marcus Reed can now view this')">Share with Athlete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SUB-SCREEN: ATHLETE PROFILE
+═══════════════════════════════════════ -->
+<div class="screen" id="s-athlete-profile">
+  <div class="nav" style="position:absolute;top:0;left:0;right:0;z-index:10;background:transparent">
+    <button class="nav-back" onclick="popScreen()" style="background:rgba(0,0,0,.5)">‹</button>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <div class="btn-icon" style="background:rgba(0,0,0,.5)" onclick="openChat('AJ','Alex Johnson','linear-gradient(135deg,#FC5200,#ff7a40)','Hey Coach!')">💬</div>
+      <div class="btn-icon" style="background:rgba(0,0,0,.5)" onclick="showSheet('athlete-actions')">⋯</div>
+    </div>
+  </div>
+  <div class="scroll">
+    <div class="profile-hero" style="height:180px">
+      <div class="profile-hero-bg">🛹</div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to top,#000,transparent)"></div>
+    </div>
+    <div class="profile-info">
+      <div class="profile-av-wrap">
+        <div class="av av-xl av-a" style="border:3px solid #000">AJ</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="profile-name">Alex Johnson</div>
+        <span class="chip chip-gold">⭐ PRO</span>
+        <span class="chip chip-green">● Active now</span>
+      </div>
+      <div class="profile-role">🛹 Street Skater · Los Angeles, CA</div>
+      <div class="profile-bio">Street skater working on kickflips and heelflips. Skating since 2021. Training with Coach Willy for 8 months.</div>
+      <div style="display:flex;gap:9px;margin-top:14px">
+        <button class="btn btn-fill" style="flex:1;padding:12px" onclick="openChat('AJ','Alex Johnson','linear-gradient(135deg,#FC5200,#ff7a40)','Hey Coach!')">Message</button>
+        <button class="btn btn-ghost" style="flex:1;padding:12px" onclick="pushScreen('s-video')">Review Video</button>
+      </div>
+    </div>
+    <div class="profile-stat-row">
+      <div class="profile-stat"><div class="profile-stat-num">14</div><div class="profile-stat-lbl">VIDEOS</div></div>
+      <div class="profile-stat"><div class="profile-stat-num">8mo</div><div class="profile-stat-lbl">TRAINING</div></div>
+      <div class="profile-stat"><div class="profile-stat-num">82%</div><div class="profile-stat-lbl">PROGRESS</div></div>
+    </div>
+    <div class="sec-label">TRICK PROGRESS</div>
+    <div class="trick-row"><div class="trick-icon">🛹</div><div class="trick-body"><div class="trick-name">Kickflip</div><div class="trick-bar-bg"><div class="trick-bar-fill" style="width:82%;background:linear-gradient(90deg,var(--brand),#ff9040)"></div></div><div class="trick-pct">82% — Nearly Consistent</div></div></div>
+    <div class="div"></div>
+    <div class="trick-row"><div class="trick-icon">🔄</div><div class="trick-body"><div class="trick-name">Heelflip</div><div class="trick-bar-bg"><div class="trick-bar-fill" style="width:45%;background:linear-gradient(90deg,var(--blue),var(--green))"></div></div><div class="trick-pct" style="color:var(--blue)">45% — Learning</div></div></div>
+    <div class="div"></div>
+    <div class="trick-row"><div class="trick-icon">⚡</div><div class="trick-body"><div class="trick-name">360 Flip</div><div class="trick-bar-bg"><div class="trick-bar-fill" style="width:12%;background:linear-gradient(90deg,var(--purple),#ff375f)"></div></div><div class="trick-pct" style="color:var(--purple)">12% — Beginner</div></div></div>
+    <div class="sec-label">RECENT VIDEOS</div>
+    <div style="padding:0 16px 8px">
+      <div class="card card-pressable" onclick="pushScreen('s-video')" style="margin-bottom:10px">
+        <div style="height:130px;background:linear-gradient(145deg,#1a0800,#080400);display:flex;align-items:center;justify-content:center;position:relative">
+          <div style="font-size:60px;opacity:.07;position:absolute">🛹</div>
+          <div class="feed-play" style="width:44px;height:44px;font-size:16px">▶</div>
+          <div style="position:absolute;top:9px;left:9px" class="chip chip-orange">NEW</div>
+          <div style="position:absolute;top:9px;right:9px;font-size:11px;color:rgba(255,255,255,.4);font-weight:600">0:34</div>
+        </div>
+        <div style="padding:11px 13px">
+          <div style="font-size:14px;font-weight:700">Kickflip — Attempt #12</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">2h ago · Pending Review</div>
+        </div>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB BAR
+═══════════════════════════════════════ -->
+<div id="tabbar">
+  <div class="tab-item on" id="ti-feed" onclick="switchTab('feed')">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M3 9.5L12 3L21 9.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V9.5Z" stroke="#FC5200" stroke-width="1.8" fill="none"/>
+    </svg>
+    <div class="tab-label">Feed</div>
+  </div>
+  <div class="tab-item" id="ti-athletes" onclick="switchTab('athletes')">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <circle cx="9" cy="7" r="4" stroke="rgba(255,255,255,.45)" stroke-width="1.8"/>
+      <path d="M2 21c0-4 3-6 7-6" stroke="rgba(255,255,255,.45)" stroke-width="1.8" stroke-linecap="round"/>
+      <circle cx="17" cy="10" r="3" stroke="rgba(255,255,255,.45)" stroke-width="1.8"/>
+      <path d="M14 21c0-2.5 1.3-4 3-4s3 1.5 3 4" stroke="rgba(255,255,255,.45)" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    <div class="tab-label">Athletes</div>
+  </div>
+  <div class="tab-item" id="ti-schedule" onclick="switchTab('schedule')">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="4" width="18" height="18" rx="4" stroke="rgba(255,255,255,.45)" stroke-width="1.8"/>
+      <path d="M3 9H21M8 2V5M16 2V5" stroke="rgba(255,255,255,.45)" stroke-width="1.8" stroke-linecap="round"/>
+      <circle cx="8" cy="14" r="1.3" fill="rgba(255,255,255,.45)"/>
+      <circle cx="12" cy="14" r="1.3" fill="rgba(255,255,255,.45)"/>
+    </svg>
+    <div class="tab-label">Schedule</div>
+    <div class="tab-notif"></div>
+  </div>
+  <div class="tab-item" id="ti-messages" onclick="switchTab('messages')">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M4 4H20C21.1 4 22 4.9 22 6V16C22 17.1 21.1 18 20 18H6L2 22V6C2 4.9 2.9 4 4 4Z" stroke="rgba(255,255,255,.45)" stroke-width="1.8" stroke-linejoin="round"/>
+    </svg>
+    <div class="tab-label">Messages</div>
+    <div class="tab-notif"></div>
+  </div>
+  <div class="tab-item" id="ti-profile" onclick="switchTab('profile')">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="8" r="4" stroke="rgba(255,255,255,.45)" stroke-width="1.8"/>
+      <path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="rgba(255,255,255,.45)" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    <div class="tab-label">Profile</div>
+  </div>
+</div>
+
+</div><!-- #app -->
 
 <script>
-(function(){
-var s=document.getElementById('stime'),n=new Date(),h=n.getHours()%12||12,m=n.getMinutes();
-s.textContent=h+':'+(m<10?'0':'')+m;
-})();
-var _d=new Date(),_dy=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],_mo=['January','February','March','April','May','June','July','August','September','October','November','December'];
-document.getElementById('hdate').textContent=_dy[_d.getDay()]+', '+_mo[_d.getMonth()]+' '+_d.getDate();
-var spf=document.getElementById('spf'),splash=document.getElementById('splash');
-spf.style.width='100%';
-setTimeout(function(){splash.style.opacity='0';splash.style.pointerEvents='none';setTimeout(function(){splash.style.display='none'},500)},2000);
-var SUBS=['s-chat','s-video','s-versus'];
-function go(id){document.querySelectorAll('.scr').forEach(function(x){x.classList.remove('on')});document.getElementById(id).classList.add('on');document.getElementById('tab').style.display=SUBS.indexOf(id)>=0?'none':'flex'}
-function setTab(n){document.querySelectorAll('.ti').forEach(function(x){x.classList.remove('on')});var el=document.getElementById('ti-'+n);if(el)el.classList.add('on')}
-function switchTab(n){var m={home:'s-home',athletes:'s-athletes',schedule:'s-schedule',messages:'s-messages',profile:'s-profile'};go(m[n]);setTab(n)}
-function setPill(el){document.querySelectorAll('.rp').forEach(function(x){x.classList.remove('on')});el.classList.add('on')}
-function login(){go('s-home');setTab('home');document.getElementById('tab').style.display='flex'}
-function signOut(){go('s-login');document.getElementById('tab').style.display='none'}
-var _tt;
-function toast(i,t,b){document.getElementById('t-ic').textContent=i;document.getElementById('t-tt').textContent=t;document.getElementById('t-bd').textContent=b;var el=document.getElementById('toast');el.classList.add('show');clearTimeout(_tt);_tt=setTimeout(function(){el.classList.remove('show')},3800)}
-login();
-setTimeout(function(){toast('🛹','Welcome back, Coach Willy!','3 video submissions ready for review')},2200);
-function openChat(ini,name,grad,preview){document.getElementById('cav').textContent=ini;document.getElementById('cav').style.background='linear-gradient('+grad+')';document.getElementById('cname').textContent=name;var box=document.getElementById('cmsg');box.innerHTML='<div class="btm">TODAY</div><div class="bbl in">Hey Coach! 🔥</div><div class="bbl out">Checking your clip now 👀<small>Now</small></div><div class="bbl in">'+preview+'</div>';go('s-chat');setTimeout(function(){box.scrollTop=9999},50)}
-function sendMsg(){var inp=document.getElementById('cinp'),txt=inp.value.trim();if(!txt)return;var box=document.getElementById('cmsg'),n=new Date(),h=n.getHours()%12||12,m=n.getMinutes();box.innerHTML+='<div class="bbl out">'+txt+'<small>'+h+':'+(m<10?'0':'')+m+'</small></div>';inp.value='';box.scrollTop=9999;var r=['Thanks Coach! 🙏','Got it!','Makes sense 🛹','On it!','Appreciate it 🤙','Let\'s get it! 🔥'];setTimeout(function(){box.innerHTML+='<div class="bbl in">'+r[Math.floor(Math.random()*r.length)]+'</div>';box.scrollTop=9999},1200)}
-document.getElementById('cinp').addEventListener('keydown',function(e){if(e.key==='Enter')sendMsg()});
-var _vp=false,_vpP=35,_vpTmr,_spds=['0.25x','0.5x','1x','2x'],_si=1;
-function vpTog(){_vp=!_vp;document.getElementById('vp-pl').textContent=_vp?'⏸':'▶';if(_vp){_vpTmr=setInterval(function(){_vpP=(_vpP+1)%101;document.getElementById('vpf').style.width=_vpP+'%';var s=Math.round(_vpP*.34);document.getElementById('vptm').textContent='0:'+(s<10?'0':'')+s+' / 0:34'},340)}else clearInterval(_vpTmr)}
-function vpSeek(e,bar){var r=bar.getBoundingClientRect();_vpP=Math.round((e.clientX-r.left)/r.width*100);document.getElementById('vpf').style.width=_vpP+'%'}
-function vpSpd(el){_si=(_si+1)%_spds.length;el.textContent=_spds[_si]}
-function annT(el){document.querySelectorAll('.at').forEach(function(t){t.classList.remove('on')});el.classList.add('on')}
-function annC(el){document.querySelectorAll('.cdot').forEach(function(d){d.classList.remove('on')});el.classList.add('on')}
-</script></body></html>
+/* ─── STATE ───────────────────────────────────── */
+var _curTab = null;
+var _screenStack = [];
+var _toastTimer = null;
+var _vrPlaying = false, _vrPos = 35, _vrTimer = null;
+var _vrSpeeds = ['0.25×','0.5×','1×','2×'], _vrSi = 1;
+
+/* ─── INIT ────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function() {
+  showScreen('s-login');
+});
+
+/* ─── SCREEN MANAGEMENT ───────────────────────── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active') });
+  var el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+var TAB_SCREENS = {
+  feed: 's-feed', athletes: 's-athletes',
+  schedule: 's-schedule', messages: 's-messages', profile: 's-profile'
+};
+var SUB_SCREENS = ['s-chat','s-video','s-versus','s-athlete-profile'];
+
+function switchTab(name) {
+  // Clear stack
+  _screenStack = [];
+  // Animate old → new
+  if (_curTab && _curTab !== name) {
+    var old = document.getElementById(TAB_SCREENS[_curTab]);
+    var next = document.getElementById(TAB_SCREENS[name]);
+    if (old) { old.classList.remove('active'); }
+    if (next) { next.classList.add('active'); }
+  } else {
+    showScreen(TAB_SCREENS[name]);
+  }
+  _curTab = name;
+  // Update tab icons
+  document.querySelectorAll('.tab-item').forEach(function(t){ t.classList.remove('on') });
+  var ti = document.getElementById('ti-'+name);
+  if (ti) ti.classList.add('on');
+  document.getElementById('tabbar').style.display = 'flex';
+}
+
+function pushScreen(id) {
+  var cur = document.querySelector('.screen.active');
+  if (cur) {
+    cur.classList.add('slide-out');
+    setTimeout(function(){ if(cur) cur.classList.remove('active','slide-out') }, 280);
+    _screenStack.push(cur.id);
+  }
+  var next = document.getElementById(id);
+  if (next) {
+    next.classList.add('active','slide-in');
+    setTimeout(function(){ next.classList.remove('slide-in') }, 320);
+  }
+  document.getElementById('tabbar').style.display = 'none';
+}
+
+function popScreen() {
+  if (_screenStack.length === 0) {
+    // Return to current tab
+    if (_curTab) { switchTab(_curTab); } else { doLogin(); }
+    return;
+  }
+  var cur = document.querySelector('.screen.active');
+  if (cur) {
+    cur.classList.add('slide-back-out');
+    setTimeout(function(){ cur.classList.remove('active','slide-back-out') }, 280);
+  }
+  var prevId = _screenStack.pop();
+  var prev = document.getElementById(prevId);
+  if (prev) {
+    prev.classList.add('active','slide-back-in');
+    setTimeout(function(){ prev.classList.remove('slide-back-in') }, 320);
+  }
+  // Show tabbar if returning to tab screen
+  var isTab = Object.values(TAB_SCREENS).indexOf(prevId) >= 0;
+  document.getElementById('tabbar').style.display = isTab ? 'flex' : 'none';
+}
+
+/* ─── AUTH ─────────────────────────────────────── */
+function doLogin() {
+  showScreen('s-feed');
+  document.getElementById('tabbar').style.display = 'flex';
+  switchTab('feed');
+  _curTab = 'feed';
+  _screenStack = [];
+  setTimeout(function(){ toast('👋','Welcome back, Coach Willy!','3 new video submissions') }, 400);
+}
+
+function doSignOut() {
+  document.getElementById('tabbar').style.display = 'none';
+  showScreen('s-login');
+  _curTab = null;
+  _screenStack = [];
+}
+
+function pickRole(el) {
+  document.querySelectorAll('.role-btn').forEach(function(b){ b.classList.remove('on') });
+  el.classList.add('on');
+}
+
+function setFilter(el) {
+  document.querySelectorAll('.filter-chip').forEach(function(c){ c.classList.remove('on') });
+  el.classList.add('on');
+}
+
+/* ─── CHAT ─────────────────────────────────────── */
+function openChat(ini, name, grad, preview) {
+  document.getElementById('chat-av').textContent = ini;
+  document.getElementById('chat-av').style.background = grad;
+  document.getElementById('chat-name').textContent = name;
+  var box = document.getElementById('chat-msgs');
+  box.innerHTML = '<div class="chat-date-label">TODAY</div><div class="bubble in">Hey Coach! What\'s good 🔥</div><div class="bubble out">Checking your clip now 👀<small>Just now</small></div><div class="bubble in">' + preview + '</div>';
+  pushScreen('s-chat');
+  setTimeout(function(){ box.scrollTop = 9999 }, 80);
+}
+
+function sendMsg() {
+  var inp = document.getElementById('chat-input');
+  var txt = inp.value.trim();
+  if (!txt) return;
+  var box = document.getElementById('chat-msgs');
+  var n = new Date(), h = n.getHours() % 12 || 12, m = n.getMinutes();
+  box.innerHTML += '<div class="bubble out">' + txt + '<small>' + h + ':' + (m < 10 ? '0' : '') + m + '</small></div>';
+  inp.value = '';
+  box.scrollTop = 9999;
+  var replies = ['Thanks Coach! 🙏', 'Got it! 👊', 'Makes sense 🛹', 'On it!', 'Appreciate it 🤙', 'Let\'s get it! 🔥', 'Fire 🔥'];
+  setTimeout(function(){
+    box.innerHTML += '<div class="bubble in">' + replies[Math.floor(Math.random() * replies.length)] + '</div>';
+    box.scrollTop = 9999;
+  }, 1100);
+}
+
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Enter' && document.activeElement.id === 'chat-input') sendMsg();
+});
+
+/* ─── TOAST ─────────────────────────────────────── */
+function toast(icon, text, sub) {
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-text').textContent = text;
+  document.getElementById('toast-sub').textContent = sub || '';
+  var el = document.getElementById('toast');
+  el.classList.add('up');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function(){ el.classList.remove('up') }, 3200);
+}
+
+/* ─── LIKE TOGGLE ──────────────────────────────── */
+function toggleLike(id, icon, msg) {
+  var el = document.getElementById(id);
+  var liked = el.classList.toggle('liked');
+  el.textContent = liked ? '❤️ Liked' : '🤍 Like';
+  if (liked) toast(icon, msg, '');
+}
+
+/* ─── BOTTOM SHEET ──────────────────────────────── */
+function showSheet(type) {
+  var title = '';
+  var rows = '';
+  if (type === 'upload') {
+    title = 'Add Content';
+    rows = [
+      {icon:'🎥',bg:'rgba(252,82,0,.12)',label:'Upload Video',cb:"toast('🎥','Video picker','Select a clip to upload');closeSheet()"},
+      {icon:'📝',bg:'rgba(10,132,255,.12)',label:'Create Post',cb:"toast('📝','Post creator','Share a tip or update');closeSheet()"},
+      {icon:'📅',bg:'rgba(50,209,88,.12)',label:'Add Session',cb:"switchTab('schedule');closeSheet()"},
+      {icon:'🔗',bg:'rgba(191,90,242,.12)',label:'Share Profile Link',cb:"toast('🔗','Link copied!','');closeSheet()"},
+    ];
+  } else if (type === 'settings') {
+    title = 'Settings';
+    rows = [
+      {icon:'🔔',bg:'rgba(255,69,58,.12)',label:'Notifications',cb:"toast('🔔','Notifications','Push settings opening');closeSheet()"},
+      {icon:'🔒',bg:'rgba(255,214,10,.12)',label:'Privacy',cb:"toast('🔒','Privacy','Account privacy settings');closeSheet()"},
+      {icon:'🎨',bg:'rgba(10,132,255,.12)',label:'Appearance',cb:"toast('🎨','Appearance','Theme settings');closeSheet()"},
+      {icon:'🚪',bg:'rgba(255,69,58,.08)',label:'Sign Out',cb:"doSignOut();closeSheet()",danger:true},
+    ];
+  } else if (type === 'athlete-actions') {
+    title = 'Alex Johnson';
+    rows = [
+      {icon:'📹',bg:'rgba(252,82,0,.12)',label:'Request Video',cb:"toast('📹','Request sent','Alex will be notified');closeSheet()"},
+      {icon:'📅',bg:'rgba(10,132,255,.12)',label:'Schedule Session',cb:"switchTab('schedule');closeSheet()"},
+      {icon:'📊',bg:'rgba(50,209,88,.12)',label:'View Progress Report',cb:"toast('📊','Progress','Loading full report...');closeSheet()"},
+      {icon:'⚠️',bg:'rgba(255,69,58,.08)',label:'Remove Athlete',cb:"toast('✅','Done','Alex has been removed');closeSheet()",danger:true},
+    ];
+  }
+  document.getElementById('sheet-title').textContent = title;
+  var html = '';
+  rows.forEach(function(r){
+    html += '<div class="sheet-row" onclick="'+r.cb+'">';
+    html += '<div class="sheet-row-icon" style="background:'+r.bg+'">' + r.icon + '</div>';
+    html += '<div class="sheet-row-label"' + (r.danger ? ' style="color:var(--red)"' : '') + '>' + r.label + '</div>';
+    html += '</div>';
+  });
+  document.getElementById('sheet-body').innerHTML = html;
+  document.getElementById('sheet-overlay').style.display = 'block';
+  setTimeout(function(){ document.getElementById('sheet').classList.add('open') }, 10);
+}
+
+function closeSheet() {
+  document.getElementById('sheet').classList.remove('open');
+  setTimeout(function(){ document.getElementById('sheet-overlay').style.display = 'none' }, 350);
+}
+
+/* ─── VIDEO PLAYER ──────────────────────────────── */
+function vrToggle() {
+  _vrPlaying = !_vrPlaying;
+  document.getElementById('vr-play').textContent = _vrPlaying ? '⏸' : '▶';
+  if (_vrPlaying) {
+    _vrTimer = setInterval(function(){
+      _vrPos = (_vrPos + 1) % 101;
+      var fill = document.getElementById('vr-fill');
+      var thumb = document.getElementById('vr-thumb');
+      if (fill) fill.style.width = _vrPos + '%';
+      if (thumb) thumb.style.left = _vrPos + '%';
+      var s = Math.round(_vrPos * .34);
+      var cur = document.getElementById('vr-cur');
+      if (cur) cur.textContent = '0:' + (s < 10 ? '0' : '') + s;
+    }, 340);
+  } else {
+    clearInterval(_vrTimer);
+  }
+}
+
+function vrSeek(e, bar) {
+  var r = bar.getBoundingClientRect();
+  _vrPos = Math.max(0, Math.min(100, Math.round((e.clientX - r.left) / r.width * 100)));
+  var fill = document.getElementById('vr-fill');
+  var thumb = document.getElementById('vr-thumb');
+  if (fill) fill.style.width = _vrPos + '%';
+  if (thumb) thumb.style.left = _vrPos + '%';
+}
+
+function vrSpeed(el) {
+  _vrSi = (_vrSi + 1) % _vrSpeeds.length;
+  el.textContent = _vrSpeeds[_vrSi];
+}
+
+function annTool(el) {
+  document.querySelectorAll('.ann-tool').forEach(function(t){ t.classList.remove('on') });
+  el.classList.add('on');
+}
+
+function annColor(el) {
+  document.querySelectorAll('.ann-color').forEach(function(d){ d.classList.remove('on') });
+  el.classList.add('on');
+}
+
+/* ─── VERSUS SEEK ───────────────────────────────── */
+function vsSeek(e, bar) {
+  var r = bar.getBoundingClientRect();
+  var pct = Math.max(0, Math.min(100, Math.round((e.clientX - r.left) / r.width * 100)));
+  document.getElementById('vs-fill').style.width = pct + '%';
+  var secs = Math.round(pct * .72);
+  document.getElementById('vs-cur').textContent = '0:' + (secs < 10 ? '0' : '') + secs;
+}
+</script>
+</body>
+</html>
