@@ -7,764 +7,531 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Skate Workshop</title>
 <style>
-/* ─── RESET & TOKENS ───────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --brand:#FC5200;
-  --brand-dim:rgba(252,82,0,.13);
-  --brand-glow:rgba(252,82,0,.38);
-  --bg:#000;
-  --surface:rgba(255,255,255,.055);
-  --surface2:rgba(255,255,255,.085);
-  --surface3:rgba(255,255,255,.11);
-  --border:rgba(255,255,255,.09);
-  --border2:rgba(255,255,255,.16);
-  --text:#fff;
-  --text2:rgba(255,255,255,.52);
-  --text3:rgba(255,255,255,.26);
-  --green:#30d158;
-  --blue:#0a84ff;
-  --purple:#bf5af2;
-  --gold:#ffd60a;
-  --red:#ff453a;
-  --tab-h:80px;
-  --safe-b:env(safe-area-inset-bottom,0px);
-  --safe-t:env(safe-area-inset-top,0px);
-  font-size:16px;
+  --brand:#FC5200;--brand-dim:rgba(252,82,0,.12);--brand-glow:rgba(252,82,0,.32);
+  --bg:#000;--s1:rgba(255,255,255,.055);--s2:rgba(255,255,255,.09);
+  --b1:rgba(255,255,255,.09);--b2:rgba(255,255,255,.16);
+  --t1:#fff;--t2:rgba(255,255,255,.52);--t3:rgba(255,255,255,.26);
+  --green:#30d158;--blue:#0a84ff;--gold:#ffd60a;--red:#ff453a;--purple:#bf5af2;
+  --tab-h:80px;--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
 }
-html,body{height:100%;background:#000;overflow:hidden}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
-  color:#fff;-webkit-font-smoothing:antialiased;
-}
-
-/* ─── SHELL ──────────────────────────────────── */
-#app{
-  position:fixed;inset:0;display:flex;flex-direction:column;
-  background:#000;max-width:430px;margin:0 auto;overflow:hidden;
-}
+html,body{height:100%;background:#000;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;background:#000;max-width:430px;margin:0 auto;overflow:hidden}
 @media(min-width:500px){
   body{background:#060606;display:flex;align-items:center;justify-content:center}
-  #app{position:relative;height:min(100vh,932px);border-radius:48px;overflow:hidden;
-    box-shadow:0 0 0 1.5px rgba(255,255,255,.12),0 60px 160px rgba(0,0,0,.98),inset 0 0 0 1px rgba(255,255,255,.04)}
+  #app{position:relative;height:min(100vh,932px);border-radius:50px;overflow:hidden;box-shadow:0 0 0 1.5px rgba(255,255,255,.11),0 80px 200px rgba(0,0,0,.98)}
 }
-
-/* ─── SCREENS ──────────────────────────────── */
-.screen{
-  position:absolute;inset:0;display:none;flex-direction:column;
-  background:#000;overflow:hidden;
-}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:#000;overflow:hidden}
 .screen.active{display:flex}
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .scroll::-webkit-scrollbar{display:none}
 
-/* ─── TRANSITIONS ──────────────────────────── */
-@keyframes pushIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
-@keyframes pushPrev{from{transform:translateX(0)}to{transform:translateX(-26%)}}
+/* TRANSITIONS */
+@keyframes pIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes pOut{from{transform:translateX(0)}to{transform:translateX(-22%)}}
 @keyframes popOut{from{transform:translateX(0)}to{transform:translateX(100%)}}
-@keyframes popPrev{from{transform:translateX(-26%)}to{transform:translateX(0)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.push-in{animation:pushIn .34s cubic-bezier(.25,.46,.45,.94) forwards}
-.push-prev{animation:pushPrev .34s cubic-bezier(.25,.46,.45,.94) forwards}
-.pop-out{animation:popOut .28s cubic-bezier(.25,.46,.45,.94) forwards}
-.pop-prev{animation:popPrev .28s cubic-bezier(.25,.46,.45,.94) forwards}
+@keyframes popIn{from{transform:translateX(-22%)}to{transform:translateX(0)}}
+.p-in{animation:pIn .30s cubic-bezier(.25,.46,.45,.94) both}
+.p-out{animation:pOut .30s cubic-bezier(.25,.46,.45,.94) both}
+.pop-out{animation:popOut .26s cubic-bezier(.55,0,1,.45) both}
+.pop-in{animation:popIn .26s cubic-bezier(.55,0,1,.45) both}
 
-/* ─── TAB BAR ──────────────────────────────── */
-#tabbar{
-  flex-shrink:0;background:rgba(8,8,8,.96);
-  border-top:1px solid rgba(255,255,255,.07);
-  display:none;justify-content:space-around;align-items:flex-start;
-  padding-top:11px;padding-bottom:calc(var(--safe-b) + 4px);
-  height:var(--tab-h);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:100;
-  flex-shrink:0;
-}
-.ti{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;-webkit-user-select:none;user-select:none;position:relative;padding:2px 0}
-.ti svg path,.ti svg circle,.ti svg rect,.ti svg polyline,.ti svg line{stroke:rgba(255,255,255,.32);transition:stroke .15s}
-.ti.on svg path,.ti.on svg circle,.ti.on svg rect,.ti.on svg polyline,.ti.on svg line{stroke:var(--brand)}
-.ti-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,.32);letter-spacing:.08px;transition:color .15s}
+/* TAB BAR */
+#tabbar{flex-shrink:0;background:rgba(6,6,6,.97);border-top:1px solid rgba(255,255,255,.07);display:none;justify-content:space-around;align-items:flex-start;padding-top:11px;padding-bottom:calc(var(--safe-b) + 4px);height:var(--tab-h);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:100}
+.ti{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;-webkit-user-select:none;user-select:none;position:relative;padding:2px 0;opacity:.3;transition:opacity .15s}
+.ti.on{opacity:1}
+.ti-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,.3);transition:color .15s}
 .ti.on .ti-lbl{color:var(--brand)}
-.ti:active{opacity:.6}
+.ti:active{opacity:.5}
 .ti-dot{position:absolute;top:0;right:calc(50% - 18px);width:7px;height:7px;border-radius:50%;background:var(--brand);border:2px solid #000}
 
-/* ─── NAV BAR ──────────────────────────────── */
-.nav{
-  flex-shrink:0;display:flex;align-items:center;
-  padding:calc(var(--safe-t) + 8px) 18px 6px;min-height:52px;z-index:10;
-}
-.nav.transparent{position:absolute;top:0;left:0;right:0;background:transparent}
-.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:17px;font-weight:700;letter-spacing:-.3px;white-space:nowrap}
-.nav-back{
-  width:36px;height:36px;border-radius:50%;
-  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;font-size:20px;font-weight:300;color:#fff;flex-shrink:0;
-  transition:background .12s;
-}
-.nav-back:active{background:rgba(255,255,255,.18)}
-.nav-icon-btn{
-  width:36px;height:36px;border-radius:50%;
-  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;
-  transition:background .12s;
-}
-.nav-icon-btn:active{background:rgba(255,255,255,.18)}
+/* NAV */
+.nav{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:calc(var(--safe-t) + 10px) 18px 10px;min-height:56px;z-index:10}
+.nav.over{position:absolute;top:0;left:0;right:0;background:transparent;z-index:20}
+.nav-title{flex:1;text-align:center;font-size:17px;font-weight:700;letter-spacing:-.3px}
+.ico-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:17px;transition:background .12s}
+.ico-btn:active{background:rgba(255,255,255,.18)}
+.ico-btn.glass{background:rgba(0,0,0,.5);backdrop-filter:blur(10px)}
+.back-btn{font-size:22px;font-weight:200}
 
-/* ─── TYPOGRAPHY ───────────────────────────── */
-.t-display{font-size:34px;font-weight:900;letter-spacing:-.8px;line-height:1.08}
-.t-h1{font-size:26px;font-weight:900;letter-spacing:-.6px}
-.t-h2{font-size:20px;font-weight:800;letter-spacing:-.4px}
-.t-h3{font-size:17px;font-weight:700;letter-spacing:-.2px}
-.t-body{font-size:15px;font-weight:400;line-height:1.5}
-.t-sub{font-size:13px;color:var(--text2);line-height:1.4}
-.t-cap{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3)}
-.t-brand{color:var(--brand)}
-.t-green{color:var(--green)}
-.t-blue{color:var(--blue)}
-
-/* ─── BUTTONS ──────────────────────────────── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;cursor:pointer;font-family:inherit;-webkit-user-select:none;user-select:none;transition:transform .12s,opacity .12s}
-.btn:active{transform:scale(.96);opacity:.85}
-.btn-primary{background:var(--brand);color:#fff;font-size:16px;font-weight:800;padding:15px 28px;border-radius:100px;letter-spacing:.1px;box-shadow:0 6px 28px var(--brand-glow)}
-.btn-primary-sm{background:var(--brand);color:#fff;font-size:13px;font-weight:800;padding:9px 18px;border-radius:100px;letter-spacing:.1px}
-.btn-secondary{background:rgba(255,255,255,.1);color:#fff;font-size:15px;font-weight:700;padding:14px 26px;border-radius:100px;border:1.5px solid rgba(255,255,255,.14)}
-.btn-secondary-sm{background:rgba(255,255,255,.09);color:#fff;font-size:13px;font-weight:600;padding:8px 16px;border-radius:100px;border:1px solid var(--border2)}
-.btn-outline{background:transparent;color:#fff;font-size:15px;font-weight:700;padding:13px 24px;border-radius:100px;border:1.5px solid rgba(255,255,255,.3)}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;cursor:pointer;font-family:inherit;-webkit-user-select:none;user-select:none;transition:transform .12s,opacity .12s;font-weight:700;letter-spacing:-.1px}
+.btn:active{transform:scale(.95);opacity:.82}
+.btn-p{background:var(--brand);color:#fff;font-size:16px;padding:15px 28px;border-radius:100px;box-shadow:0 4px 22px var(--brand-glow)}
+.btn-p-sm{background:var(--brand);color:#fff;font-size:13px;padding:8px 16px;border-radius:100px}
+.btn-s{background:rgba(255,255,255,.1);color:#fff;font-size:15px;padding:14px 24px;border-radius:100px;border:1.5px solid rgba(255,255,255,.15)}
+.btn-s-sm{background:rgba(255,255,255,.08);color:#fff;font-size:13px;padding:7px 14px;border-radius:100px;border:1px solid var(--b2)}
 .btn-w{width:100%}
+.btn-row{display:flex;gap:10px}
 
-/* ─── CHIPS ──────────────────────────────── */
-.chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap;letter-spacing:.2px}
-.chip-o{background:var(--brand-dim);color:var(--brand)}
-.chip-g{background:rgba(48,209,88,.12);color:var(--green)}
-.chip-b{background:rgba(10,132,255,.12);color:var(--blue)}
-.chip-gr{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
-.chip-gold{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.15)}
-.chip-p{background:rgba(191,90,242,.12);color:var(--purple)}
+/* CHIPS */
+.chip{display:inline-flex;align-items:center;gap:3px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;white-space:nowrap}
+.co{background:var(--brand-dim);color:var(--brand)}
+.cg{background:rgba(48,209,88,.12);color:var(--green)}
+.cb{background:rgba(10,132,255,.12);color:var(--blue)}
+.cgr{background:rgba(255,255,255,.08);color:var(--t2)}
+.cgold{background:rgba(255,214,10,.1);color:var(--gold);border:1px solid rgba(255,214,10,.14)}
+.cp{background:rgba(191,90,242,.12);color:var(--purple)}
 
-/* ─── CARDS ──────────────────────────────── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden}
-.pressable{cursor:pointer;transition:transform .14s,opacity .14s}
-.pressable:active{transform:scale(.975);opacity:.9}
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:18px;overflow:hidden}
+.press{cursor:pointer;transition:transform .14s,opacity .14s}
+.press:active{transform:scale(.975);opacity:.88}
 
-/* ─── AVATAR ─────────────────────────────── */
+/* AVATARS */
 .av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;flex-shrink:0}
-.av-40{width:40px;height:40px;font-size:15px}
-.av-48{width:48px;height:48px;font-size:17px}
-.av-60{width:60px;height:60px;font-size:20px}
-.av-88{width:88px;height:88px;font-size:30px}
-.av-a{background:linear-gradient(135deg,#fc5200,#ff9040)}
-.av-b{background:linear-gradient(135deg,#ffd60a,#ff9f0a)}
-.av-c{background:linear-gradient(135deg,#0a84ff,#30d158)}
-.av-d{background:linear-gradient(135deg,#bf5af2,#ff375f)}
-.av-e{background:linear-gradient(135deg,#30d158,#00c7be)}
-.av-w{background:linear-gradient(135deg,#fc5200,#ff7030)}
+.av36{width:36px;height:36px;font-size:13px}
+.av44{width:44px;height:44px;font-size:15px}
+.av52{width:52px;height:52px;font-size:18px}
+.av80{width:80px;height:80px;font-size:27px}
+.av88{width:88px;height:88px;font-size:30px}
+.ava{background:linear-gradient(135deg,#fc5200,#ff9040)}
+.avb{background:linear-gradient(135deg,#ffd60a,#ff9f0a)}
+.avc{background:linear-gradient(135deg,#0a84ff,#30d158)}
+.avd{background:linear-gradient(135deg,#bf5af2,#ff375f)}
+.ave{background:linear-gradient(135deg,#30d158,#00c7be)}
 
-/* ─── PILL ROW (duration/level/equipment) ─── */
-.pill-row{display:flex;gap:8px;flex-wrap:wrap}
-.pill{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:12px;font-weight:600;color:rgba(255,255,255,.7)}
+/* DIVIDERS */
+.hr{height:1px;background:var(--b1);margin:0 18px}
+.hrfull{height:1px;background:var(--b1)}
 
-/* ─── SECTION HEADER ────────────────────── */
-.sec{display:flex;align-items:baseline;justify-content:space-between;padding:20px 18px 10px}
-.sec-title{font-size:18px;font-weight:800;letter-spacing:-.3px}
-.sec-action{font-size:13px;font-weight:600;color:var(--brand);cursor:pointer}
+/* SECTION HEADER */
+.sec{display:flex;align-items:baseline;justify-content:space-between;padding:18px 18px 10px}
+.sec-t{font-size:18px;font-weight:900;letter-spacing:-.3px}
+.sec-a{font-size:13px;font-weight:700;color:var(--brand);cursor:pointer}
 
-/* ─── DIVIDER ────────────────────────────── */
-.hr{height:1px;background:var(--border);margin:0 18px}
-.hr-full{height:1px;background:var(--border)}
-.hr-thick{height:8px;background:rgba(255,255,255,.03);margin:6px 0}
-
-/* ─── PROGRESS RING ──────────────────────── */
-.ring{display:inline-flex;align-items:center;justify-content:center;position:relative}
-.ring svg{transform:rotate(-90deg)}
-.ring-label{position:absolute;text-align:center}
-
-/* ─── TOAST ──────────────────────────────── */
-#toast{
-  position:fixed;bottom:calc(var(--tab-h) + 14px);left:50%;
-  transform:translateX(-50%) translateY(130px);
-  background:rgba(24,24,24,.97);border:1px solid rgba(255,255,255,.14);
-  border-radius:16px;padding:12px 16px;
-  display:flex;align-items:center;gap:11px;z-index:9999;
-  min-width:200px;max-width:320px;box-shadow:0 16px 48px rgba(0,0,0,.75);
-  transition:transform .38s cubic-bezier(.34,1.56,.64,1);
-  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-}
+/* TOAST */
+#toast{position:fixed;bottom:calc(var(--tab-h) + 14px);left:50%;transform:translateX(-50%) translateY(120px);background:rgba(22,22,22,.97);border:1px solid rgba(255,255,255,.13);border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:11px;z-index:9999;min-width:200px;max-width:320px;box-shadow:0 14px 44px rgba(0,0,0,.8);transition:transform .36s cubic-bezier(.34,1.56,.64,1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 #toast.show{transform:translateX(-50%) translateY(0)}
-#t-icon{font-size:22px;flex-shrink:0}
-#t-text{font-size:14px;font-weight:700}
-#t-sub{font-size:12px;color:var(--text2);margin-top:2px}
+#ti{font-size:22px;flex-shrink:0}
+#tt{font-size:14px;font-weight:700}
+#ts{font-size:12px;color:var(--t2);margin-top:2px}
 
-/* ─── BOTTOM SHEET ───────────────────────── */
-#overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-#sheet{
-  position:fixed;bottom:0;left:50%;transform:translate(-50%,110%);
-  width:100%;max-width:430px;background:#1c1c1e;
-  border-radius:24px 24px 0 0;z-index:201;
-  padding:12px 20px calc(var(--safe-b) + 24px);
-  transition:transform .38s cubic-bezier(.34,1.56,.64,1);
-}
-#sheet.open{transform:translate(-50%,0)}
-.s-handle{width:38px;height:4px;border-radius:4px;background:rgba(255,255,255,.18);margin:0 auto 20px}
-.s-title{font-size:18px;font-weight:800;margin-bottom:16px}
-.s-row{display:flex;align-items:center;gap:14px;padding:14px 0;cursor:pointer;border-bottom:1px solid var(--border);transition:opacity .12s}
-.s-row:last-child{border-bottom:none}
-.s-row:active{opacity:.6}
-.s-row-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
-.s-row-lbl{font-size:16px;font-weight:500}
+/* BOTTOM SHEET */
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;backdrop-filter:blur(5px)}
+#sh{position:fixed;bottom:0;left:50%;transform:translate(-50%,110%);width:100%;max-width:430px;background:#1c1c1e;border-radius:24px 24px 0 0;z-index:201;padding:12px 20px calc(var(--safe-b) + 24px);transition:transform .36s cubic-bezier(.34,1.56,.64,1)}
+#sh.open{transform:translate(-50%,0)}
+.sh-handle{width:38px;height:4px;border-radius:4px;background:rgba(255,255,255,.18);margin:0 auto 18px}
+.sh-title{font-size:18px;font-weight:900;margin-bottom:14px}
+.sh-row{display:flex;align-items:center;gap:14px;padding:14px 0;cursor:pointer;border-bottom:1px solid var(--b1);transition:opacity .12s}
+.sh-row:last-child{border-bottom:none}
+.sh-row:active{opacity:.55}
+.sh-ico{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.sh-lbl{font-size:16px;font-weight:500}
 
-/* ══════════════════════════════════════════
-   SCREEN: LOGIN
-══════════════════════════════════════════ */
+/* ═══════════ LOGIN ═══════════ */
 #s-login{overflow-y:auto}
 #s-login::-webkit-scrollbar{display:none}
-.lg-hero{
-  height:52vh;min-height:260px;max-height:380px;
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-  padding-bottom:32px;position:relative;overflow:hidden;flex-shrink:0;
-  background:linear-gradient(170deg,#1a0800 0%,#0c0400 55%,#000 100%);
-}
-.lg-glow{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(252,82,0,.25) 0%,transparent 70%);top:-60px;left:50%;transform:translateX(-50%);pointer-events:none}
-.lg-glow2{position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(252,82,0,.15),transparent 70%);bottom:-30px;left:50%;transform:translateX(-50%)}
-.lg-logo{width:80px;height:80px;border-radius:24px;background:linear-gradient(145deg,#FC5200,#ff7a40);display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 20px 60px rgba(252,82,0,.5),0 0 0 1px rgba(255,255,255,.1);margin-bottom:20px;position:relative;z-index:1}
-.lg-title{font-size:28px;font-weight:900;letter-spacing:-.6px;position:relative;z-index:1}
-.lg-sub{font-size:14px;color:var(--text2);margin-top:5px;position:relative;z-index:1}
-.lg-form{padding:28px 22px calc(var(--safe-b) + 32px);flex-shrink:0}
+.lg-hero{height:48vh;min-height:240px;max-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:32px;position:relative;overflow:hidden;flex-shrink:0;background:#000}
+.lg-glow{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(252,82,0,.2) 0%,transparent 70%);top:-80px;left:50%;transform:translateX(-50%);pointer-events:none}
+.lg-logo{width:80px;height:80px;border-radius:24px;background:linear-gradient(145deg,#FC5200,#ff7a40);display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 18px 56px rgba(252,82,0,.48);margin-bottom:18px;position:relative;z-index:1}
+.lg-brand{font-size:28px;font-weight:900;letter-spacing:-.6px;z-index:1;position:relative}
+.lg-tag{font-size:14px;color:var(--t2);margin-top:4px;z-index:1;position:relative}
+.lg-form{padding:28px 22px calc(var(--safe-b) + 32px)}
 .role-row{display:flex;gap:10px;margin-bottom:22px}
-.role-btn{flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid var(--border2);background:var(--surface);color:var(--text2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center;letter-spacing:.1px}
+.role-btn{flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid var(--b2);background:var(--s1);color:var(--t2);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center}
 .role-btn.on{border-color:var(--brand);background:var(--brand-dim);color:var(--brand)}
-.field{margin-bottom:14px}
-.field-lbl{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
-.field-input{width:100%;background:rgba(255,255,255,.06);border:1.5px solid var(--border2);border-radius:14px;padding:15px 16px;color:#fff;font-size:16px;font-family:inherit;outline:none;transition:border-color .15s}
-.field-input:focus{border-color:var(--brand)}
-.or-row{display:flex;align-items:center;gap:13px;margin:18px 0}
-.or-line{flex:1;height:1px;background:var(--border2)}
-.or-txt{font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.3px}
-.sso-btn{width:100%;padding:15px;border-radius:14px;border:1.5px solid var(--border2);background:rgba(255,255,255,.05);color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;font-family:inherit;transition:opacity .12s}
-.sso-btn:active{opacity:.7}
+.f{margin-bottom:14px}
+.f-lbl{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
+.f-in{width:100%;background:var(--s2);border:1.5px solid var(--b2);border-radius:14px;padding:15px 16px;color:#fff;font-size:16px;font-family:inherit;outline:none;transition:border-color .15s}
+.f-in:focus{border-color:var(--brand)}
 
-/* ══════════════════════════════════════════
-   SCREEN: HOME (NTC-INSPIRED)
-══════════════════════════════════════════ */
+/* ═══════════ COACH HOME ═══════════ */
+/* Quick action status banner */
+.status-bar{margin:0 18px 16px;border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:13px;cursor:pointer;transition:transform .14s}
+.status-bar:active{transform:scale(.985)}
+.status-bar.live{background:linear-gradient(135deg,rgba(48,209,88,.15),rgba(48,209,88,.04));border:1px solid rgba(48,209,88,.2)}
+.status-bar.pending{background:linear-gradient(135deg,rgba(252,82,0,.14),rgba(252,82,0,.03));border:1px solid rgba(252,82,0,.2)}
 
-/* HERO FEATURE CARD */
-.hero-card{
-  margin:0 18px 24px;border-radius:22px;overflow:hidden;position:relative;
-  height:280px;cursor:pointer;flex-shrink:0;
-}
-.hero-card:active{opacity:.92}
-.hero-bg{
-  position:absolute;inset:0;
-  background:linear-gradient(145deg,#1f0a00 0%,#0d0400 45%,#050200 100%);
-  display:flex;align-items:center;justify-content:center;overflow:hidden;
-}
-.hero-emoji{font-size:140px;opacity:.08;position:absolute;bottom:-20px;right:-20px;transform:rotate(-15deg);user-select:none}
-.hero-gradient{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.95) 0%,rgba(0,0,0,.3) 55%,transparent 100%)}
-.hero-content{position:absolute;bottom:0;left:0;right:0;padding:18px 18px 20px}
-.hero-eyebrow{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--brand);margin-bottom:8px}
-.hero-title{font-size:22px;font-weight:900;letter-spacing:-.4px;line-height:1.2;margin-bottom:10px}
-.hero-pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
-.hero-pill{padding:5px 11px;border-radius:100px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);font-size:11px;font-weight:600;color:rgba(255,255,255,.8);backdrop-filter:blur(8px)}
-.hero-btn{display:inline-flex;align-items:center;gap:7px;background:var(--brand);color:#fff;font-size:14px;font-weight:800;padding:11px 20px;border-radius:100px;box-shadow:0 6px 24px rgba(252,82,0,.45)}
+/* TODAY'S VIDEO QUEUE - the main coach job */
+.queue-card{margin:0 18px 12px;border-radius:18px;background:var(--s1);border:1px solid var(--b1);overflow:hidden;cursor:pointer;transition:transform .14s}
+.queue-card:active{transform:scale(.985);opacity:.9}
+.queue-media{height:148px;position:relative;display:flex;align-items:center;justify-content:center}
+.queue-play{width:52px;height:52px;border-radius:50%;background:rgba(252,82,0,.94);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 8px 28px rgba(252,82,0,.5);position:relative;z-index:1}
+.queue-tl{position:absolute;top:10px;left:10px;z-index:2}
+.queue-tr{position:absolute;top:10px;right:10px;z-index:2;font-size:11px;font-weight:700;color:rgba(255,255,255,.6);background:rgba(0,0,0,.6);padding:3px 8px;border-radius:7px;backdrop-filter:blur(4px)}
+.queue-body{padding:12px 14px 14px}
+.queue-row{display:flex;align-items:center;gap:11px}
+.queue-info{flex:1}
+.queue-title{font-size:15px;font-weight:800;letter-spacing:-.1px}
+.queue-meta{font-size:13px;color:var(--t2);margin-top:2px}
+.queue-actions{display:flex;border-top:1px solid var(--b1);margin-top:11px}
+.queue-action{flex:1;padding:11px 0;text-align:center;font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;border:none;background:none;font-family:inherit;transition:color .12s}
+.queue-action:active{color:#fff}
+.queue-action.liked{color:var(--red)}
+.queue-action+.queue-action{border-left:1px solid var(--b1)}
 
-/* HORIZONTAL SCROLL SECTION */
-.h-scroll{display:flex;gap:13px;padding:0 18px;overflow-x:auto;padding-bottom:4px}
+/* ATHLETE SCROLL CARDS */
+.h-scroll{display:flex;gap:11px;padding:0 18px 4px;overflow-x:auto}
 .h-scroll::-webkit-scrollbar{display:none}
+.ath-mini{min-width:130px;width:130px;border-radius:16px;background:var(--s1);border:1px solid var(--b1);overflow:hidden;cursor:pointer;flex-shrink:0;transition:transform .13s}
+.ath-mini:active{transform:scale(.94)}
+.ath-mini-top{height:78px;display:flex;align-items:center;justify-content:center;position:relative}
+.ath-mini-body{padding:9px 10px 11px}
+.ath-mini-name{font-size:13px;font-weight:800}
+.ath-mini-sub{font-size:11px;color:var(--t2);margin-top:2px}
+.ath-mini-bar{height:3px;background:rgba(255,255,255,.1);border-radius:3px;margin-top:8px;overflow:hidden}
+.ath-mini-fill{height:100%;border-radius:3px}
+.online-dot{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:var(--green);border:2.5px solid #111}
 
-/* ATHLETE CARD (horizontal) */
-.ath-card{
-  min-width:160px;width:160px;border-radius:18px;overflow:hidden;
-  background:var(--surface);border:1px solid var(--border);cursor:pointer;flex-shrink:0;
-  transition:transform .14s;
-}
-.ath-card:active{transform:scale(.96);opacity:.9}
-.ath-card-top{height:90px;position:relative;display:flex;align-items:center;justify-content:center}
-.ath-card-grad{position:absolute;inset:0}
-.ath-status{position:absolute;top:9px;right:9px}
-.ath-card-body{padding:11px 12px 13px}
-.ath-card-name{font-size:14px;font-weight:800;letter-spacing:-.2px}
-.ath-card-meta{font-size:11px;color:var(--text2);margin-top:2px}
-.ath-progress-bar{height:3px;border-radius:3px;background:rgba(255,255,255,.1);margin-top:9px;overflow:hidden}
-.ath-progress-fill{height:100%;border-radius:3px}
-
-/* PROGRAM CARD */
-.prog-card{
-  min-width:220px;width:220px;border-radius:18px;overflow:hidden;
-  background:var(--surface);border:1px solid var(--border);cursor:pointer;flex-shrink:0;
-  transition:transform .14s;
-}
-.prog-card:active{transform:scale(.97);opacity:.9}
-.prog-card-top{height:120px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:12px}
-.prog-card-bg{position:absolute;inset:0}
-.prog-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85),transparent 60%)}
-.prog-card-wk{font-size:11px;font-weight:800;letter-spacing:.8px;color:rgba(255,255,255,.75);position:relative;z-index:1}
-.prog-card-body{padding:12px 13px 14px}
-.prog-card-name{font-size:15px;font-weight:800;letter-spacing:-.2px;margin-bottom:5px}
-.prog-card-pills{display:flex;gap:6px;flex-wrap:wrap}
-
-/* SUBMISSION CARD (full-width) */
-.sub-card{
-  margin:0 18px 12px;border-radius:18px;overflow:hidden;
-  background:var(--surface);border:1px solid var(--border);cursor:pointer;
-  transition:transform .14s,opacity .14s;
-}
-.sub-card:active{transform:scale(.985);opacity:.9}
-.sub-card-media{height:160px;position:relative;display:flex;align-items:center;justify-content:center}
-.sub-card-bg{position:absolute;inset:0}
-.sub-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8) 0%,transparent 60%)}
-.sub-play{width:52px;height:52px;border-radius:50%;background:rgba(252,82,0,.94);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 8px 28px rgba(252,82,0,.5);position:relative;z-index:1;transition:transform .12s}
-.sub-play:active{transform:scale(.9)}
-.sub-badge{position:absolute;top:10px;left:10px;z-index:2}
-.sub-dur{position:absolute;bottom:10px;right:10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.65);z-index:2;background:rgba(0,0,0,.65);padding:3px 8px;border-radius:7px;backdrop-filter:blur(6px)}
-.sub-card-body{padding:12px 14px 14px}
-.sub-card-row{display:flex;align-items:center;gap:10px}
-.sub-card-info{flex:1}
-.sub-card-title{font-size:15px;font-weight:800;letter-spacing:-.1px}
-.sub-card-meta{font-size:13px;color:var(--text2);margin-top:2px}
-.sub-card-actions{display:flex;border-top:1px solid var(--border);margin-top:10px}
-.sub-action{flex:1;padding:11px 0;display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;border:none;background:none;font-family:inherit;transition:color .12s}
-.sub-action:active{color:#fff}
-.sub-action.liked{color:var(--red)}
-.sub-action+.sub-action{border-left:1px solid var(--border)}
-
-/* STATS ROW */
-.stat-row{display:flex;margin:0 18px;border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--border)}
-.stat-cell{flex:1;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:3px}
-.stat-cell+.stat-cell{border-left:1px solid var(--border)}
+/* STAT STRIP */
+.stat-strip{display:flex;margin:0 18px;border-radius:16px;background:var(--s1);border:1px solid var(--b1);overflow:hidden}
+.stat-cell{flex:1;padding:13px 0;text-align:center}
+.stat-cell+.stat-cell{border-left:1px solid var(--b1)}
 .stat-val{font-size:22px;font-weight:900;letter-spacing:-.5px;color:var(--brand)}
-.stat-lbl{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3)}
+.stat-lbl{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-top:3px}
 
-/* STREAK WIDGET */
-.streak-card{
-  margin:0 18px;border-radius:18px;overflow:hidden;
-  background:linear-gradient(135deg,rgba(252,82,0,.15) 0%,rgba(252,82,0,.04) 100%);
-  border:1px solid rgba(252,82,0,.22);padding:16px 18px;
-  display:flex;align-items:center;gap:16px;
-}
-.streak-ring{flex-shrink:0}
-.streak-info{flex:1}
-.streak-days{font-size:32px;font-weight:900;letter-spacing:-1px;color:var(--brand);line-height:1}
-.streak-lbl{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text2);margin-top:3px}
+/* ═══════════ ATHLETE HOME ═══════════ */
+/* Upload prompt - primary CTA for athletes */
+.upload-hero{margin:0 18px 16px;border-radius:20px;overflow:hidden;position:relative;cursor:pointer;transition:transform .14s}
+.upload-hero:active{transform:scale(.985)}
+.upload-hero-bg{height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative;background:linear-gradient(145deg,#1a0800,#0a0300)}
+.upload-icon{width:60px;height:60px;border-radius:18px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 8px 28px var(--brand-glow)}
+.upload-text{font-size:16px;font-weight:800;letter-spacing:-.2px}
+.upload-sub{font-size:13px;color:var(--t2)}
 
-/* ══════════════════════════════════════════
-   SCREEN: LIBRARY (NTC WORKOUT BROWSER)
-══════════════════════════════════════════ */
-.filter-row{display:flex;gap:8px;padding:0 18px 14px;overflow-x:auto}
-.filter-row::-webkit-scrollbar{display:none}
-.f-chip{padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;background:var(--surface);border:1.5px solid var(--border2);color:var(--text2);cursor:pointer;flex-shrink:0;white-space:nowrap;transition:all .15s}
-.f-chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+/* TRICK PROGRESS - the 4 stages from docs */
+.trick-card{margin:0 18px 10px;border-radius:16px;background:var(--s1);border:1px solid var(--b1);padding:14px 15px;cursor:pointer;transition:transform .13s}
+.trick-card:active{transform:scale(.985)}
+.trick-name{font-size:15px;font-weight:800;letter-spacing:-.1px;margin-bottom:8px}
+.trick-stages{display:flex;gap:4px;margin-bottom:8px}
+.trick-stage{flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.1)}
+.trick-stage.done{background:var(--brand)}
+.trick-stage.active{background:linear-gradient(90deg,var(--brand),rgba(252,82,0,.4))}
+.trick-stage-labels{display:flex;justify-content:space-between}
+.trick-stage-lbl{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--t3)}
+.trick-stage-lbl.active{color:var(--brand)}
 
-.vid-grid{display:flex;flex-direction:column;gap:12px;padding:0 18px 20px}
-.vid-item{border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:transform .14s,opacity .14s}
-.vid-item:active{transform:scale(.985);opacity:.88}
-.vid-thumb{height:145px;position:relative;display:flex;align-items:center;justify-content:center}
-.vid-thumb-bg{position:absolute;inset:0}
-.vid-thumb-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent 55%)}
-.vid-play-btn{width:48px;height:48px;border-radius:50%;background:rgba(252,82,0,.9);display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 6px 24px rgba(252,82,0,.45);position:relative;z-index:1}
-.vid-bottom-badge{position:absolute;bottom:10px;left:10px;z-index:2}
-.vid-dur{position:absolute;bottom:10px;right:10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.6);z-index:2;background:rgba(0,0,0,.6);padding:3px 8px;border-radius:7px}
-.vid-body{padding:12px 14px 14px}
-.vid-title{font-size:16px;font-weight:800;letter-spacing:-.2px;margin-bottom:8px}
-.vid-pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
-.vid-meta-row{display:flex;align-items:center;gap:10px}
-.vid-coach-av{font-size:12px}
+/* STREAK CARD */
+.streak-card{margin:0 18px 14px;border-radius:16px;background:linear-gradient(135deg,rgba(252,82,0,.13),rgba(252,82,0,.03));border:1px solid rgba(252,82,0,.18);padding:15px 16px;display:flex;align-items:center;gap:14px}
 
-/* ══════════════════════════════════════════
-   SCREEN: SCHEDULE
-══════════════════════════════════════════ */
-.cal-strip{display:flex;gap:8px;padding:4px 18px 16px;overflow-x:auto}
+/* FEEDBACK CARD (from coach, for athlete view) */
+.feedback-item{margin:0 18px 10px;border-radius:16px;background:var(--s1);border:1px solid var(--b1);overflow:hidden;cursor:pointer;transition:transform .13s}
+.feedback-item:active{transform:scale(.985)}
+.feedback-media{height:120px;position:relative;display:flex;align-items:center;justify-content:center}
+.feedback-play{width:44px;height:44px;border-radius:50%;background:rgba(252,82,0,.9);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 6px 22px rgba(252,82,0,.45);position:relative;z-index:1}
+.feedback-body{padding:11px 13px 13px}
+.feedback-title{font-size:14px;font-weight:800}
+.feedback-note{font-size:13px;color:var(--t2);margin-top:4px;line-height:1.45}
+
+/* ═══════════ ATHLETES LIST (Coach) ═══════════ */
+.ath-row{display:flex;align-items:center;gap:13px;padding:14px 18px;cursor:pointer;transition:background .12s}
+.ath-row:active{background:rgba(255,255,255,.04)}
+.ath-row-info{flex:1;min-width:0}
+.ath-row-name{font-size:16px;font-weight:800;letter-spacing:-.2px}
+.ath-row-meta{font-size:13px;color:var(--t2);margin-top:2px}
+.ath-row-bar{margin-top:8px}
+.ath-row-bar-bg{height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+.ath-row-bar-fill{height:100%;border-radius:4px}
+
+/* ═══════════ SCHEDULE ═══════════ */
+.cal-strip{display:flex;gap:8px;padding:0 18px 16px;overflow-x:auto}
 .cal-strip::-webkit-scrollbar{display:none}
-.cal-d{min-width:54px;height:70px;border-radius:16px;background:var(--surface);border:1.5px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;flex-shrink:0;transition:all .18s}
-.cal-d.today{background:var(--brand);border-color:var(--brand);box-shadow:0 4px 20px var(--brand-glow)}
-.cal-d.has-event{border-color:rgba(252,82,0,.35)}
-.cal-d-name{font-size:10px;font-weight:700;letter-spacing:.4px;color:var(--text3)}
+.cal-d{min-width:52px;height:68px;border-radius:15px;background:var(--s1);border:1.5px solid var(--b1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;flex-shrink:0;transition:all .16s}
+.cal-d.today{background:var(--brand);border-color:var(--brand);box-shadow:0 4px 18px var(--brand-glow)}
+.cal-d.ev{border-color:rgba(252,82,0,.35)}
+.cal-d-name{font-size:10px;font-weight:700;letter-spacing:.4px;color:var(--t3)}
 .cal-d.today .cal-d-name{color:rgba(255,255,255,.65)}
 .cal-d-num{font-size:19px;font-weight:900}
 .cal-d-dot{width:5px;height:5px;border-radius:50%;background:var(--brand)}
-.cal-d.today .cal-d-dot{background:rgba(255,255,255,.7)}
-
-.sesh-card{margin:0 18px 10px;border-radius:18px;background:var(--surface);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:transform .14s}
-.sesh-card:active{transform:scale(.985);opacity:.9}
-.sesh-card-inner{display:flex;align-items:center;gap:14px;padding:14px 16px}
-.sesh-time{min-width:56px;height:56px;border-radius:14px;background:var(--brand-dim);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
-.sesh-time-h{font-size:14px;font-weight:900;color:var(--brand)}
-.sesh-time-p{font-size:9px;font-weight:700;color:var(--brand);opacity:.65;letter-spacing:.4px}
+.cal-d.today .cal-d-dot{background:rgba(255,255,255,.75)}
+.sesh-card{margin:0 18px 10px;border-radius:16px;background:var(--s1);border:1px solid var(--b1);display:flex;align-items:center;gap:13px;padding:14px 15px;cursor:pointer;transition:transform .13s}
+.sesh-card:active{transform:scale(.985)}
+.sesh-time{min-width:54px;height:54px;border-radius:13px;background:var(--brand-dim);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.sesh-h{font-size:14px;font-weight:900;color:var(--brand)}
+.sesh-p{font-size:9px;font-weight:700;color:var(--brand);opacity:.65;letter-spacing:.4px}
 .sesh-body{flex:1}
-.sesh-name{font-size:16px;font-weight:800;letter-spacing:-.2px}
-.sesh-detail{font-size:13px;color:var(--text2);margin-top:3px;line-height:1.4}
+.sesh-name{font-size:15px;font-weight:800}
+.sesh-detail{font-size:13px;color:var(--t2);margin-top:3px;line-height:1.4}
 
-/* ══════════════════════════════════════════
-   SCREEN: MESSAGES
-══════════════════════════════════════════ */
-.search-bar{display:flex;align-items:center;gap:10px;margin:4px 18px 14px;background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:13px;padding:11px 14px}
+/* ═══════════ MESSAGES ═══════════ */
+.search-bar{display:flex;align-items:center;gap:9px;margin:4px 18px 12px;background:rgba(255,255,255,.07);border:1px solid var(--b1);border-radius:13px;padding:11px 14px}
 .search-bar input{flex:1;background:none;border:none;outline:none;color:#fff;font-size:15px;font-family:inherit}
-.search-bar input::placeholder{color:var(--text3)}
-
+.search-bar input::placeholder{color:var(--t3)}
 .msg-row{display:flex;align-items:center;gap:13px;padding:13px 18px;cursor:pointer;transition:background .12s}
 .msg-row:active{background:rgba(255,255,255,.04)}
 .msg-av-wrap{position:relative;flex-shrink:0}
 .msg-badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;border-radius:9px;background:var(--brand);font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2.5px solid #000;padding:0 3px}
 .msg-body{flex:1;min-width:0}
 .msg-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
-.msg-name{font-size:16px;font-weight:800;letter-spacing:-.1px}
-.msg-time{font-size:12px;color:var(--text3)}
-.msg-preview{font-size:14px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.msg-preview.unread{color:#fff;font-weight:500}
+.msg-name{font-size:15px;font-weight:800}
+.msg-time{font-size:12px;color:var(--t3)}
+.msg-prev{font-size:14px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg-prev.u{color:#fff;font-weight:500}
 
-/* ══════════════════════════════════════════
-   SCREEN: PROFILE
-══════════════════════════════════════════ */
-.prof-hero{height:180px;background:linear-gradient(145deg,#1e0900,#0a0300 55%,#000);position:relative;overflow:hidden;flex-shrink:0}
-.prof-hero-emoji{position:absolute;font-size:140px;opacity:.06;bottom:-20px;right:-15px;transform:rotate(-12deg);user-select:none}
-.prof-av-wrap{margin-top:-44px;margin-bottom:12px}
+/* ═══════════ PROFILE ═══════════ */
+.prof-hero{height:160px;background:linear-gradient(145deg,#1e0800,#080300);position:relative;overflow:hidden;flex-shrink:0}
+.prof-emoji-bg{position:absolute;font-size:140px;opacity:.06;bottom:-20px;right:-15px;transform:rotate(-12deg);user-select:none}
 .prof-info{padding:0 18px 16px}
-.prof-name{font-size:27px;font-weight:900;letter-spacing:-.6px}
-.prof-role{font-size:14px;color:var(--brand);font-weight:700;margin-top:4px}
-.prof-bio{font-size:14px;color:var(--text2);line-height:1.55;margin-top:9px}
-.prof-stats{display:flex;margin:14px 18px 0;border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--border)}
-.prof-stat{flex:1;padding:14px 0;text-align:center}
-.prof-stat+.prof-stat{border-left:1px solid var(--border)}
-.prof-stat-val{font-size:21px;font-weight:900;color:var(--brand)}
-.prof-stat-lbl{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--text3);margin-top:3px}
+.prof-av-wrap{margin-top:-40px;margin-bottom:12px}
+.prof-stats{display:flex;margin:14px 18px 0;border-radius:16px;background:var(--s1);border:1px solid var(--b1)}
+.ps{flex:1;padding:13px 0;text-align:center}
+.ps+.ps{border-left:1px solid var(--b1)}
+.ps-val{font-size:21px;font-weight:900;color:var(--brand)}
+.ps-lbl{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--t3);margin-top:3px}
 .set-row{display:flex;align-items:center;gap:14px;padding:15px 18px;cursor:pointer;transition:background .12s}
 .set-row:active{background:rgba(255,255,255,.04)}
-.set-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.set-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .set-lbl{flex:1;font-size:16px;font-weight:500}
-.set-chevron{color:var(--text3);font-size:16px;font-weight:300}
+.set-chev{color:var(--t3);font-size:18px;font-weight:200}
 
-/* ══════════════════════════════════════════
-   SCREEN: CHAT
-══════════════════════════════════════════ */
+/* ═══════════ CHAT (sub) ═══════════ */
 .chat-scroll{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:6px}
 .chat-scroll::-webkit-scrollbar{display:none}
 .bbl{max-width:78%;padding:12px 15px;border-radius:22px;font-size:15px;line-height:1.5;word-break:break-word}
 .bbl.out{background:var(--brand);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
-.bbl.in{background:rgba(255,255,255,.1);color:#fff;align-self:flex-start;border-bottom-left-radius:4px;border:1px solid var(--border2)}
+.bbl.in{background:rgba(255,255,255,.1);color:#fff;align-self:flex-start;border-bottom-left-radius:4px;border:1px solid var(--b2)}
 .bbl small{display:block;font-size:11px;opacity:.5;margin-top:4px;text-align:right}
-.chat-date{text-align:center;font-size:12px;font-weight:600;color:var(--text3);padding:5px 0}
-.chat-bar{padding:10px 14px calc(var(--safe-b) + 10px);border-top:1px solid var(--border);display:flex;align-items:center;gap:9px;background:#000;flex-shrink:0}
-.chat-input{flex:1;background:rgba(255,255,255,.08);border:1px solid var(--border2);border-radius:24px;padding:12px 16px;color:#fff;font-size:15px;font-family:inherit;outline:none;transition:border-color .15s}
-.chat-input:focus{border-color:rgba(252,82,0,.4)}
+.chat-date{text-align:center;font-size:12px;font-weight:600;color:var(--t3);padding:5px 0}
+.chat-bar{padding:10px 14px calc(var(--safe-b) + 10px);border-top:1px solid var(--b1);display:flex;align-items:center;gap:9px;background:#000;flex-shrink:0}
+.chat-in{flex:1;background:rgba(255,255,255,.08);border:1px solid var(--b2);border-radius:24px;padding:12px 16px;color:#fff;font-size:15px;font-family:inherit;outline:none}
+.chat-in:focus{border-color:rgba(252,82,0,.35)}
 .chat-send{width:42px;height:42px;border-radius:50%;background:var(--brand);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 4px 14px var(--brand-glow);transition:transform .12s}
 .chat-send:active{transform:scale(.88)}
-.chat-attach{width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px}
 
-/* ══════════════════════════════════════════
-   SCREEN: VIDEO REVIEW (NTC PLAYER STYLE)
-══════════════════════════════════════════ */
-.vp-outer{width:100%;height:220px;background:linear-gradient(160deg,#1f0800,#0a0300 55%,#000);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.vp-bg-emoji{position:absolute;font-size:120px;opacity:.05;user-select:none}
-.vp-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.5),transparent 60%)}
-.vp-center{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:16px;width:100%}
-.vp-controls{display:flex;align-items:center;justify-content:center;gap:22px}
-.vp-skip-btn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:background .12s}
-.vp-skip-btn:active{background:rgba(255,255,255,.2)}
-.vp-play-btn{width:58px;height:58px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 10px 36px rgba(252,82,0,.55);cursor:pointer;transition:transform .12s}
-.vp-play-btn:active{transform:scale(.9)}
-.vp-scrub-wrap{width:84%;display:flex;flex-direction:column;gap:5px}
+/* ═══════════ VIDEO REVIEW (sub) ═══════════ */
+.vp-outer{width:100%;height:210px;background:linear-gradient(160deg,#1f0800,#0a0300 55%,#000);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vp-bg{position:absolute;font-size:115px;opacity:.05;user-select:none}
+.vp-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.5),transparent 60%)}
+.vp-center{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px;width:100%}
+.vp-ctrl{display:flex;align-items:center;justify-content:center;gap:24px}
+.vp-skip{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}
+.vp-skip:active{background:rgba(255,255,255,.2)}
+.vp-play{width:58px;height:58px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 10px 36px rgba(252,82,0,.55);cursor:pointer;transition:transform .12s}
+.vp-play:active{transform:scale(.9)}
+.vp-scrub-wrap{width:82%;display:flex;flex-direction:column;gap:5px}
 .vp-scrub{height:3px;border-radius:3px;background:rgba(255,255,255,.18);position:relative;cursor:pointer}
-.vp-scrub-fill{position:absolute;left:0;top:0;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--brand),#ff9040);transition:width .07s}
-.vp-scrub-thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.4);pointer-events:none}
+.vp-fill{position:absolute;left:0;top:0;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--brand),#ff9040);transition:width .07s}
+.vp-thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.4);pointer-events:none}
 .vp-times{display:flex;justify-content:space-between;font-size:11px;font-weight:600;color:rgba(255,255,255,.38)}
-.vp-speed{position:absolute;bottom:10px;left:12px;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:4px 11px;font-size:11px;font-weight:800;color:#fff;cursor:pointer;backdrop-filter:blur(8px)}
-.vp-pip{position:absolute;bottom:10px;right:12px;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:4px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.65);cursor:pointer}
-
-/* ANN BAR */
-.ann-bar{display:flex;align-items:center;gap:6px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;background:#000}
+.vp-speed{position:absolute;bottom:10px;left:12px;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:4px 11px;font-size:11px;font-weight:800;color:#fff;cursor:pointer;backdrop-filter:blur(6px)}
+/* ANNOTATION BAR */
+.ann-bar{display:flex;align-items:center;gap:6px;padding:9px 13px;border-bottom:1px solid var(--b1);flex-shrink:0;overflow-x:auto;background:#000}
 .ann-bar::-webkit-scrollbar{display:none}
-.ann-t{min-width:40px;height:40px;border-radius:11px;background:var(--surface);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;transition:all .12s}
+.ann-t{min-width:40px;height:40px;border-radius:11px;background:var(--s1);border:1.5px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;transition:all .12s}
 .ann-t.on{background:var(--brand-dim);border-color:var(--brand)}
 .ann-colors{display:flex;gap:6px;margin-left:auto;align-items:center;flex-shrink:0}
 .ann-c{width:24px;height:24px;border-radius:50%;cursor:pointer;transition:transform .12s;border:2.5px solid transparent}
-.ann-c.on{border-color:rgba(255,255,255,.55);transform:scale(1.25)}
+.ann-c.on{border-color:rgba(255,255,255,.6);transform:scale(1.25)}
+/* FEEDBACK COMPOSER */
+.fb-card{margin:13px 18px;background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:14px}
+.fb-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.fb-ta{width:100%;background:transparent;border:none;color:#fff;font-size:15px;font-family:inherit;outline:none;resize:none;line-height:1.7;min-height:90px}
+.fb-actions{display:flex;gap:11px;padding:0 18px 22px}
 
-/* FEEDBACK */
-.fb-card{margin:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px}
-.fb-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
-.fb-ta{width:100%;background:transparent;border:none;color:#fff;font-size:15px;font-family:inherit;outline:none;resize:none;line-height:1.7;min-height:100px}
-.fb-actions{display:flex;gap:11px;padding:0 18px 24px}
+/* ═══════════ TRICK LIBRARY (sub) ═══════════ */
+.stage-tabs{display:flex;gap:1px;margin:4px 18px 14px;background:rgba(255,255,255,.06);border-radius:11px;padding:3px;overflow:hidden}
+.stage-tab{flex:1;padding:9px 4px;text-align:center;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;border-radius:9px;transition:all .15s;white-space:nowrap}
+.stage-tab.on{background:var(--brand);color:#fff}
+.trick-lib-item{display:flex;align-items:center;gap:13px;padding:13px 18px;cursor:pointer;transition:background .12s}
+.trick-lib-item:active{background:rgba(255,255,255,.04)}
+.trick-lib-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.trick-lib-info{flex:1}
+.trick-lib-name{font-size:15px;font-weight:800}
+.trick-lib-sub{font-size:12px;color:var(--t2);margin-top:2px}
+.trick-lib-status{text-align:right}
+.trick-lib-pct{font-size:15px;font-weight:900;color:var(--brand)}
+.trick-lib-stage{font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--t3);margin-top:2px}
 
-/* ══════════════════════════════════════════
-   SCREEN: VERSUS
-══════════════════════════════════════════ */
-.vs-split{display:flex;flex-shrink:0;height:188px;gap:2px}
-.vs-panel{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.vs-badge{position:absolute;bottom:9px;left:9px;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:4px 10px;font-size:10px;font-weight:800;color:#fff;backdrop-filter:blur(8px)}
-.vs-bar{padding:11px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-shrink:0;background:#000}
-.vs-prog{flex:1;height:3px;background:rgba(255,255,255,.1);border-radius:3px;cursor:pointer;position:relative;overflow:hidden}
-.vs-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:3px;transition:width .3s}
-.vs-tools{display:flex;gap:9px;padding:13px 18px 4px}
-
-/* ══════════════════════════════════════════
-   ATHLETE PROFILE SCREEN
-══════════════════════════════════════════ */
-.ap-hero{height:190px;background:linear-gradient(145deg,#200900,#0c0400 55%,#000);position:relative;overflow:hidden;flex-shrink:0}
-.ap-hero-emoji{position:absolute;font-size:150px;opacity:.06;bottom:-20px;right:-15px;transform:rotate(-15deg);user-select:none}
+/* ATHLETE PROFILE (sub) */
+.ap-hero{height:180px;background:linear-gradient(145deg,#1e0800,#0a0300 55%,#000);position:relative;overflow:hidden;flex-shrink:0}
+.ap-emoji{position:absolute;font-size:140px;opacity:.06;bottom:-20px;right:-15px;transform:rotate(-14deg);user-select:none}
 .ap-grad{position:absolute;inset:0;background:linear-gradient(to top,#000 0%,transparent 60%)}
-.trick-item{display:flex;align-items:center;gap:14px;padding:14px 18px}
-.trick-icon-wrap{width:38px;height:38px;border-radius:10px;background:var(--brand-dim);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.trick-body{flex:1}
-.trick-name{font-size:15px;font-weight:800;letter-spacing:-.1px}
-.trick-bar-bg{height:4px;background:rgba(255,255,255,.08);border-radius:4px;margin-top:8px;overflow:hidden}
-.trick-bar-fill{height:100%;border-radius:4px}
-.trick-pct{font-size:12px;font-weight:700;margin-top:5px}
 </style>
 </head>
 <body>
 
-<div id="toast"><span id="t-icon"></span><div><div id="t-text"></div><div id="t-sub"></div></div></div>
-<div id="overlay" onclick="closeSheet()"></div>
-<div id="sheet"><div class="s-handle"></div><div class="s-title" id="s-title-text"></div><div id="s-body"></div></div>
+<div id="toast"><span id="ti"></span><div><div id="tt"></div><div id="ts"></div></div></div>
+<div id="ov" onclick="closeSheet()"></div>
+<div id="sh"><div class="sh-handle"></div><div class="sh-title" id="sh-t"></div><div id="sh-b"></div></div>
 
 <div id="app">
 
-<!-- ══════ LOGIN ══════ -->
+<!-- ═══════════════ LOGIN ═══════════════ -->
 <div class="screen" id="s-login">
   <div class="lg-hero">
-    <div class="lg-glow"></div><div class="lg-glow2"></div>
+    <div class="lg-glow"></div>
     <div class="lg-logo">🛹</div>
-    <div class="lg-title">Skate Workshop</div>
-    <div class="lg-sub">Train smarter. Progress faster.</div>
+    <div class="lg-brand">Skate Workshop</div>
+    <div class="lg-tag">Coach Willy's Training Platform</div>
   </div>
   <div class="lg-form">
-    <div style="margin-bottom:22px">
-      <div class="t-cap" style="margin-bottom:9px">I AM A</div>
-      <div class="role-row">
-        <button class="role-btn on" onclick="pickRole(this)">🎿 &nbsp;Coach</button>
-        <button class="role-btn" onclick="pickRole(this)">🛹 &nbsp;Athlete</button>
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:9px">I AM A</div>
+      <div class="role-row" id="role-row">
+        <button class="role-btn on" onclick="pickRole(this,'coach')">🎿 &nbsp;Coach</button>
+        <button class="role-btn" onclick="pickRole(this,'athlete')">🛹 &nbsp;Athlete</button>
       </div>
     </div>
-    <div class="field"><div class="field-lbl">Email</div><input class="field-input" type="email" value="willy@skateworkshop.com"></div>
-    <div class="field"><div class="field-lbl">Password</div><input class="field-input" type="password" value="••••••••"></div>
-    <button class="btn btn-primary btn-w" style="margin:8px 0 14px;font-size:16px;padding:16px;border-radius:16px" onclick="doLogin()">Sign In</button>
-    <div class="or-row"><div class="or-line"></div><div class="or-txt">OR CONTINUE WITH</div><div class="or-line"></div></div>
-    <button class="sso-btn" style="margin-bottom:12px" onclick="doLogin()">
-      <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.707A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
-      Google
-    </button>
-    <div style="text-align:center;font-size:13px;color:var(--text3)">Don't have an account? <span style="color:var(--brand);font-weight:700;cursor:pointer">Sign Up</span></div>
+    <div class="f"><div class="f-lbl">Email</div><input class="f-in" id="login-email" type="email" value="willy@skateworkshop.com"></div>
+    <div class="f"><div class="f-lbl">Password</div><input class="f-in" type="password" value="••••••••"></div>
+    <button class="btn btn-p btn-w" style="margin:8px 0 16px;padding:16px;border-radius:16px;font-size:16px" onclick="doLogin()">Sign In</button>
+    <div style="text-align:center;font-size:13px;color:var(--t3)">New here? <span style="color:var(--brand);font-weight:700;cursor:pointer" onclick="toast('📧','Check your email','Signup link sent!')">Create Account</span></div>
+    <div style="text-align:center;margin-top:24px;padding-top:18px;border-top:1px solid var(--b1)">
+      <div style="font-size:12px;color:var(--t3);margin-bottom:10px">Try the demo</div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn btn-s-sm" onclick="demoLogin('coach')">Coach View</button>
+        <button class="btn btn-s-sm" onclick="demoLogin('athlete')">Athlete View</button>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- ══════ HOME ══════ -->
-<div class="screen" id="s-home">
-  <div class="nav" style="padding-bottom:12px;justify-content:space-between">
+<!-- ═══════════════ COACH HOME ═══════════════ -->
+<div class="screen" id="s-coach-home">
+  <div class="nav" style="justify-content:space-between;padding-bottom:10px">
     <div>
-      <div style="font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--text2);text-transform:uppercase">WEDNESDAY</div>
-      <div style="font-size:24px;font-weight:900;letter-spacing:-.5px;margin-top:1px">Good morning, Willy 👋</div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--t2);text-transform:uppercase">WEDNESDAY · JUNE 3</div>
+      <div style="font-size:22px;font-weight:900;letter-spacing:-.5px;margin-top:1px">Morning, Willy 👋</div>
     </div>
     <div style="display:flex;gap:8px">
-      <div class="nav-icon-btn" onclick="toast('🔔','3 new submissions','From Alex, Jake & Marcus')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      </div>
-      <div class="nav-icon-btn" onclick="showSheet('upload')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </div>
+      <div class="ico-btn" onclick="toast('🔔','3 new video submissions','Alex, Jake & Marcus')">🔔</div>
+      <div class="ico-btn" onclick="showSheet('coach-add')">➕</div>
     </div>
   </div>
   <div class="scroll">
-    <!-- HERO CARD -->
-    <div class="hero-card pressable" onclick="pushScreen('s-video')">
-      <div class="hero-bg">
-        <div class="hero-emoji">🛹</div>
-        <div style="position:absolute;inset:0;background:linear-gradient(145deg,#2a0e00 0%,#130600 55%,#040200 100%)"></div>
+
+    <!-- ACTIVE SESSION BANNER -->
+    <div class="status-bar live" onclick="toast('● LIVE','Alex Johnson','Street session · Venice Skatepark · 32 min elapsed')">
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 0 3px rgba(48,209,88,.2)"></div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:800">Alex Johnson — Session Live</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:2px">Venice Skatepark · Street · 32 min elapsed</div>
       </div>
-      <div class="hero-gradient"></div>
-      <div class="hero-content">
-        <div class="hero-eyebrow">⭐ NEW SUBMISSION — ALEX JOHNSON</div>
-        <div class="hero-title">Kickflip — Front Foot<br>Finally Clicking 🛹</div>
-        <div class="hero-pills">
-          <div class="hero-pill">0:34</div>
-          <div class="hero-pill">Street</div>
-          <div class="hero-pill">Attempt #12</div>
-          <div class="hero-pill">Pending Review</div>
-        </div>
-        <div class="hero-btn">▶ &nbsp;Review Now</div>
-      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--green)">End ›</div>
     </div>
 
-    <!-- STATS ROW -->
-    <div class="stat-row">
-      <div class="stat-cell"><div class="stat-val">12</div><div class="stat-lbl">Athletes</div></div>
+    <!-- PENDING REVIEW COUNT -->
+    <div class="status-bar pending" onclick="switchTab('coach-library')">
+      <div style="font-size:22px">📥</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:800">3 Videos Waiting for Review</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:2px">Alex · Jake · Marcus · Tap to review</div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--brand)">Review ›</div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stat-strip" style="margin-bottom:18px">
+      <div class="stat-cell"><div class="stat-val">5</div><div class="stat-lbl">Athletes</div></div>
       <div class="stat-cell"><div class="stat-val" style="color:var(--red)">3</div><div class="stat-lbl">Pending</div></div>
-      <div class="stat-cell"><div class="stat-val" style="color:var(--green)">47</div><div class="stat-lbl">Sessions</div></div>
-      <div class="stat-cell"><div class="stat-val" style="color:var(--gold)">4.9</div><div class="stat-lbl">Rating</div></div>
-    </div>
-
-    <!-- STREAK -->
-    <div style="margin:14px 0">
-      <div class="streak-card">
-        <div class="streak-ring">
-          <svg width="64" height="64">
-            <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(252,82,0,.15)" stroke-width="5"/>
-            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--brand)" stroke-width="5" stroke-linecap="round"
-              stroke-dasharray="163" stroke-dashoffset="40" transform="rotate(-90 32 32)"/>
-            <text x="32" y="37" text-anchor="middle" fill="var(--brand)" font-size="14" font-weight="900" font-family="-apple-system,sans-serif">18</text>
-          </svg>
-        </div>
-        <div class="streak-info">
-          <div class="streak-days">18-Day Streak 🔥</div>
-          <div class="streak-lbl">COACHING CONSISTENCY</div>
-          <div style="margin-top:8px;font-size:13px;color:var(--text2)">Keep it up — your athletes are watching</div>
-        </div>
-      </div>
+      <div class="stat-cell"><div class="stat-val" style="color:var(--green)">2</div><div class="stat-lbl">Today</div></div>
+      <div class="stat-cell"><div class="stat-val" style="color:var(--gold)">4.9★</div><div class="stat-lbl">Rating</div></div>
     </div>
 
     <!-- YOUR ATHLETES -->
-    <div class="sec"><div class="sec-title">Your Athletes</div><div class="sec-action" onclick="switchTab('athletes')">See All</div></div>
+    <div class="sec"><div class="sec-t">Athletes</div><div class="sec-a" onclick="switchTab('coach-athletes')">See All</div></div>
     <div class="h-scroll" style="padding-bottom:6px">
-      <!-- Alex -->
-      <div class="ath-card" onclick="pushScreen('s-athlete-profile')">
-        <div class="ath-card-top" style="background:linear-gradient(145deg,#2a0e00,#0d0400)">
-          <div style="position:absolute;font-size:52px;opacity:.18">🛹</div>
-          <div class="av av-40 av-a" style="position:relative;z-index:1">AJ</div>
-          <div class="ath-status"><span class="chip chip-g" style="font-size:10px;padding:3px 8px">● Live</span></div>
+      <div class="ath-mini" onclick="pushScreen('s-athlete-profile')">
+        <div class="ath-mini-top" style="background:linear-gradient(145deg,#2a0e00,#0d0400)">
+          <div style="position:absolute;font-size:50px;opacity:.16">🛹</div>
+          <div class="av av44 ava" style="position:relative;z-index:1">AJ</div>
+          <div class="online-dot"></div>
         </div>
-        <div class="ath-card-body">
-          <div class="ath-card-name">Alex Johnson</div>
-          <div class="ath-card-meta">Street · ⭐ PRO</div>
-          <div class="ath-progress-bar"><div class="ath-progress-fill" style="width:82%;background:linear-gradient(90deg,var(--brand),#ff9040)"></div></div>
-        </div>
-      </div>
-      <!-- Jake -->
-      <div class="ath-card" onclick="pushScreen('s-athlete-profile')">
-        <div class="ath-card-top" style="background:linear-gradient(145deg,#1a1200,#080600)">
-          <div style="position:absolute;font-size:52px;opacity:.18">🏄</div>
-          <div class="av av-40 av-b" style="position:relative;z-index:1">JR</div>
-          <div class="ath-status"><span class="chip chip-o" style="font-size:10px;padding:3px 8px">NEW</span></div>
-        </div>
-        <div class="ath-card-body">
-          <div class="ath-card-name">Jake Rivera</div>
-          <div class="ath-card-meta">Park · ⭐ PRO</div>
-          <div class="ath-progress-bar"><div class="ath-progress-fill" style="width:71%;background:linear-gradient(90deg,#ffd60a,#ff9f0a)"></div></div>
+        <div class="ath-mini-body">
+          <div class="ath-mini-name">Alex J.</div>
+          <div class="ath-mini-sub">Kickflip · 82%</div>
+          <div class="ath-mini-bar"><div class="ath-mini-fill" style="width:82%;background:linear-gradient(90deg,var(--brand),#ff9040)"></div></div>
         </div>
       </div>
-      <!-- Marcus -->
-      <div class="ath-card" onclick="pushScreen('s-athlete-profile')">
-        <div class="ath-card-top" style="background:linear-gradient(145deg,#001830,#000c1a)">
-          <div style="position:absolute;font-size:52px;opacity:.18">⚡</div>
-          <div class="av av-40 av-c" style="position:relative;z-index:1">MR</div>
-          <div class="ath-status"><span class="chip chip-b" style="font-size:10px;padding:3px 8px">Compare</span></div>
+      <div class="ath-mini" onclick="pushScreen('s-athlete-profile')">
+        <div class="ath-mini-top" style="background:linear-gradient(145deg,#1a1200,#080600)">
+          <div style="position:absolute;font-size:50px;opacity:.16">🏄</div>
+          <div class="av av44 avb" style="position:relative;z-index:1">JR</div>
         </div>
-        <div class="ath-card-body">
-          <div class="ath-card-name">Marcus Reed</div>
-          <div class="ath-card-meta">Park · Plus</div>
-          <div class="ath-progress-bar"><div class="ath-progress-fill" style="width:55%;background:linear-gradient(90deg,var(--blue),var(--green))"></div></div>
+        <div class="ath-mini-body">
+          <div class="ath-mini-name">Jake R.</div>
+          <div class="ath-mini-sub">Heelflip · 71%</div>
+          <div class="ath-mini-bar"><div class="ath-mini-fill" style="width:71%;background:linear-gradient(90deg,#ffd60a,#ff9f0a)"></div></div>
         </div>
       </div>
-      <!-- Tyler -->
-      <div class="ath-card" onclick="pushScreen('s-athlete-profile')">
-        <div class="ath-card-top" style="background:linear-gradient(145deg,#1a0a2a,#0d0415)">
-          <div style="position:absolute;font-size:52px;opacity:.18">🔄</div>
-          <div class="av av-40 av-d" style="position:relative;z-index:1">TW</div>
+      <div class="ath-mini" onclick="pushScreen('s-athlete-profile')">
+        <div class="ath-mini-top" style="background:linear-gradient(145deg,#001830,#000c1a)">
+          <div style="position:absolute;font-size:50px;opacity:.16">⚡</div>
+          <div class="av av44 avc" style="position:relative;z-index:1">MR</div>
         </div>
-        <div class="ath-card-body">
-          <div class="ath-card-name">Tyler Weston</div>
-          <div class="ath-card-meta">Street · Plus</div>
-          <div class="ath-progress-bar"><div class="ath-progress-fill" style="width:38%;background:linear-gradient(90deg,var(--purple),#ff375f)"></div></div>
+        <div class="ath-mini-body">
+          <div class="ath-mini-name">Marcus R.</div>
+          <div class="ath-mini-sub">Heelflip · 55%</div>
+          <div class="ath-mini-bar"><div class="ath-mini-fill" style="width:55%;background:linear-gradient(90deg,var(--blue),var(--green))"></div></div>
         </div>
       </div>
-    </div>
-
-    <!-- RECENT SUBMISSIONS -->
-    <div class="sec"><div class="sec-title">Pending Review</div><div class="sec-action" onclick="switchTab('library')">View All</div></div>
-
-    <!-- Sub Card 1 -->
-    <div class="sub-card" onclick="pushScreen('s-video')">
-      <div class="sub-card-media">
-        <div class="sub-card-bg" style="background:linear-gradient(145deg,#1f0800,#080300)"></div>
-        <div style="position:absolute;font-size:80px;opacity:.07;user-select:none">🛹</div>
-        <div class="sub-card-overlay"></div>
-        <div class="sub-play">▶</div>
-        <div class="sub-badge"><span class="chip chip-o">NEW</span></div>
-        <div class="sub-dur">0:34</div>
-      </div>
-      <div class="sub-card-body">
-        <div class="sub-card-row">
-          <div class="av av-40 av-a">AJ</div>
-          <div class="sub-card-info">
-            <div class="sub-card-title">Kickflip — Front Foot Issue</div>
-            <div class="sub-card-meta">Alex Johnson · Street · 2h ago</div>
-          </div>
-          <button class="btn btn-primary-sm" onclick="event.stopPropagation();pushScreen('s-video')">Review</button>
+      <div class="ath-mini" onclick="pushScreen('s-athlete-profile')">
+        <div class="ath-mini-top" style="background:linear-gradient(145deg,#180a2a,#0c0416)">
+          <div style="position:absolute;font-size:50px;opacity:.16">🔄</div>
+          <div class="av av44 avd" style="position:relative;z-index:1">TW</div>
         </div>
-        <div class="sub-card-actions">
-          <button class="sub-action" id="like1" onclick="event.stopPropagation();toggleLike('like1')">🤍 Like</button>
-          <button class="sub-action" onclick="event.stopPropagation();openChat('AJ','Alex Johnson','av-a','Just uploaded! 🛹')">💬 Comment</button>
-          <button class="sub-action" onclick="event.stopPropagation();pushScreen('s-video')">✏️ Review</button>
+        <div class="ath-mini-body">
+          <div class="ath-mini-name">Tyler W.</div>
+          <div class="ath-mini-sub">360 Flip · 38%</div>
+          <div class="ath-mini-bar"><div class="ath-mini-fill" style="width:38%;background:linear-gradient(90deg,var(--purple),#ff375f)"></div></div>
+        </div>
+      </div>
+      <div class="ath-mini" onclick="pushScreen('s-athlete-profile')">
+        <div class="ath-mini-top" style="background:linear-gradient(145deg,#001a10,#000c08)">
+          <div style="position:absolute;font-size:50px;opacity:.16">🌀</div>
+          <div class="av av44 ave" style="position:relative;z-index:1">SK</div>
+        </div>
+        <div class="ath-mini-body">
+          <div class="ath-mini-name">Sam K.</div>
+          <div class="ath-mini-sub">Drop-In · 28%</div>
+          <div class="ath-mini-bar"><div class="ath-mini-fill" style="width:28%;background:linear-gradient(90deg,var(--green),#00c7be)"></div></div>
         </div>
       </div>
     </div>
 
-    <!-- Sub Card 2 -->
-    <div class="sub-card" onclick="pushScreen('s-versus')">
-      <div class="sub-card-media">
-        <div class="sub-card-bg" style="background:linear-gradient(145deg,#001530,#000a1c)"></div>
-        <div style="position:absolute;font-size:80px;opacity:.07;user-select:none">🏄</div>
-        <div class="sub-card-overlay"></div>
-        <div class="sub-play" style="background:rgba(10,132,255,.9);box-shadow:0 8px 28px rgba(10,132,255,.45)">▶</div>
-        <div class="sub-badge"><span class="chip chip-b">COMPARE</span></div>
-        <div class="sub-dur">1:12</div>
+    <!-- VIDEO REVIEW QUEUE -->
+    <div class="sec"><div class="sec-t">Review Queue</div><div class="sec-a" onclick="switchTab('coach-library')">All 3</div></div>
+
+    <!-- Card 1 -->
+    <div class="queue-card" onclick="pushScreen('s-video-review')">
+      <div class="queue-media" style="background:linear-gradient(145deg,#1f0800,#080300)">
+        <div style="position:absolute;font-size:80px;opacity:.07">🛹</div>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75),transparent 55%)"></div>
+        <div class="queue-play">▶</div>
+        <div class="queue-tl"><span class="chip co">NEW</span></div>
+        <div class="queue-tr">0:34</div>
       </div>
-      <div class="sub-card-body">
-        <div class="sub-card-row">
-          <div class="av av-40 av-c">MR</div>
-          <div class="sub-card-info">
-            <div class="sub-card-title">Heelflip — 3 Month Progress</div>
-            <div class="sub-card-meta">Marcus Reed · Park · Yesterday</div>
+      <div class="queue-body">
+        <div class="queue-row">
+          <div class="av av44 ava">AJ</div>
+          <div class="queue-info">
+            <div class="queue-title">Kickflip — Front Foot Issue</div>
+            <div class="queue-meta">Alex Johnson · Street · 2h ago · Attempt #12</div>
           </div>
-          <button class="btn btn-secondary-sm" onclick="event.stopPropagation();pushScreen('s-versus')">Versus</button>
+          <button class="btn btn-p-sm" onclick="event.stopPropagation();pushScreen('s-video-review')">Review</button>
         </div>
-        <div class="sub-card-actions">
-          <button class="sub-action" id="like2" onclick="event.stopPropagation();toggleLike('like2')">🤍 Like</button>
-          <button class="sub-action" onclick="event.stopPropagation();openChat('MR','Marcus Reed','av-c','Huge progress 🔥')">💬 Comment</button>
-          <button class="sub-action" onclick="event.stopPropagation();pushScreen('s-versus')">📐 Versus</button>
+        <div class="queue-actions">
+          <button class="queue-action" id="ql1" onclick="event.stopPropagation();toggleLike('ql1')">🤍 Seen</button>
+          <button class="queue-action" onclick="event.stopPropagation();openChat('AJ','Alex Johnson','ava','Check your latest video 👀')">💬 Message</button>
+          <button class="queue-action" onclick="event.stopPropagation();pushScreen('s-video-review')">✏️ Review</button>
         </div>
       </div>
     </div>
 
-    <!-- PROGRAMS ROW (NTC inspired) -->
-    <div class="sec"><div class="sec-title">Programs</div><div class="sec-action" onclick="toast('📋','Programs','Curated multi-week programs coming soon')">See All</div></div>
-    <div class="h-scroll" style="padding-bottom:6px">
-      <div class="prog-card pressable" onclick="toast('🛹','Street Fundamentals','6-week program · 4 athletes enrolled')">
-        <div class="prog-card-top" style="background:linear-gradient(145deg,#2a0e00,#0d0400)">
-          <div class="prog-card-bg" style="position:absolute;inset:0;background:linear-gradient(145deg,#2a0e00,#0d0400)"></div>
-          <div class="prog-card-overlay"></div>
-          <div style="position:absolute;font-size:70px;opacity:.15;right:-5px;bottom:-10px;user-select:none">🛹</div>
-          <div class="prog-card-wk">6 WEEKS · 4 ATHLETES</div>
-        </div>
-        <div class="prog-card-body">
-          <div class="prog-card-name">Street Fundamentals</div>
-          <div class="prog-card-pills">
-            <div class="pill" style="font-size:11px;padding:4px 9px">Kickflip</div>
-            <div class="pill" style="font-size:11px;padding:4px 9px">Heelflip</div>
-          </div>
-        </div>
+    <!-- Card 2 -->
+    <div class="queue-card" onclick="pushScreen('s-video-review')">
+      <div class="queue-media" style="background:linear-gradient(145deg,#001530,#000a1c)">
+        <div style="position:absolute;font-size:80px;opacity:.07">🏄</div>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75),transparent 55%)"></div>
+        <div class="queue-play" style="background:rgba(10,132,255,.9);box-shadow:0 8px 28px rgba(10,132,255,.45)">▶</div>
+        <div class="queue-tl"><span class="chip cb">COMPARE</span></div>
+        <div class="queue-tr">1:12</div>
       </div>
-      <div class="prog-card pressable" onclick="toast('🏄','Park Progression','4-week program · 3 athletes enrolled')">
-        <div class="prog-card-top" style="background:linear-gradient(145deg,#001830,#000c1a)">
-          <div class="prog-card-overlay"></div>
-          <div style="position:absolute;font-size:70px;opacity:.15;right:-5px;bottom:-10px;user-select:none">🏄</div>
-          <div class="prog-card-wk">4 WEEKS · 3 ATHLETES</div>
-        </div>
-        <div class="prog-card-body">
-          <div class="prog-card-name">Park Progression</div>
-          <div class="prog-card-pills">
-            <div class="pill" style="font-size:11px;padding:4px 9px">Bowl</div>
-            <div class="pill" style="font-size:11px;padding:4px 9px">Mini Ramp</div>
+      <div class="queue-body">
+        <div class="queue-row">
+          <div class="av av44 avb">JR</div>
+          <div class="queue-info">
+            <div class="queue-title">Heelflip — 3 Month Progress</div>
+            <div class="queue-meta">Jake Rivera · Park · Yesterday</div>
           </div>
+          <button class="btn btn-s-sm" onclick="event.stopPropagation();pushScreen('s-video-review')">Compare</button>
         </div>
-      </div>
-      <div class="prog-card pressable" onclick="toast('⚡','Vert Foundations','8-week program · 2 athletes enrolled')">
-        <div class="prog-card-top" style="background:linear-gradient(145deg,#12001e,#070010)">
-          <div class="prog-card-overlay"></div>
-          <div style="position:absolute;font-size:70px;opacity:.15;right:-5px;bottom:-10px;user-select:none">⚡</div>
-          <div class="prog-card-wk">8 WEEKS · 2 ATHLETES</div>
-        </div>
-        <div class="prog-card-body">
-          <div class="prog-card-name">Vert Foundations</div>
-          <div class="prog-card-pills">
-            <div class="pill" style="font-size:11px;padding:4px 9px">Vert</div>
-            <div class="pill" style="font-size:11px;padding:4px 9px">Drops</div>
-          </div>
+        <div class="queue-actions">
+          <button class="queue-action" id="ql2" onclick="event.stopPropagation();toggleLike('ql2')">🤍 Seen</button>
+          <button class="queue-action" onclick="event.stopPropagation();openChat('JR','Jake Rivera','avb','Great improvement!')">💬 Message</button>
+          <button class="queue-action" onclick="event.stopPropagation();pushScreen('s-video-review')">✏️ Review</button>
         </div>
       </div>
     </div>
@@ -773,220 +540,162 @@ body{
   </div>
 </div>
 
-<!-- ══════ ATHLETES ══════ -->
-<div class="screen" id="s-athletes">
+<!-- ═══════════════ COACH ATHLETES LIST ═══════════════ -->
+<div class="screen" id="s-coach-athletes">
   <div class="nav" style="justify-content:space-between;padding-bottom:10px">
-    <div class="t-h1">Athletes</div>
-    <div class="nav-icon-btn" onclick="toast('📨','Invite copied','Share link to add a new athlete')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
+    <div style="font-size:26px;font-weight:900;letter-spacing:-.6px">Athletes</div>
+    <div class="ico-btn" onclick="toast('📨','Invite copied','Share link to add an athlete')">➕</div>
   </div>
   <div class="scroll">
-    <div class="search-bar"><span style="color:var(--text3)">🔍</span><input placeholder="Search athletes, tricks…"></div>
-    <div class="filter-row">
-      <div class="f-chip on" onclick="setFilter(this)">All</div>
-      <div class="f-chip" onclick="setFilter(this)">⭐ PRO</div>
-      <div class="f-chip" onclick="setFilter(this)">Plus</div>
-      <div class="f-chip" onclick="setFilter(this)">Basic</div>
-      <div class="f-chip" onclick="setFilter(this)">🟢 Active</div>
+    <div class="search-bar"><span style="color:var(--t3)">🔍</span><input placeholder="Search athletes or tricks…"></div>
+    <!-- Elite -->
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);padding:6px 18px 8px">ELITE — 1-on-1 ACCESS</div>
+    <div class="ath-row" onclick="pushScreen('s-athlete-profile')">
+      <div style="position:relative"><div class="av av52 ava">AJ</div><div class="online-dot" style="width:12px;height:12px;bottom:1px;right:1px"></div></div>
+      <div class="ath-row-info">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <div class="ath-row-name">Alex Johnson</div><span class="chip cgold">⭐ ELITE</span><span class="chip cg">● Now</span>
+        </div>
+        <div class="ath-row-meta">Street · LA · 3 videos pending</div>
+        <div class="ath-row-bar">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-size:12px;color:var(--t2);font-weight:600">Kickflip</div><div style="font-size:12px;font-weight:900;color:var(--brand)">82%</div></div>
+          <div class="ath-row-bar-bg"><div class="ath-row-bar-fill" style="width:82%;background:linear-gradient(90deg,var(--brand),#ff9040)"></div></div>
+        </div>
+      </div>
+      <div style="color:var(--t3);font-size:20px;font-weight:200">›</div>
     </div>
-
-    <div class="t-cap" style="padding:8px 18px 6px">PRO TIER</div>
-    <!-- Alex -->
-    <div style="margin:0 18px 10px;border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:transform .14s" class="pressable" onclick="pushScreen('s-athlete-profile')">
-      <div style="display:flex;align-items:center;gap:14px;padding:14px 14px 10px">
-        <div style="position:relative;flex-shrink:0">
-          <div class="av av-48 av-a">AJ</div>
-          <div style="position:absolute;bottom:1px;right:1px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2.5px solid #111"></div>
-        </div>
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px">
-            <div style="font-size:16px;font-weight:800;letter-spacing:-.2px">Alex Johnson</div>
-            <span class="chip chip-gold">⭐ PRO</span>
-            <span class="chip chip-g">Active</span>
-          </div>
-          <div style="font-size:13px;color:var(--text2)">Street · Los Angeles, CA</div>
-        </div>
-        <div style="color:var(--text3);font-size:20px;font-weight:200">›</div>
-      </div>
-      <div style="padding:0 14px 14px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
-          <div style="font-size:12px;font-weight:700;color:var(--text2)">Kickflip Progress</div>
-          <div style="font-size:13px;font-weight:900;color:var(--brand)">82%</div>
-        </div>
-        <div class="trick-bar-bg" style="height:5px"><div class="trick-bar-fill" style="width:82%;background:linear-gradient(90deg,var(--brand),#ff9040)"></div></div>
-        <div style="display:flex;gap:7px;margin-top:10px">
-          <span class="chip chip-o">14 videos</span>
-          <span class="chip chip-gr">8 months</span>
+    <div class="hrfull"></div>
+    <div class="ath-row" onclick="pushScreen('s-athlete-profile')">
+      <div class="av av52 avb">JR</div>
+      <div class="ath-row-info">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><div class="ath-row-name">Jake Rivera</div><span class="chip cgold">⭐ ELITE</span></div>
+        <div class="ath-row-meta">Park · San Diego · 1 video pending</div>
+        <div class="ath-row-bar">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-size:12px;color:var(--t2);font-weight:600">Heelflip</div><div style="font-size:12px;font-weight:900;color:var(--gold)">71%</div></div>
+          <div class="ath-row-bar-bg"><div class="ath-row-bar-fill" style="width:71%;background:linear-gradient(90deg,#ffd60a,#ff9f0a)"></div></div>
         </div>
       </div>
+      <div style="color:var(--t3);font-size:20px;font-weight:200">›</div>
     </div>
-    <!-- Jake -->
-    <div style="margin:0 18px 10px;border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--border);cursor:pointer" class="pressable" onclick="pushScreen('s-athlete-profile')">
-      <div style="display:flex;align-items:center;gap:14px;padding:14px 14px 10px">
-        <div class="av av-48 av-b">JR</div>
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px">
-            <div style="font-size:16px;font-weight:800;letter-spacing:-.2px">Jake Rivera</div>
-            <span class="chip chip-gold">⭐ PRO</span>
-          </div>
-          <div style="font-size:13px;color:var(--text2)">Park · San Diego, CA</div>
-        </div>
-        <div style="color:var(--text3);font-size:20px;font-weight:200">›</div>
-      </div>
-      <div style="padding:0 14px 14px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
-          <div style="font-size:12px;font-weight:700;color:var(--text2)">Heelflip Progress</div>
-          <div style="font-size:13px;font-weight:900;color:#ffd60a">71%</div>
-        </div>
-        <div class="trick-bar-bg" style="height:5px"><div class="trick-bar-fill" style="width:71%;background:linear-gradient(90deg,#ffd60a,#ff9f0a)"></div></div>
-        <div style="display:flex;gap:7px;margin-top:10px">
-          <span class="chip chip-o">9 videos</span>
-          <span class="chip chip-gr">6 months</span>
+    <!-- Pro -->
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);padding:16px 18px 8px">PRO COACHING</div>
+    <div class="ath-row" onclick="pushScreen('s-athlete-profile')">
+      <div class="av av52 avc">MR</div>
+      <div class="ath-row-info">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><div class="ath-row-name">Marcus Reed</div><span class="chip cb">PRO</span></div>
+        <div class="ath-row-meta">Park · Phoenix</div>
+        <div class="ath-row-bar">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-size:12px;color:var(--t2);font-weight:600">Heelflip</div><div style="font-size:12px;font-weight:900;color:var(--blue)">55%</div></div>
+          <div class="ath-row-bar-bg"><div class="ath-row-bar-fill" style="width:55%;background:linear-gradient(90deg,var(--blue),var(--green))"></div></div>
         </div>
       </div>
+      <div style="color:var(--t3);font-size:20px;font-weight:200">›</div>
     </div>
-
-    <div class="t-cap" style="padding:12px 18px 6px">PLUS TIER</div>
-    <div style="margin:0 18px 10px;border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--border);cursor:pointer" class="pressable" onclick="pushScreen('s-athlete-profile')">
-      <div style="display:flex;align-items:center;gap:14px;padding:14px 14px 10px">
-        <div class="av av-48 av-c">MR</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:16px;font-weight:800;margin-bottom:3px">Marcus Reed</div>
-          <div style="font-size:13px;color:var(--text2)">Park · Phoenix, AZ</div>
+    <div class="hrfull"></div>
+    <div class="ath-row" onclick="pushScreen('s-athlete-profile')">
+      <div class="av av52 avd">TW</div>
+      <div class="ath-row-info">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><div class="ath-row-name">Tyler Weston</div><span class="chip cb">PRO</span></div>
+        <div class="ath-row-meta">Street · Portland · <span style="color:var(--green)">Active</span></div>
+        <div class="ath-row-bar">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-size:12px;color:var(--t2);font-weight:600">360 Flip</div><div style="font-size:12px;font-weight:900;color:var(--purple)">38%</div></div>
+          <div class="ath-row-bar-bg"><div class="ath-row-bar-fill" style="width:38%;background:linear-gradient(90deg,var(--purple),#ff375f)"></div></div>
         </div>
-        <div style="color:var(--text3);font-size:20px;font-weight:200">›</div>
       </div>
-      <div style="padding:0 14px 14px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
-          <div style="font-size:12px;font-weight:700;color:var(--text2)">Heelflip Progress</div>
-          <div style="font-size:13px;font-weight:900;color:var(--blue)">55%</div>
-        </div>
-        <div class="trick-bar-bg" style="height:5px"><div class="trick-bar-fill" style="width:55%;background:linear-gradient(90deg,var(--blue),var(--green))"></div></div>
-        <div style="display:flex;gap:7px;margin-top:10px"><span class="chip chip-b">7 videos</span></div>
-      </div>
+      <div style="color:var(--t3);font-size:20px;font-weight:200">›</div>
     </div>
-    <div style="margin:0 18px 10px;border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--border);cursor:pointer" class="pressable" onclick="pushScreen('s-athlete-profile')">
-      <div style="display:flex;align-items:center;gap:14px;padding:14px 14px 10px">
-        <div class="av av-48 av-d">TW</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:16px;font-weight:800;margin-bottom:3px">Tyler Weston</div>
-          <div style="font-size:13px;color:var(--text2)">Street · Portland, OR · <span style="color:var(--green)">Active</span></div>
+    <!-- Basic -->
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);padding:16px 18px 8px">BASIC TRAINING</div>
+    <div class="ath-row" onclick="pushScreen('s-athlete-profile')">
+      <div class="av av52 ave">SK</div>
+      <div class="ath-row-info">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><div class="ath-row-name">Sam Kim</div><span class="chip cgr">BASIC</span></div>
+        <div class="ath-row-meta">Vert · Seattle</div>
+        <div class="ath-row-bar">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><div style="font-size:12px;color:var(--t2);font-weight:600">Drop-In</div><div style="font-size:12px;font-weight:900;color:var(--green)">28%</div></div>
+          <div class="ath-row-bar-bg"><div class="ath-row-bar-fill" style="width:28%;background:linear-gradient(90deg,var(--green),#00c7be)"></div></div>
         </div>
-        <div style="color:var(--text3);font-size:20px;font-weight:200">›</div>
       </div>
-      <div style="padding:0 14px 14px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
-          <div style="font-size:12px;font-weight:700;color:var(--text2)">360 Flip Progress</div>
-          <div style="font-size:13px;font-weight:900;color:var(--purple)">38%</div>
-        </div>
-        <div class="trick-bar-bg" style="height:5px"><div class="trick-bar-fill" style="width:38%;background:linear-gradient(90deg,var(--purple),#ff375f)"></div></div>
-        <div style="display:flex;gap:7px;margin-top:10px"><span class="chip chip-p">5 videos</span></div>
-      </div>
-    </div>
-
-    <div class="t-cap" style="padding:12px 18px 6px">BASIC TIER</div>
-    <div style="margin:0 18px 10px;border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--border);cursor:pointer" class="pressable" onclick="pushScreen('s-athlete-profile')">
-      <div style="display:flex;align-items:center;gap:14px;padding:14px 14px 10px">
-        <div class="av av-48 av-e">SK</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:16px;font-weight:800;margin-bottom:3px">Sam Kim</div>
-          <div style="font-size:13px;color:var(--text2)">Vert · Seattle, WA</div>
-        </div>
-        <div style="color:var(--text3);font-size:20px;font-weight:200">›</div>
-      </div>
-      <div style="padding:0 14px 14px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
-          <div style="font-size:12px;font-weight:700;color:var(--text2)">Drop-In Progress</div>
-          <div style="font-size:13px;font-weight:900;color:var(--green)">28%</div>
-        </div>
-        <div class="trick-bar-bg" style="height:5px"><div class="trick-bar-fill" style="width:28%;background:linear-gradient(90deg,var(--green),#00c7be)"></div></div>
-        <div style="display:flex;gap:7px;margin-top:10px"><span class="chip chip-gr">3 videos</span></div>
-      </div>
+      <div style="color:var(--t3);font-size:20px;font-weight:200">›</div>
     </div>
     <div style="height:24px"></div>
   </div>
 </div>
 
-<!-- ══════ LIBRARY ══════ -->
-<div class="screen" id="s-library">
+<!-- ═══════════════ COACH LIBRARY (VIDEO QUEUE) ═══════════════ -->
+<div class="screen" id="s-coach-library">
   <div class="nav" style="justify-content:space-between;padding-bottom:10px">
-    <div class="t-h1">Library</div>
-    <div class="nav-icon-btn" onclick="showSheet('upload')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
+    <div style="font-size:26px;font-weight:900;letter-spacing:-.6px">Video Queue</div>
+    <div class="ico-btn" onclick="toast('🔍','Filter','Filter by athlete or status')">⚙️</div>
   </div>
   <div class="scroll">
-    <div class="filter-row">
-      <div class="f-chip on" onclick="setFilter(this)">All</div>
-      <div class="f-chip" onclick="setFilter(this)">Pending</div>
-      <div class="f-chip" onclick="setFilter(this)">Reviewed</div>
-      <div class="f-chip" onclick="setFilter(this)">Compare</div>
-      <div class="f-chip" onclick="setFilter(this)">Street</div>
-      <div class="f-chip" onclick="setFilter(this)">Park</div>
-      <div class="f-chip" onclick="setFilter(this)">Vert</div>
+    <!-- Filter pills -->
+    <div style="display:flex;gap:8px;padding:0 18px 14px;overflow-x:auto">
+      <div id="lf-all" style="padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;background:var(--brand);border:1.5px solid var(--brand);color:#fff;cursor:pointer;flex-shrink:0;white-space:nowrap" onclick="setLibFilter(this)">All (3)</div>
+      <div style="padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;background:var(--s1);border:1.5px solid var(--b2);color:var(--t2);cursor:pointer;flex-shrink:0;white-space:nowrap" onclick="setLibFilter(this)">Pending</div>
+      <div style="padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;background:var(--s1);border:1.5px solid var(--b2);color:var(--t2);cursor:pointer;flex-shrink:0;white-space:nowrap" onclick="setLibFilter(this)">Reviewed</div>
+      <div style="padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;background:var(--s1);border:1.5px solid var(--b2);color:var(--t2);cursor:pointer;flex-shrink:0;white-space:nowrap" onclick="setLibFilter(this)">Alex J.</div>
+      <div style="padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;background:var(--s1);border:1.5px solid var(--b2);color:var(--t2);cursor:pointer;flex-shrink:0;white-space:nowrap" onclick="setLibFilter(this)">Jake R.</div>
     </div>
-    <div class="vid-grid">
-      <!-- Vid 1 -->
-      <div class="vid-item" onclick="pushScreen('s-video')">
-        <div class="vid-thumb" style="background:linear-gradient(145deg,#1f0800,#080300)">
-          <div style="position:absolute;font-size:75px;opacity:.07;user-select:none">🛹</div>
-          <div class="vid-thumb-overlay"></div>
-          <div class="vid-play-btn">▶</div>
-          <div class="vid-bottom-badge"><span class="chip chip-o">NEW</span></div>
-          <div class="vid-dur">0:34</div>
+    <!-- Videos -->
+    <div style="display:flex;flex-direction:column;gap:12px;padding:0 18px 24px">
+      <div class="card press" onclick="pushScreen('s-video-review')">
+        <div style="height:140px;background:linear-gradient(145deg,#1f0800,#080300);display:flex;align-items:center;justify-content:center;position:relative">
+          <div style="position:absolute;font-size:75px;opacity:.07">🛹</div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent 55%)"></div>
+          <div class="queue-play">▶</div>
+          <div style="position:absolute;top:10px;left:10px"><span class="chip co">NEW</span></div>
+          <div style="position:absolute;bottom:10px;right:10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.6);background:rgba(0,0,0,.6);padding:3px 8px;border-radius:7px">0:34</div>
         </div>
-        <div class="vid-body">
-          <div class="vid-title">Kickflip — Front Foot Issue</div>
-          <div class="vid-pills">
-            <div class="pill">Street</div><div class="pill">Attempt #12</div><div class="pill">0:34</div>
+        <div style="padding:12px 14px 14px">
+          <div style="font-size:16px;font-weight:800;margin-bottom:4px">Kickflip — Front Foot Issue</div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
+            <div style="padding:4px 10px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;color:rgba(255,255,255,.65)">Street</div>
+            <div style="padding:4px 10px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;color:rgba(255,255,255,.65)">Attempt #12</div>
+            <div style="padding:4px 10px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;color:rgba(255,255,255,.65)">82% consistency</div>
           </div>
-          <div class="vid-meta-row">
-            <div class="av av-40 av-a" style="width:28px;height:28px;font-size:11px">AJ</div>
-            <div style="font-size:13px;color:var(--text2)">Alex Johnson · 2h ago</div>
-            <div style="margin-left:auto"><button class="btn btn-primary-sm" onclick="event.stopPropagation();pushScreen('s-video')">Review</button></div>
-          </div>
-        </div>
-      </div>
-      <!-- Vid 2 -->
-      <div class="vid-item" onclick="pushScreen('s-versus')">
-        <div class="vid-thumb" style="background:linear-gradient(145deg,#001530,#000a1c)">
-          <div style="position:absolute;font-size:75px;opacity:.07;user-select:none">🏄</div>
-          <div class="vid-thumb-overlay"></div>
-          <div class="vid-play-btn" style="background:rgba(10,132,255,.9);box-shadow:0 6px 24px rgba(10,132,255,.45)">▶</div>
-          <div class="vid-bottom-badge"><span class="chip chip-b">COMPARE</span></div>
-          <div class="vid-dur">1:12</div>
-        </div>
-        <div class="vid-body">
-          <div class="vid-title">Heelflip — 3 Month Progress</div>
-          <div class="vid-pills">
-            <div class="pill">Park</div><div class="pill">Before/After</div><div class="pill">1:12</div>
-          </div>
-          <div class="vid-meta-row">
-            <div class="av av-40 av-c" style="width:28px;height:28px;font-size:11px">MR</div>
-            <div style="font-size:13px;color:var(--text2)">Marcus Reed · Yesterday</div>
-            <div style="margin-left:auto"><button class="btn btn-secondary-sm" onclick="event.stopPropagation();pushScreen('s-versus')">Versus</button></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="av av44 ava" style="width:28px;height:28px;font-size:11px">AJ</div>
+            <div style="font-size:13px;color:var(--t2)">Alex Johnson · 2h ago</div>
+            <button class="btn btn-p-sm" style="margin-left:auto" onclick="event.stopPropagation();pushScreen('s-video-review')">Review</button>
           </div>
         </div>
       </div>
-      <!-- Vid 3 -->
-      <div class="vid-item" onclick="pushScreen('s-video')">
-        <div class="vid-thumb" style="background:linear-gradient(145deg,#0f0020,#050010)">
-          <div style="position:absolute;font-size:75px;opacity:.07;user-select:none">⚡</div>
-          <div class="vid-thumb-overlay"></div>
-          <div class="vid-play-btn" style="background:rgba(191,90,242,.9);box-shadow:0 6px 24px rgba(191,90,242,.4)">▶</div>
-          <div class="vid-bottom-badge"><span class="chip chip-g">REVIEWED</span></div>
-          <div class="vid-dur">0:51</div>
+      <div class="card press" onclick="pushScreen('s-video-review')">
+        <div style="height:140px;background:linear-gradient(145deg,#001530,#000a1c);display:flex;align-items:center;justify-content:center;position:relative">
+          <div style="position:absolute;font-size:75px;opacity:.07">🏄</div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent 55%)"></div>
+          <div class="queue-play" style="background:rgba(10,132,255,.9);box-shadow:0 6px 24px rgba(10,132,255,.45)">▶</div>
+          <div style="position:absolute;top:10px;left:10px"><span class="chip cb">COMPARE</span></div>
+          <div style="position:absolute;bottom:10px;right:10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.6);background:rgba(0,0,0,.6);padding:3px 8px;border-radius:7px">1:12</div>
         </div>
-        <div class="vid-body">
-          <div class="vid-title">360 Flip — Clean Attempt</div>
-          <div class="vid-pills">
-            <div class="pill">Street</div><div class="pill">Attempt #5</div><div class="pill">0:51</div>
+        <div style="padding:12px 14px 14px">
+          <div style="font-size:16px;font-weight:800;margin-bottom:4px">Heelflip — 3 Month Progress</div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
+            <div style="padding:4px 10px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;color:rgba(255,255,255,.65)">Park</div>
+            <div style="padding:4px 10px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;color:rgba(255,255,255,.65)">Before/After</div>
           </div>
-          <div class="vid-meta-row">
-            <div class="av av-40 av-d" style="width:28px;height:28px;font-size:11px">TW</div>
-            <div style="font-size:13px;color:var(--text2)">Tyler Weston · 2d ago</div>
-            <div style="margin-left:auto"><span class="chip chip-g">✓ Done</span></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="av av44 avb" style="width:28px;height:28px;font-size:11px">JR</div>
+            <div style="font-size:13px;color:var(--t2)">Jake Rivera · Yesterday</div>
+            <button class="btn btn-s-sm" style="margin-left:auto" onclick="event.stopPropagation();toast('📊','Compare mode','Side-by-side viewer coming soon')">Compare</button>
+          </div>
+        </div>
+      </div>
+      <div class="card press" onclick="pushScreen('s-video-review')" style="opacity:.65">
+        <div style="height:140px;background:linear-gradient(145deg,#120020,#060010);display:flex;align-items:center;justify-content:center;position:relative">
+          <div style="position:absolute;font-size:75px;opacity:.07">⚡</div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent 55%)"></div>
+          <div class="queue-play" style="background:rgba(48,209,88,.9);box-shadow:0 6px 24px rgba(48,209,88,.4)">▶</div>
+          <div style="position:absolute;top:10px;left:10px"><span class="chip cg">REVIEWED</span></div>
+          <div style="position:absolute;bottom:10px;right:10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.6);background:rgba(0,0,0,.6);padding:3px 8px;border-radius:7px">0:51</div>
+        </div>
+        <div style="padding:12px 14px 14px">
+          <div style="font-size:16px;font-weight:800;margin-bottom:4px">360 Flip — Clean Attempt</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="av av44 avd" style="width:28px;height:28px;font-size:11px">TW</div>
+            <div style="font-size:13px;color:var(--t2)">Tyler Weston · 2d ago</div>
+            <span class="chip cg" style="margin-left:auto">✓ Done</span>
           </div>
         </div>
       </div>
@@ -994,219 +703,331 @@ body{
   </div>
 </div>
 
-<!-- ══════ SCHEDULE ══════ -->
-<div class="screen" id="s-schedule">
+<!-- ═══════════════ COACH SCHEDULE ═══════════════ -->
+<div class="screen" id="s-coach-schedule">
   <div class="nav" style="justify-content:space-between;padding-bottom:10px">
-    <div class="t-h1">Schedule</div>
-    <div class="nav-icon-btn" onclick="toast('➕','New Session','Session creator opening')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
+    <div style="font-size:26px;font-weight:900;letter-spacing:-.6px">Schedule</div>
+    <div class="ico-btn" onclick="toast('➕','New Session','Session creator opening')">➕</div>
   </div>
   <div class="scroll">
     <div style="padding:0 18px 10px;display:flex;align-items:center;justify-content:space-between">
-      <div style="font-size:15px;font-weight:600;color:var(--text2)">June 2026</div>
-      <div style="display:flex;gap:8px">
-        <div class="nav-icon-btn" style="width:30px;height:30px;font-size:14px" onclick="toast('‹','Prev week','')">‹</div>
-        <div class="nav-icon-btn" style="width:30px;height:30px;font-size:14px" onclick="toast('›','Next week','')">›</div>
+      <div style="font-size:15px;font-weight:600;color:var(--t2)">June 2026</div>
+      <div style="display:flex;gap:7px">
+        <div class="ico-btn" style="width:30px;height:30px;font-size:14px" onclick="">‹</div>
+        <div class="ico-btn" style="width:30px;height:30px;font-size:14px" onclick="">›</div>
       </div>
     </div>
     <div class="cal-strip">
-      <div class="cal-d today has-event"><div class="cal-d-name">WED</div><div class="cal-d-num">3</div><div class="cal-d-dot"></div></div>
-      <div class="cal-d has-event"><div class="cal-d-name">THU</div><div class="cal-d-num">4</div><div class="cal-d-dot"></div></div>
+      <div class="cal-d today ev"><div class="cal-d-name">WED</div><div class="cal-d-num">3</div><div class="cal-d-dot"></div></div>
+      <div class="cal-d ev"><div class="cal-d-name">THU</div><div class="cal-d-num">4</div><div class="cal-d-dot"></div></div>
       <div class="cal-d"><div class="cal-d-name">FRI</div><div class="cal-d-num">5</div></div>
-      <div class="cal-d has-event"><div class="cal-d-name">SAT</div><div class="cal-d-num">6</div><div class="cal-d-dot"></div></div>
+      <div class="cal-d ev"><div class="cal-d-name">SAT</div><div class="cal-d-num">6</div><div class="cal-d-dot"></div></div>
       <div class="cal-d"><div class="cal-d-name">SUN</div><div class="cal-d-num">7</div></div>
-      <div class="cal-d has-event"><div class="cal-d-name">MON</div><div class="cal-d-num">8</div><div class="cal-d-dot"></div></div>
+      <div class="cal-d ev"><div class="cal-d-name">MON</div><div class="cal-d-num">8</div><div class="cal-d-dot"></div></div>
       <div class="cal-d"><div class="cal-d-name">TUE</div><div class="cal-d-num">9</div></div>
     </div>
-
-    <div class="t-cap" style="padding:4px 18px 8px">TODAY — JUNE 3</div>
-    <div class="sesh-card" onclick="openChat('AJ','Alex Johnson','av-a','Ready for today! 🔥')">
-      <div class="sesh-card-inner">
-        <div class="sesh-time"><div class="sesh-time-h">9:00</div><div class="sesh-time-p">AM</div></div>
-        <div class="sesh-body"><div class="sesh-name">Alex Johnson</div><div class="sesh-detail">Street fundamentals · 60 min<br>📍 Venice Skatepark</div></div>
-        <span class="chip chip-g">● LIVE</span>
-      </div>
-    </div>
-    <div class="sesh-card" onclick="toast('📅','Jake Rivera','Session in 2 hours')">
-      <div class="sesh-card-inner">
-        <div class="sesh-time"><div class="sesh-time-h">11:00</div><div class="sesh-time-p">AM</div></div>
-        <div class="sesh-body"><div class="sesh-name">Jake Rivera</div><div class="sesh-detail">Park tricks · 45 min<br>📍 Stoner Skate Plaza</div></div>
-        <span class="chip chip-o">SOON</span>
-      </div>
-    </div>
-    <div class="sesh-card" onclick="toast('👥','Group Session','4 athletes confirmed')">
-      <div class="sesh-card-inner">
-        <div class="sesh-time"><div class="sesh-time-h">2:00</div><div class="sesh-time-p">PM</div></div>
-        <div class="sesh-body"><div class="sesh-name">Group Session</div><div class="sesh-detail">Bowl skating · 4 athletes<br>📍 Lot 11 Skatepark</div></div>
-        <span class="chip chip-b">GROUP</span>
-      </div>
-    </div>
-    <div class="sesh-card" onclick="toast('📅','Tyler Weston','4:30 PM session')">
-      <div class="sesh-card-inner">
-        <div class="sesh-time"><div class="sesh-time-h">4:30</div><div class="sesh-time-p">PM</div></div>
-        <div class="sesh-body"><div class="sesh-name">Tyler Weston</div><div class="sesh-detail">Beginner street · 45 min</div></div>
-        <span class="chip chip-gr">PM</span>
-      </div>
-    </div>
-
-    <div class="t-cap" style="padding:16px 18px 8px">THURSDAY — JUNE 4</div>
-    <div class="sesh-card" onclick="toast('📅','Marcus Reed','Video review + technique')">
-      <div class="sesh-card-inner">
-        <div class="sesh-time"><div class="sesh-time-h">10:00</div><div class="sesh-time-p">AM</div></div>
-        <div class="sesh-body"><div class="sesh-name">Marcus Reed</div><div class="sesh-detail">Video review + technique · 90 min</div></div>
-        <span class="chip chip-gr">THU</span>
-      </div>
-    </div>
-    <div class="sesh-card" onclick="toast('📅','Sam Kim','Vert progression')">
-      <div class="sesh-card-inner">
-        <div class="sesh-time"><div class="sesh-time-h">3:00</div><div class="sesh-time-p">PM</div></div>
-        <div class="sesh-body"><div class="sesh-name">Sam Kim</div><div class="sesh-detail">Vert progression · 60 min<br>📍 Rampage Skatepark</div></div>
-        <span class="chip chip-gr">THU</span>
-      </div>
-    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);padding:4px 18px 8px">TODAY — JUNE 3</div>
+    <div class="sesh-card" onclick="openChat('AJ','Alex Johnson','ava','Ready! 🔥')"><div class="sesh-time"><div class="sesh-h">9:00</div><div class="sesh-p">AM</div></div><div class="sesh-body"><div class="sesh-name">Alex Johnson</div><div class="sesh-detail">Street fundamentals · 60 min · 📍 Venice Skatepark</div></div><span class="chip cg">● LIVE</span></div>
+    <div class="sesh-card" onclick="toast('📅','Jake Rivera','2h until session')"><div class="sesh-time"><div class="sesh-h">11:00</div><div class="sesh-p">AM</div></div><div class="sesh-body"><div class="sesh-name">Jake Rivera</div><div class="sesh-detail">Park tricks · 45 min · 📍 Stoner Skate Plaza</div></div><span class="chip co">SOON</span></div>
+    <div class="sesh-card" onclick="toast('👥','Group Session','4 athletes confirmed')"><div class="sesh-time"><div class="sesh-h">2:00</div><div class="sesh-p">PM</div></div><div class="sesh-body"><div class="sesh-name">Group Session</div><div class="sesh-detail">Bowl skating · 4 athletes · 📍 Lot 11 Skatepark</div></div><span class="chip cb">GROUP</span></div>
+    <div class="sesh-card" onclick="toast('📅','Tyler Weston','4:30 PM')"><div class="sesh-time"><div class="sesh-h">4:30</div><div class="sesh-p">PM</div></div><div class="sesh-body"><div class="sesh-name">Tyler Weston</div><div class="sesh-detail">Beginner street · 45 min</div></div><span class="chip cgr">PM</span></div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);padding:16px 18px 8px">THURSDAY — JUNE 4</div>
+    <div class="sesh-card" onclick="toast('📅','Marcus Reed','Video review')"><div class="sesh-time"><div class="sesh-h">10:00</div><div class="sesh-p">AM</div></div><div class="sesh-body"><div class="sesh-name">Marcus Reed</div><div class="sesh-detail">Video review + technique · 90 min</div></div><span class="chip cgr">THU</span></div>
     <div style="height:24px"></div>
   </div>
 </div>
 
-<!-- ══════ MESSAGES ══════ -->
+<!-- ═══════════════ MESSAGES (shared) ═══════════════ -->
 <div class="screen" id="s-messages">
   <div class="nav" style="justify-content:space-between;padding-bottom:10px">
-    <div class="t-h1">Messages</div>
-    <div class="nav-icon-btn" onclick="toast('✏️','New Message','Pick an athlete')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-    </div>
+    <div style="font-size:26px;font-weight:900;letter-spacing:-.6px">Messages</div>
+    <div class="ico-btn" onclick="toast('✏️','New Message','')">✏️</div>
   </div>
   <div class="scroll">
-    <div class="search-bar"><span style="color:var(--text3)">🔍</span><input placeholder="Search conversations…"></div>
-    <div class="msg-row" onclick="openChat('AJ','Alex Johnson','av-a','Just uploaded the new kickflip attempt 🛹')">
-      <div class="msg-av-wrap"><div class="av av-48 av-a">AJ</div><div class="msg-badge">3</div></div>
-      <div class="msg-body"><div class="msg-top"><div class="msg-name">Alex Johnson</div><div class="msg-time">Now</div></div><div class="msg-preview unread">Just uploaded the new kickflip attempt 🛹</div></div>
-    </div>
-    <div class="hr-full"></div>
-    <div class="msg-row" onclick="openChat('JR','Jake Rivera','av-b','Can we move tomorrow\'s session?')">
-      <div class="msg-av-wrap"><div class="av av-48 av-b">JR</div><div class="msg-badge">1</div></div>
-      <div class="msg-body"><div class="msg-top"><div class="msg-name">Jake Rivera</div><div class="msg-time">34m</div></div><div class="msg-preview unread">Can we move tomorrow's session?</div></div>
-    </div>
-    <div class="hr-full"></div>
-    <div class="msg-row" onclick="openChat('MR','Marcus Reed','av-c','Thanks for the feedback! 🙏')">
-      <div class="msg-av-wrap"><div class="av av-48 av-c">MR</div></div>
-      <div class="msg-body"><div class="msg-top"><div class="msg-name">Marcus Reed</div><div class="msg-time">2h</div></div><div class="msg-preview">Thanks for the heelflip feedback! 🙏</div></div>
-    </div>
-    <div class="hr-full"></div>
-    <div class="msg-row" onclick="openChat('TW','Tyler Weston','av-d','See you Saturday! 🤙')">
-      <div class="msg-av-wrap"><div class="av av-48 av-d">TW</div></div>
-      <div class="msg-body"><div class="msg-top"><div class="msg-name">Tyler Weston</div><div class="msg-time">Yesterday</div></div><div class="msg-preview">See you at the park Saturday! 🤙</div></div>
-    </div>
-    <div class="hr-full"></div>
-    <div class="msg-row" onclick="openChat('SK','Sam Kim','av-e','Great session today!')">
-      <div class="msg-av-wrap"><div class="av av-48 av-e">SK</div></div>
-      <div class="msg-body"><div class="msg-top"><div class="msg-name">Sam Kim</div><div class="msg-time">2d</div></div><div class="msg-preview">You: Great work this week! 🤙</div></div>
-    </div>
+    <div class="search-bar"><span style="color:var(--t3)">🔍</span><input placeholder="Search conversations…"></div>
+    <div class="msg-row" onclick="openChat('AJ','Alex Johnson','ava','Just uploaded #12 🛹')"><div class="msg-av-wrap"><div class="av av52 ava">AJ</div><div class="msg-badge">3</div></div><div class="msg-body"><div class="msg-top"><div class="msg-name">Alex Johnson</div><div class="msg-time">Now</div></div><div class="msg-prev u">Just uploaded the new kickflip attempt 🛹</div></div></div>
+    <div class="hrfull"></div>
+    <div class="msg-row" onclick="openChat('JR','Jake Rivera','avb','Can we move tomorrow?')"><div class="msg-av-wrap"><div class="av av52 avb">JR</div><div class="msg-badge">1</div></div><div class="msg-body"><div class="msg-top"><div class="msg-name">Jake Rivera</div><div class="msg-time">34m</div></div><div class="msg-prev u">Can we move tomorrow's session?</div></div></div>
+    <div class="hrfull"></div>
+    <div class="msg-row" onclick="openChat('MR','Marcus Reed','avc','Thanks for the feedback! 🙏')"><div class="msg-av-wrap"><div class="av av52 avc">MR</div></div><div class="msg-body"><div class="msg-top"><div class="msg-name">Marcus Reed</div><div class="msg-time">2h</div></div><div class="msg-prev">Thanks for the heelflip feedback! 🙏</div></div></div>
+    <div class="hrfull"></div>
+    <div class="msg-row" onclick="openChat('TW','Tyler Weston','avd','See you Saturday! 🤙')"><div class="msg-av-wrap"><div class="av av52 avd">TW</div></div><div class="msg-body"><div class="msg-top"><div class="msg-name">Tyler Weston</div><div class="msg-time">Yesterday</div></div><div class="msg-prev">See you at the park Saturday! 🤙</div></div></div>
+    <div class="hrfull"></div>
+    <div class="msg-row" onclick="openChat('SK','Sam Kim','ave','Great session!')"><div class="msg-av-wrap"><div class="av av52 ave">SK</div></div><div class="msg-body"><div class="msg-top"><div class="msg-name">Sam Kim</div><div class="msg-time">2d</div></div><div class="msg-prev">You: Great work this week! 🤙</div></div></div>
     <div style="height:24px"></div>
   </div>
 </div>
 
-<!-- ══════ PROFILE ══════ -->
-<div class="screen" id="s-profile">
-  <div class="nav" style="justify-content:space-between;padding-bottom:8px">
-    <div class="t-h1">Profile</div>
-    <div class="nav-icon-btn" onclick="showSheet('settings')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+<!-- ═══════════════ ATHLETE HOME ═══════════════ -->
+<div class="screen" id="s-athlete-home">
+  <div class="nav" style="justify-content:space-between;padding-bottom:10px">
+    <div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--t2);text-transform:uppercase">WEDNESDAY · JUNE 3</div>
+      <div style="font-size:22px;font-weight:900;letter-spacing:-.5px;margin-top:1px">Hey Alex 🛹</div>
     </div>
+    <div class="ico-btn" onclick="toast('🔔','Notifications','')">🔔</div>
   </div>
   <div class="scroll">
-    <div class="prof-hero"><div class="prof-hero-emoji">🛹</div></div>
+    <!-- STREAK -->
+    <div class="streak-card">
+      <svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="23" fill="none" stroke="rgba(252,82,0,.14)" stroke-width="5"/><circle cx="29" cy="29" r="23" fill="none" stroke="var(--brand)" stroke-width="5" stroke-linecap="round" stroke-dasharray="144" stroke-dashoffset="50" transform="rotate(-90 29 29)"/><text x="29" y="34" text-anchor="middle" fill="var(--brand)" font-size="14" font-weight="900" font-family="-apple-system,sans-serif">12</text></svg>
+      <div style="flex:1">
+        <div style="font-size:20px;font-weight:900;letter-spacing:-.4px;color:var(--brand)">12-Day Streak 🔥</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:4px;line-height:1.4">Willy reviewed your kickflip yesterday. Keep uploading!</div>
+      </div>
+    </div>
+
+    <!-- UPLOAD PROMPT — primary CTA -->
+    <div class="upload-hero card" onclick="toast('📹','Upload Video','Camera picker opening…')">
+      <div class="upload-hero-bg">
+        <div style="position:absolute;font-size:100px;opacity:.07">🎥</div>
+        <div class="upload-icon">📹</div>
+        <div class="upload-text">Upload Today's Clip</div>
+        <div class="upload-sub">Send to Coach Willy for review</div>
+      </div>
+    </div>
+
+    <!-- COACH FEEDBACK (new!) -->
+    <div class="sec"><div class="sec-t">Coach Feedback</div><div class="sec-a" onclick="pushScreen('s-athlete-library')">All</div></div>
+    <div class="feedback-item" onclick="pushScreen('s-video-review')">
+      <div class="feedback-media" style="background:linear-gradient(145deg,#1f0800,#080300)">
+        <div style="position:absolute;font-size:70px;opacity:.07">🛹</div>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent 55%)"></div>
+        <div class="feedback-play">▶</div>
+        <div style="position:absolute;top:8px;left:8px"><span class="chip cg">NEW FEEDBACK</span></div>
+      </div>
+      <div class="feedback-body">
+        <div class="feedback-title">Kickflip — Attempt #11</div>
+        <div class="feedback-note">"Front foot is getting there! Focus on the 45° flick angle. You're so close 🤙" — Willy</div>
+      </div>
+    </div>
+
+    <!-- MY TRICK PROGRESS -->
+    <div class="sec"><div class="sec-t">My Progress</div><div class="sec-a" onclick="pushScreen('s-trick-library')">400+ Tricks</div></div>
+
+    <div class="trick-card" onclick="pushScreen('s-trick-library')">
+      <div class="trick-name">🛹 Kickflip</div>
+      <div class="trick-stages">
+        <div class="trick-stage done"></div>
+        <div class="trick-stage done"></div>
+        <div class="trick-stage active"></div>
+        <div class="trick-stage"></div>
+      </div>
+      <div class="trick-stage-labels">
+        <div class="trick-stage-lbl done">Learning</div>
+        <div class="trick-stage-lbl done">Developing</div>
+        <div class="trick-stage-lbl active" style="color:var(--brand)">Landed ◀</div>
+        <div class="trick-stage-lbl">Mastered</div>
+      </div>
+    </div>
+    <div class="trick-card" onclick="pushScreen('s-trick-library')">
+      <div class="trick-name">🔄 Heelflip</div>
+      <div class="trick-stages">
+        <div class="trick-stage done"></div>
+        <div class="trick-stage active"></div>
+        <div class="trick-stage"></div>
+        <div class="trick-stage"></div>
+      </div>
+      <div class="trick-stage-labels">
+        <div class="trick-stage-lbl done">Learning</div>
+        <div class="trick-stage-lbl active" style="color:var(--brand)">Developing ◀</div>
+        <div class="trick-stage-lbl">Landed</div>
+        <div class="trick-stage-lbl">Mastered</div>
+      </div>
+    </div>
+    <div class="trick-card" onclick="pushScreen('s-trick-library')">
+      <div class="trick-name">⚡ 360 Flip</div>
+      <div class="trick-stages">
+        <div class="trick-stage active"></div>
+        <div class="trick-stage"></div>
+        <div class="trick-stage"></div>
+        <div class="trick-stage"></div>
+      </div>
+      <div class="trick-stage-labels">
+        <div class="trick-stage-lbl active" style="color:var(--brand)">Learning ◀</div>
+        <div class="trick-stage-lbl">Developing</div>
+        <div class="trick-stage-lbl">Landed</div>
+        <div class="trick-stage-lbl">Mastered</div>
+      </div>
+    </div>
+
+    <div style="padding:6px 18px 0">
+      <button class="btn btn-s btn-w" style="padding:14px;border-radius:14px" onclick="pushScreen('s-trick-library')">Browse All 400+ Tricks</button>
+    </div>
+    <div style="height:28px"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ ATHLETE LIBRARY (my uploaded videos) ═══════════════ -->
+<div class="screen" id="s-athlete-library">
+  <div class="nav" style="justify-content:space-between;padding-bottom:10px">
+    <div style="font-size:26px;font-weight:900;letter-spacing:-.6px">My Videos</div>
+    <div class="ico-btn" onclick="toast('📹','Upload','Camera picker opening')">📹</div>
+  </div>
+  <div class="scroll">
+    <div style="display:flex;gap:8px;padding:0 18px 14px;overflow-x:auto">
+      <div style="padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;background:var(--brand);border:1.5px solid var(--brand);color:#fff;cursor:pointer;flex-shrink:0;white-space:nowrap">All</div>
+      <div style="padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;background:var(--s1);border:1.5px solid var(--b2);color:var(--t2);cursor:pointer;flex-shrink:0;white-space:nowrap">Reviewed</div>
+      <div style="padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;background:var(--s1);border:1.5px solid var(--b2);color:var(--t2);cursor:pointer;flex-shrink:0;white-space:nowrap">Pending</div>
+      <div style="padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;background:var(--s1);border:1.5px solid var(--b2);color:var(--t2);cursor:pointer;flex-shrink:0;white-space:nowrap">Kickflip</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:11px;padding:0 18px 24px">
+      <div class="card press" onclick="pushScreen('s-video-review')">
+        <div style="height:135px;background:linear-gradient(145deg,#1f0800,#080300);display:flex;align-items:center;justify-content:center;position:relative">
+          <div style="position:absolute;font-size:70px;opacity:.07">🛹</div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent 55%)"></div>
+          <div class="queue-play" style="width:46px;height:46px;font-size:18px">▶</div>
+          <div style="position:absolute;top:9px;left:9px"><span class="chip co">PENDING REVIEW</span></div>
+          <div style="position:absolute;bottom:9px;right:9px;font-size:11px;font-weight:700;color:rgba(255,255,255,.6);background:rgba(0,0,0,.6);padding:3px 8px;border-radius:7px">0:34</div>
+        </div>
+        <div style="padding:11px 13px 13px">
+          <div style="font-size:15px;font-weight:800;margin-bottom:3px">Kickflip — Attempt #12</div>
+          <div style="font-size:13px;color:var(--t2)">Uploaded 2h ago · Waiting for Willy's feedback</div>
+        </div>
+      </div>
+      <div class="card press" onclick="pushScreen('s-video-review')" style="opacity:.8">
+        <div style="height:135px;background:linear-gradient(145deg,#1f0800,#080300);display:flex;align-items:center;justify-content:center;position:relative">
+          <div style="position:absolute;font-size:70px;opacity:.07">🛹</div>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent 55%)"></div>
+          <div class="queue-play" style="width:46px;height:46px;font-size:18px">▶</div>
+          <div style="position:absolute;top:9px;left:9px"><span class="chip cg">REVIEWED ✓</span></div>
+          <div style="position:absolute;bottom:9px;right:9px;font-size:11px;font-weight:700;color:rgba(255,255,255,.6);background:rgba(0,0,0,.6);padding:3px 8px;border-radius:7px">0:28</div>
+        </div>
+        <div style="padding:11px 13px 13px">
+          <div style="font-size:15px;font-weight:800;margin-bottom:3px">Kickflip — Attempt #11</div>
+          <div style="font-size:13px;color:var(--t2);margin-bottom:8px">3 days ago · Willy reviewed</div>
+          <div style="background:rgba(48,209,88,.06);border:1px solid rgba(48,209,88,.15);border-radius:10px;padding:8px 10px;font-size:13px;color:rgba(255,255,255,.8);line-height:1.45">"Front foot is getting there! Focus on the 45° flick angle 🤙" — Willy</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PROFILE (coach) ═══════════════ -->
+<div class="screen" id="s-coach-profile">
+  <div class="nav" style="justify-content:space-between;padding-bottom:8px">
+    <div style="font-size:26px;font-weight:900;letter-spacing:-.6px">Profile</div>
+    <div class="ico-btn" onclick="showSheet('settings')">⚙️</div>
+  </div>
+  <div class="scroll">
+    <div class="prof-hero"><div class="prof-emoji-bg">🛹</div></div>
     <div class="prof-info">
-      <div class="prof-av-wrap">
-        <div class="av av-88 av-w" style="border:3px solid #000;box-shadow:0 0 0 3px var(--brand)">WS</div>
+      <div class="prof-av-wrap"><div class="av av88 ava" style="border:3px solid #000;box-shadow:0 0 0 3px var(--brand)">WS</div></div>
+      <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:5px">
+        <div style="font-size:27px;font-weight:900;letter-spacing:-.6px">Willy Santos</div>
+        <span class="chip cgold">⭐ VERIFIED COACH</span>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:5px">
-        <div class="prof-name">Willy Santos</div>
-        <span class="chip chip-gold">⭐ VERIFIED</span>
-      </div>
-      <div class="prof-role">🛹 Head Coach · Skateboard Workshop</div>
-      <div class="prof-bio">Pro skater turned coach. Helping athletes level up their street and park game. Based in LA.</div>
-      <div style="display:flex;gap:10px;margin-top:16px">
-        <button class="btn btn-primary" style="flex:1;padding:13px;font-size:15px;border-radius:14px" onclick="toast('📝','Edit Profile','')">Edit Profile</button>
-        <button class="btn btn-secondary" style="flex:1;padding:13px;font-size:15px;border-radius:14px" onclick="toast('🔗','Link copied!','')">Share</button>
+      <div style="font-size:14px;color:var(--brand);font-weight:700;margin-top:4px">Head Coach · Skate Workshop</div>
+      <div style="font-size:14px;color:var(--t2);line-height:1.55;margin-top:9px">Pro skater turned coach. Street & park specialist. Based in LA. Strong foundations make everything easier.</div>
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn btn-p" style="flex:1;padding:13px;border-radius:14px;font-size:15px" onclick="toast('📝','Edit Profile','')">Edit Profile</button>
+        <button class="btn btn-s" style="flex:1;padding:13px;border-radius:14px;font-size:15px" onclick="toast('🔗','Link copied!','')">Share</button>
       </div>
     </div>
     <div class="prof-stats">
-      <div class="prof-stat"><div class="prof-stat-val">12</div><div class="prof-stat-lbl">Athletes</div></div>
-      <div class="prof-stat"><div class="prof-stat-val">47</div><div class="prof-stat-lbl">Sessions</div></div>
-      <div class="prof-stat"><div class="prof-stat-val">4.9★</div><div class="prof-stat-lbl">Rating</div></div>
-      <div class="prof-stat"><div class="prof-stat-val">98%</div><div class="prof-stat-lbl">Reply</div></div>
+      <div class="ps"><div class="ps-val">5</div><div class="ps-lbl">Athletes</div></div>
+      <div class="ps"><div class="ps-val">47</div><div class="ps-lbl">Sessions</div></div>
+      <div class="ps"><div class="ps-val">4.9★</div><div class="ps-lbl">Rating</div></div>
+      <div class="ps"><div class="ps-val">98%</div><div class="ps-lbl">Reply</div></div>
     </div>
-    <div class="t-cap" style="padding:20px 18px 8px">ACCOUNT</div>
-    <div class="set-row" onclick="toast('💳','Coach Pro Plan','$49/mo — renews July 1')"><div class="set-icon" style="background:rgba(48,209,88,.1)">💳</div><div class="set-lbl">Billing & Plan</div><span class="chip chip-g" style="margin-right:6px">PRO</span><div class="set-chevron">›</div></div>
-    <div class="hr-full"></div>
-    <div class="set-row" onclick="switchTab('schedule')"><div class="set-icon" style="background:rgba(10,132,255,.1)">📅</div><div class="set-lbl">Availability</div><div class="set-chevron">›</div></div>
-    <div class="hr-full"></div>
-    <div class="set-row" onclick="toast('🏆','Specialties','Edit your coaching focus areas')"><div class="set-icon" style="background:rgba(255,214,10,.1)">🏆</div><div class="set-lbl">Specialties & Bio</div><div class="set-chevron">›</div></div>
-    <div class="hr-full"></div>
-    <div class="set-row" onclick="switchTab('library')"><div class="set-icon" style="background:rgba(191,90,242,.1)">🎥</div><div class="set-lbl">Video Library</div><div style="font-size:14px;color:var(--text3);margin-right:6px">47</div><div class="set-chevron">›</div></div>
-    <div class="hr-full"></div>
-    <div class="set-row" onclick="toast('🔔','Notifications','')"><div class="set-icon" style="background:rgba(255,69,58,.1)">🔔</div><div class="set-lbl">Notifications</div><div class="set-chevron">›</div></div>
-    <div class="hr-full"></div>
-    <div class="set-row" onclick="doSignOut()"><div class="set-icon" style="background:rgba(255,69,58,.06)">🚪</div><div class="set-lbl" style="color:var(--red)">Sign Out</div></div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);padding:20px 18px 8px">ACCOUNT</div>
+    <div class="set-row" onclick="toast('💳','Coach Pro · $49/mo','Renews July 1')"><div class="set-ico" style="background:rgba(48,209,88,.1)">💳</div><div class="set-lbl">Billing & Plan</div><span class="chip cg" style="margin-right:6px">PRO</span><div class="set-chev">›</div></div>
+    <div class="hrfull"></div>
+    <div class="set-row" onclick="switchTab('coach-schedule')"><div class="set-ico" style="background:rgba(10,132,255,.1)">📅</div><div class="set-lbl">My Availability</div><div class="set-chev">›</div></div>
+    <div class="hrfull"></div>
+    <div class="set-row" onclick="toast('🔔','Notifications','')"><div class="set-ico" style="background:rgba(255,69,58,.1)">🔔</div><div class="set-lbl">Notifications</div><div class="set-chev">›</div></div>
+    <div class="hrfull"></div>
+    <div class="set-row" onclick="doSignOut()"><div class="set-ico" style="background:rgba(255,69,58,.06)">🚪</div><div class="set-lbl" style="color:var(--red)">Sign Out</div></div>
     <div style="height:24px"></div>
   </div>
 </div>
 
-<!-- ══════ CHAT (sub) ══════ -->
-<div class="screen" id="s-chat">
-  <div class="nav">
-    <button class="nav-back" onclick="popScreen()">‹</button>
-    <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:9px">
-      <div class="av av-40" id="chat-av">AJ</div>
-      <div><div style="font-size:16px;font-weight:800" id="chat-name">Alex Johnson</div><div style="font-size:12px;color:var(--green)">● Active now</div></div>
-    </div>
-    <div class="nav-icon-btn" onclick="toast('📞','Calling…','Connecting voice call')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.16 6.16l1.27-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+<!-- ═══════════════ ATHLETE PROFILE (sub) ═══════════════ -->
+<div class="screen" id="s-athlete-profile">
+  <div class="nav over">
+    <button class="ico-btn back-btn glass" onclick="popScreen()">‹</button>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <div class="ico-btn glass" onclick="openChat('AJ','Alex Johnson','ava','Hey! 👋')">💬</div>
+      <div class="ico-btn glass" onclick="showSheet('athlete-actions')">⋯</div>
     </div>
   </div>
-  <div class="chat-scroll" id="chat-msgs"></div>
-  <div class="chat-bar">
-    <div class="chat-attach" onclick="toast('📎','Attach','Video or image picker')">📎</div>
-    <input class="chat-input" id="chat-inp" placeholder="Message…">
-    <button class="chat-send" onclick="sendMsg()">↑</button>
+  <div class="scroll">
+    <div class="ap-hero"><div class="ap-emoji">🛹</div><div class="ap-grad"></div></div>
+    <div class="prof-info">
+      <div class="prof-av-wrap"><div class="av av88 ava" style="border:3px solid #000">AJ</div></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px">
+        <div style="font-size:26px;font-weight:900;letter-spacing:-.6px">Alex Johnson</div>
+        <span class="chip cgold">⭐ ELITE</span><span class="chip cg">● Active</span>
+      </div>
+      <div style="font-size:14px;color:var(--brand);font-weight:700;margin-top:4px">Street Skater · Los Angeles, CA</div>
+      <div style="font-size:14px;color:var(--t2);line-height:1.55;margin-top:9px">Training with Willy for 8 months. Working on kickflip consistency and starting heelflip drills.</div>
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn btn-p" style="flex:1;padding:13px;border-radius:14px;font-size:15px" onclick="openChat('AJ','Alex Johnson','ava','Hey Alex! 👋')">Message</button>
+        <button class="btn btn-s" style="flex:1;padding:13px;border-radius:14px;font-size:15px" onclick="pushScreen('s-video-review')">Review Video</button>
+      </div>
+    </div>
+    <div class="prof-stats">
+      <div class="ps"><div class="ps-val">14</div><div class="ps-lbl">Videos</div></div>
+      <div class="ps"><div class="ps-val">8mo</div><div class="ps-lbl">Training</div></div>
+      <div class="ps"><div class="ps-val">82%</div><div class="ps-lbl">Kickflip</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);padding:20px 18px 8px">TRICK PROGRESS</div>
+    <div style="margin:0 18px 8px;border-radius:16px;background:var(--s1);border:1px solid var(--b1);overflow:hidden">
+      <div style="padding:14px 15px;border-bottom:1px solid var(--b1)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:15px;font-weight:800">🛹 Kickflip</div><span class="chip co">Landed</span></div>
+        <div style="height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="width:82%;height:100%;background:linear-gradient(90deg,var(--brand),#ff9040);border-radius:4px"></div></div>
+        <div style="font-size:12px;font-weight:700;color:var(--brand);margin-top:5px">82% consistent · 34 attempts</div>
+      </div>
+      <div style="padding:14px 15px;border-bottom:1px solid var(--b1)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:15px;font-weight:800">🔄 Heelflip</div><span class="chip cb">Developing</span></div>
+        <div style="height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="width:45%;height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:4px"></div></div>
+        <div style="font-size:12px;font-weight:700;color:var(--blue);margin-top:5px">45% consistent · 12 attempts</div>
+      </div>
+      <div style="padding:14px 15px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:15px;font-weight:800">⚡ 360 Flip</div><span class="chip cgr">Learning</span></div>
+        <div style="height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden"><div style="width:12%;height:100%;background:linear-gradient(90deg,var(--purple),#ff375f);border-radius:4px"></div></div>
+        <div style="font-size:12px;font-weight:700;color:var(--purple);margin-top:5px">12% consistent · 5 attempts</div>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);padding:18px 18px 8px">RECENT VIDEO</div>
+    <div style="margin:0 18px 24px;border-radius:16px;overflow:hidden;background:var(--s1);border:1px solid var(--b1);cursor:pointer" class="press" onclick="pushScreen('s-video-review')">
+      <div style="height:115px;background:linear-gradient(145deg,#1f0800,#080300);display:flex;align-items:center;justify-content:center;position:relative">
+        <div style="font-size:60px;opacity:.07;position:absolute">🛹</div>
+        <div class="queue-play" style="width:44px;height:44px;font-size:17px">▶</div>
+        <div style="position:absolute;top:9px;left:9px"><span class="chip co">PENDING</span></div>
+      </div>
+      <div style="padding:11px 13px"><div style="font-size:14px;font-weight:800">Kickflip — Attempt #12</div><div style="font-size:12px;color:var(--t2);margin-top:3px">2h ago · Awaiting review</div></div>
+    </div>
   </div>
 </div>
 
-<!-- ══════ VIDEO REVIEW (sub) ══════ -->
-<div class="screen" id="s-video">
-  <div class="nav">
-    <button class="nav-back" onclick="popScreen()">‹</button>
-    <div class="nav-title">Video Review</div>
-    <div class="nav-icon-btn" onclick="toast('⋯','Options','')">⋯</div>
-  </div>
+<!-- ═══════════════ VIDEO REVIEW (sub) ═══════════════ -->
+<div class="screen" id="s-video-review">
+  <div class="nav"><button class="ico-btn back-btn" onclick="popScreen()">‹</button><div class="nav-title">Video Review</div><div class="ico-btn" onclick="toast('⋯','Options','')">⋯</div></div>
   <div class="vp-outer">
-    <div class="vp-bg-emoji">🛹</div>
-    <div class="vp-overlay"></div>
+    <div class="vp-bg">🛹</div><div class="vp-ov"></div>
     <div class="vp-center">
-      <div class="vp-controls">
-        <div class="vp-skip-btn" onclick="toast('⏮','Rewind 10s','')">⏮</div>
-        <div class="vp-play-btn" id="vp-play" onclick="vrToggle()">▶</div>
-        <div class="vp-skip-btn" onclick="toast('⏭','Skip 10s','')">⏭</div>
+      <div class="vp-ctrl">
+        <div class="vp-skip" onclick="toast('⏮','−10s','')">⏮</div>
+        <div class="vp-play" id="vp-play" onclick="vrToggle()">▶</div>
+        <div class="vp-skip" onclick="toast('⏭','+10s','')">⏭</div>
       </div>
       <div class="vp-scrub-wrap">
         <div class="vp-scrub" id="vp-scrub" onclick="vrSeek(event,this)">
-          <div class="vp-scrub-fill" id="vp-fill" style="width:35%"></div>
-          <div class="vp-scrub-thumb" id="vp-thumb" style="left:35%"></div>
+          <div class="vp-fill" id="vp-fill" style="width:35%"></div>
+          <div class="vp-thumb" id="vp-thumb" style="left:35%"></div>
         </div>
         <div class="vp-times"><span id="vp-cur">0:12</span><span>0:34</span></div>
       </div>
     </div>
     <div class="vp-speed" onclick="vrSpeed(this)">0.5×</div>
-    <div class="vp-pip" onclick="toast('📱','PiP Mode','Picture-in-picture activated')">⊞ PiP</div>
   </div>
+  <!-- ANNOTATION TOOLS -->
   <div class="ann-bar">
     <div class="ann-t on" onclick="annTool(this)">✏️</div>
     <div class="ann-t" onclick="annTool(this)">➡️</div>
     <div class="ann-t" onclick="annTool(this)">⭕</div>
     <div class="ann-t" onclick="annTool(this)" style="font-size:13px;font-weight:900">T</div>
-    <div class="ann-t" onclick="annTool(this)">📐</div>
     <div class="ann-t" onclick="annTool(this)">↩️</div>
     <div class="ann-colors">
       <div class="ann-c on" style="background:#FC5200" onclick="annColor(this)"></div>
@@ -1217,153 +1038,139 @@ body{
   </div>
   <div class="scroll">
     <div style="padding:12px 18px 6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-      <div>
-        <div style="font-size:17px;font-weight:800;letter-spacing:-.2px">Alex Johnson</div>
-        <div style="font-size:13px;color:var(--text2);margin-top:2px">Kickflip · Attempt #12 · 2h ago</div>
+      <div><div style="font-size:17px;font-weight:800">Alex Johnson</div><div style="font-size:13px;color:var(--t2);margin-top:2px">Kickflip · Attempt #12 · 2h ago</div></div>
+      <span class="chip co">PENDING REVIEW</span>
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;padding:4px 18px 12px">
+      <div style="padding:4px 10px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;color:rgba(255,255,255,.65)">Street · 0:34</div>
+      <div style="padding:4px 10px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;color:rgba(255,255,255,.65)">82% this week</div>
+      <div style="padding:4px 10px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:600;color:rgba(255,255,255,.65)">+14% vs last wk</div>
+    </div>
+    <!-- PROGRESS STAGE — quick update -->
+    <div style="margin:0 18px 12px;border-radius:14px;background:var(--s1);border:1px solid var(--b1);padding:13px 14px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:10px">Update Progress Stage</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <button class="btn" style="background:rgba(255,255,255,.08);border:1.5px solid var(--b2);color:var(--t2);padding:7px 13px;border-radius:100px;font-size:12px" onclick="toast('📝','Marked: Learning','Progress updated')">Learning</button>
+        <button class="btn" style="background:rgba(255,255,255,.08);border:1.5px solid var(--b2);color:var(--t2);padding:7px 13px;border-radius:100px;font-size:12px" onclick="toast('📝','Marked: Developing','Progress updated')">Developing</button>
+        <button class="btn" style="background:var(--brand-dim);border:1.5px solid var(--brand);color:var(--brand);padding:7px 13px;border-radius:100px;font-size:12px;font-weight:800">Landed ✓</button>
+        <button class="btn" style="background:rgba(255,255,255,.08);border:1.5px solid var(--b2);color:var(--t2);padding:7px 13px;border-radius:100px;font-size:12px" onclick="toast('🏆','Marked: Mastered!','🎉 Achievement unlocked')">Mastered</button>
       </div>
-      <span class="chip chip-o">PENDING REVIEW</span>
     </div>
-    <div class="pill-row" style="padding:6px 18px 14px">
-      <div class="pill">Street</div><div class="pill">0:34</div><div class="pill">82% Consistency</div><div class="pill">+14% vs last week</div>
-    </div>
+    <!-- FEEDBACK COMPOSER -->
     <div class="fb-card">
-      <div class="fb-lbl">Coach Feedback</div>
-      <textarea class="fb-ta" placeholder="Add coaching notes…">Front foot positioning is SO much better! ✅
+      <div class="fb-lbl">Your Feedback to Alex</div>
+      <textarea class="fb-ta" placeholder="Write your coaching notes…">Front foot positioning is SO much better! ✅
 
-Keep the 45° flick angle. Pop timing is clean — back foot syncing nicely now.
+Keep the 45° flick angle — your foot should exit at 45° off the nose. Pop timing is clean, back foot is syncing up.
 
-Slow the flick, let the board rise to your feet. You're incredibly close. Next session we lock this in 🤙</textarea>
+Slow the flick, let the board come up to your feet. You're right there. Next session we lock this in 🤙</textarea>
     </div>
     <div class="fb-actions">
-      <button class="btn btn-secondary btn-w" style="flex:1;padding:14px;border-radius:14px" onclick="toast('💾','Draft saved','Saved as draft')">Save Draft</button>
+      <button class="btn btn-s btn-w" style="flex:1;padding:14px;border-radius:14px" onclick="toast('💾','Draft saved','')">Save Draft</button>
       <div style="width:11px;flex-shrink:0"></div>
-      <button class="btn btn-primary btn-w" style="flex:1;padding:14px;border-radius:14px" onclick="toast('✅','Sent to Alex!','Notification delivered 🔔');popScreen()">Send Feedback</button>
+      <button class="btn btn-p btn-w" style="flex:1;padding:14px;border-radius:14px" onclick="toast('✅','Sent to Alex!','Push notification delivered 🔔');popScreen()">Send to Alex</button>
     </div>
   </div>
 </div>
 
-<!-- ══════ VERSUS (sub) ══════ -->
-<div class="screen" id="s-versus">
+<!-- ═══════════════ TRICK LIBRARY (sub) ═══════════════ -->
+<div class="screen" id="s-trick-library">
+  <div class="nav"><button class="ico-btn back-btn" onclick="popScreen()">‹</button><div class="nav-title">400+ Tricks</div></div>
+  <div class="scroll">
+    <div class="stage-tabs">
+      <div class="stage-tab on" onclick="setStage(this)">All</div>
+      <div class="stage-tab" onclick="setStage(this)">Learning</div>
+      <div class="stage-tab" onclick="setStage(this)">Developing</div>
+      <div class="stage-tab" onclick="setStage(this)">Landed</div>
+      <div class="stage-tab" onclick="setStage(this)">Mastered</div>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);padding:6px 18px 8px">STREET</div>
+    <div class="trick-lib-item" onclick="toast('🛹','Kickflip','Landed — 82% consistent')">
+      <div class="trick-lib-icon" style="background:var(--brand-dim)">🛹</div>
+      <div class="trick-lib-info"><div class="trick-lib-name">Kickflip</div><div class="trick-lib-sub">Street · Front foot flick off nose</div></div>
+      <div class="trick-lib-status"><div class="trick-lib-pct">82%</div><div class="trick-lib-stage" style="color:var(--brand)">LANDED</div></div>
+    </div>
+    <div class="hrfull"></div>
+    <div class="trick-lib-item" onclick="toast('🔄','Heelflip','Developing — 45% consistent')">
+      <div class="trick-lib-icon" style="background:rgba(10,132,255,.12)">🔄</div>
+      <div class="trick-lib-info"><div class="trick-lib-name">Heelflip</div><div class="trick-lib-sub">Street · Heel-side flick</div></div>
+      <div class="trick-lib-status"><div class="trick-lib-pct" style="color:var(--blue)">45%</div><div class="trick-lib-stage" style="color:var(--blue)">DEVELOPING</div></div>
+    </div>
+    <div class="hrfull"></div>
+    <div class="trick-lib-item" onclick="toast('⚡','360 Flip','Learning — 12% consistent')">
+      <div class="trick-lib-icon" style="background:rgba(191,90,242,.12)">⚡</div>
+      <div class="trick-lib-info"><div class="trick-lib-name">360 Flip</div><div class="trick-lib-sub">Street · Kickflip + backside pop shove</div></div>
+      <div class="trick-lib-status"><div class="trick-lib-pct" style="color:var(--purple)">12%</div><div class="trick-lib-stage" style="color:var(--purple)">LEARNING</div></div>
+    </div>
+    <div class="hrfull"></div>
+    <div class="trick-lib-item" onclick="toast('🔁','Pop Shove-It','Not started')">
+      <div class="trick-lib-icon" style="background:rgba(255,255,255,.06)">🔁</div>
+      <div class="trick-lib-info"><div class="trick-lib-name">Pop Shove-It</div><div class="trick-lib-sub">Street · Backside 180 shove</div></div>
+      <div class="trick-lib-status"><div class="trick-lib-pct" style="color:var(--t3)">—</div><div class="trick-lib-stage">NOT STARTED</div></div>
+    </div>
+    <div class="hrfull"></div>
+    <div class="trick-lib-item" onclick="toast('🎯','Varial Kickflip','Not started')">
+      <div class="trick-lib-icon" style="background:rgba(255,255,255,.06)">🎯</div>
+      <div class="trick-lib-info"><div class="trick-lib-name">Varial Kickflip</div><div class="trick-lib-sub">Street · Kickflip + pop shove-it</div></div>
+      <div class="trick-lib-status"><div class="trick-lib-pct" style="color:var(--t3)">—</div><div class="trick-lib-stage">NOT STARTED</div></div>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);padding:16px 18px 8px">PARK</div>
+    <div class="trick-lib-item" onclick="toast('🏄','Rock to Fakie','Not started')">
+      <div class="trick-lib-icon" style="background:rgba(255,255,255,.06)">🏄</div>
+      <div class="trick-lib-info"><div class="trick-lib-name">Rock to Fakie</div><div class="trick-lib-sub">Park · Coping trick</div></div>
+      <div class="trick-lib-status"><div class="trick-lib-pct" style="color:var(--t3)">—</div><div class="trick-lib-stage">NOT STARTED</div></div>
+    </div>
+    <div class="hrfull"></div>
+    <div class="trick-lib-item" onclick="toast('🌀','Drop-In','Not started')">
+      <div class="trick-lib-icon" style="background:rgba(255,255,255,.06)">🌀</div>
+      <div class="trick-lib-info"><div class="trick-lib-name">Drop-In</div><div class="trick-lib-sub">Vert / Park · Entry trick</div></div>
+      <div class="trick-lib-status"><div class="trick-lib-pct" style="color:var(--t3)">—</div><div class="trick-lib-stage">NOT STARTED</div></div>
+    </div>
+    <div style="padding:16px 18px 0"><button class="btn btn-s btn-w" style="padding:14px;border-radius:14px" onclick="toast('📋','Full library','400+ tricks loading…')">Load All 400+ Tricks</button></div>
+    <div style="height:24px"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ CHAT (sub) ═══════════════ -->
+<div class="screen" id="s-chat">
   <div class="nav">
-    <button class="nav-back" onclick="popScreen()">‹</button>
-    <div class="nav-title">Versus</div>
-    <div class="nav-icon-btn" onclick="toast('📤','Shared!','Comparison link copied')">↑</div>
+    <button class="ico-btn back-btn" onclick="popScreen()">‹</button>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:9px">
+      <div class="av av44 ava" id="chat-av">AJ</div>
+      <div><div style="font-size:16px;font-weight:800" id="chat-name">Alex Johnson</div><div style="font-size:12px;color:var(--green)">● Active now</div></div>
+    </div>
+    <div class="ico-btn" onclick="toast('📞','Calling…','')">📞</div>
   </div>
-  <div class="vs-split">
-    <div class="vs-panel" style="background:linear-gradient(145deg,#001530,#00091a)">
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:70px;opacity:.06">🛹</div>
-      <div class="vp-play-btn" style="background:rgba(10,132,255,.9);box-shadow:0 8px 28px rgba(10,132,255,.45)">▶</div>
-      <div class="vs-badge">BEFORE · March</div>
-    </div>
-    <div class="vs-panel" style="background:linear-gradient(145deg,#200a00,#0f0400)">
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:70px;opacity:.06">🏄</div>
-      <div class="vp-play-btn">▶</div>
-      <div class="vs-badge" style="color:var(--green)">NOW · June</div>
-    </div>
-  </div>
-  <div class="vs-bar">
-    <span style="font-size:11px;font-weight:700;color:var(--text3)" id="vs-cur">0:08</span>
-    <div class="vs-prog" onclick="vsSeek(event,this)"><div class="vs-fill" id="vs-fill" style="width:42%"></div></div>
-    <span style="font-size:11px;font-weight:700;color:var(--text3)">1:12</span>
-  </div>
-  <div class="scroll">
-    <div class="vs-tools">
-      <button class="btn btn-secondary-sm" style="flex:1" onclick="toast('🎞️','Frame mode','Step frame by frame')">⬛ Frame</button>
-      <button class="btn btn-secondary-sm" style="flex:1" onclick="toast('🔄','Synced','Both clips synced')">🔄 Sync</button>
-      <button class="btn btn-secondary-sm" style="flex:1" onclick="toast('📐','Overlay','Transparency overlay applied')">📐 Overlay</button>
-    </div>
-    <div class="fb-card" style="margin-top:10px">
-      <div class="fb-lbl">Analysis</div>
-      <textarea class="fb-ta">March vs June — massive improvement. Hip rotation 20% cleaner, catch height improving every session. Board control has transformed. Keep pushing 🔥</textarea>
-    </div>
-    <div class="fb-actions">
-      <button class="btn btn-primary btn-w" style="padding:15px;border-radius:14px" onclick="toast('📤','Comparison shared!','Marcus can now view this')">Share with Athlete</button>
-    </div>
+  <div class="chat-scroll" id="chat-msgs"></div>
+  <div class="chat-bar">
+    <div class="ico-btn" style="width:36px;height:36px" onclick="toast('📎','Attach video','')">📎</div>
+    <input class="chat-in" id="chat-inp" placeholder="Message…">
+    <button class="chat-send" onclick="sendMsg()">↑</button>
   </div>
 </div>
 
-<!-- ══════ ATHLETE PROFILE (sub) ══════ -->
-<div class="screen" id="s-athlete-profile">
-  <div class="nav transparent" style="padding-top:calc(var(--safe-t) + 10px)">
-    <button class="nav-back" style="background:rgba(0,0,0,.55);backdrop-filter:blur(8px)" onclick="popScreen()">‹</button>
-    <div style="margin-left:auto;display:flex;gap:8px">
-      <div class="nav-icon-btn" style="background:rgba(0,0,0,.55);backdrop-filter:blur(8px)" onclick="openChat('AJ','Alex Johnson','av-a','Hey! 👋')">💬</div>
-      <div class="nav-icon-btn" style="background:rgba(0,0,0,.55);backdrop-filter:blur(8px)" onclick="showSheet('athlete')">⋯</div>
-    </div>
-  </div>
-  <div class="scroll">
-    <div class="ap-hero">
-      <div class="ap-hero-emoji">🛹</div>
-      <div class="ap-grad"></div>
-    </div>
-    <div class="prof-info">
-      <div class="prof-av-wrap">
-        <div class="av av-88 av-a" style="border:3px solid #000">AJ</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px">
-        <div class="prof-name">Alex Johnson</div>
-        <span class="chip chip-gold">⭐ PRO</span>
-        <span class="chip chip-g">● Active</span>
-      </div>
-      <div class="prof-role">🛹 Street Skater · Los Angeles, CA</div>
-      <div class="prof-bio">Street skater working on kickflips and heelflips. Training with Coach Willy for 8 months.</div>
-      <div style="display:flex;gap:10px;margin-top:16px">
-        <button class="btn btn-primary" style="flex:1;padding:13px;font-size:15px;border-radius:14px" onclick="openChat('AJ','Alex Johnson','av-a','Hey! 👋')">Message</button>
-        <button class="btn btn-secondary" style="flex:1;padding:13px;font-size:15px;border-radius:14px" onclick="pushScreen('s-video')">Review Video</button>
-      </div>
-    </div>
-    <div class="prof-stats">
-      <div class="prof-stat"><div class="prof-stat-val">14</div><div class="prof-stat-lbl">Videos</div></div>
-      <div class="prof-stat"><div class="prof-stat-val">8mo</div><div class="prof-stat-lbl">Training</div></div>
-      <div class="prof-stat"><div class="prof-stat-val">82%</div><div class="prof-stat-lbl">Progress</div></div>
-    </div>
-    <div class="t-cap" style="padding:20px 18px 8px">TRICK PROGRESS</div>
-    <div class="trick-item"><div class="trick-icon-wrap">🛹</div><div class="trick-body"><div class="trick-name">Kickflip</div><div class="trick-bar-bg"><div class="trick-bar-fill" style="width:82%;background:linear-gradient(90deg,var(--brand),#ff9040)"></div></div><div class="trick-pct t-brand">82% — Nearly Consistent</div></div></div>
-    <div class="hr-full"></div>
-    <div class="trick-item"><div class="trick-icon-wrap" style="background:rgba(10,132,255,.12)">🔄</div><div class="trick-body"><div class="trick-name">Heelflip</div><div class="trick-bar-bg"><div class="trick-bar-fill" style="width:45%;background:linear-gradient(90deg,var(--blue),var(--green))"></div></div><div class="trick-pct t-blue">45% — Learning</div></div></div>
-    <div class="hr-full"></div>
-    <div class="trick-item"><div class="trick-icon-wrap" style="background:rgba(191,90,242,.12)">⚡</div><div class="trick-body"><div class="trick-name">360 Flip</div><div class="trick-bar-bg"><div class="trick-bar-fill" style="width:12%;background:linear-gradient(90deg,var(--purple),#ff375f)"></div></div><div class="trick-pct" style="color:var(--purple)">12% — Beginner</div></div></div>
-    <div class="t-cap" style="padding:20px 18px 8px">RECENT VIDEOS</div>
-    <div style="margin:0 18px 24px">
-      <div class="vid-item" onclick="pushScreen('s-video')">
-        <div class="vid-thumb" style="background:linear-gradient(145deg,#1f0800,#080300);height:120px">
-          <div style="position:absolute;font-size:65px;opacity:.07;user-select:none">🛹</div>
-          <div class="vid-thumb-overlay"></div>
-          <div class="vid-play-btn" style="width:44px;height:44px;font-size:17px">▶</div>
-          <div class="vid-bottom-badge"><span class="chip chip-o">NEW</span></div>
-          <div class="vid-dur">0:34</div>
-        </div>
-        <div class="vid-body">
-          <div class="vid-title">Kickflip — Attempt #12</div>
-          <div style="font-size:13px;color:var(--text2);margin-top:4px">2h ago · Pending Review</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════ TAB BAR ══════ -->
+<!-- ═══════════════ TAB BAR (coach) ═══════════════ -->
 <div id="tabbar">
-  <div class="ti on" id="ti-home" onclick="switchTab('home')">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3L21 9.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V9.5Z" stroke-width="1.8" stroke-linejoin="round"/></svg>
-    <div class="ti-lbl">Home</div>
+  <div class="ti on" id="ti-home" onclick="switchTab('coach-home')">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3L21 9.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V9.5Z" stroke="#FC5200" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    <div class="ti-lbl" style="color:var(--brand)">Home</div>
   </div>
-  <div class="ti" id="ti-athletes" onclick="switchTab('athletes')">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke-width="1.8"/><path d="M2 21c0-4 3-6 7-6" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="10" r="3" stroke-width="1.8"/><path d="M14 21c0-2.5 1.3-4 3-4s3 1.5 3 4" stroke-width="1.8" stroke-linecap="round"/></svg>
+  <div class="ti" id="ti-athletes" onclick="switchTab('coach-athletes')">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M2 21c0-4 3-6 7-6" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="10" r="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M14 21c0-2.5 1.3-4 3-4s3 1.5 3 4" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>
     <div class="ti-lbl">Athletes</div>
   </div>
-  <div class="ti" id="ti-library" onclick="switchTab('library')">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" stroke-width="1.8"/><path d="M10 8l5 3-5 3V8z" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 21h10" stroke-width="1.8" stroke-linecap="round"/><path d="M12 17v4" stroke-width="1.8" stroke-linecap="round"/></svg>
-    <div class="ti-lbl">Library</div>
+  <div class="ti" id="ti-library" onclick="switchTab('coach-library')">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M10 8l5 3-5 3V8z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 21h10M12 17v4" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <div class="ti-lbl">Videos</div>
     <div class="ti-dot"></div>
   </div>
-  <div class="ti" id="ti-schedule" onclick="switchTab('schedule')">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke-width="1.8"/><path d="M3 9H21M8 2v3M16 2v3" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="14" r="1.2" fill="rgba(255,255,255,.4)"/><circle cx="12" cy="14" r="1.2" fill="rgba(255,255,255,.4)"/></svg>
+  <div class="ti" id="ti-schedule" onclick="switchTab('coach-schedule')">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M3 9H21M8 2v3M16 2v3" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>
     <div class="ti-lbl">Schedule</div>
     <div class="ti-dot"></div>
   </div>
   <div class="ti" id="ti-messages" onclick="switchTab('messages')">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 4H20C21.1 4 22 4.9 22 6V16C22 17.1 21.1 18 20 18H6L2 22V6C2 4.9 2.9 4 4 4Z" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 4H20C21.1 4 22 4.9 22 6V16C22 17.1 21.1 18 20 18H6L2 22V6C2 4.9 2.9 4 4 4Z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/></svg>
     <div class="ti-lbl">Messages</div>
     <div class="ti-dot"></div>
   </div>
@@ -1372,185 +1179,208 @@ Slow the flick, let the board rise to your feet. You're incredibly close. Next s
 </div><!-- #app -->
 
 <script>
-var _tab = null;
-var _stack = [];
-var _vrPlaying = false, _vrPos = 35, _vrTimer = null;
-var _speeds = ['0.25×','0.5×','1×','2×'], _si = 1;
-var _toastT = null;
+var _mode='coach'; // 'coach' or 'athlete'
+var _tab=null,_stack=[];
+var _vrPlaying=false,_vrPos=35,_vrTimer=null,_vrSi=1,_toastT=null;
+var SPEEDS=['0.25×','0.5×','1×','2×'];
+var COACH_TABS={home:'s-coach-home',athletes:'s-coach-athletes',library:'s-coach-library',schedule:'s-coach-schedule',messages:'s-messages',profile:'s-coach-profile'};
+var ATH_TABS={home:'s-athlete-home',library:'s-athlete-library',tricks:'s-trick-library',messages:'s-messages',profile:'s-coach-profile'};
 
-var TAB_MAP = {home:'s-home',athletes:'s-athletes',library:'s-library',schedule:'s-schedule',messages:'s-messages'};
+document.addEventListener('DOMContentLoaded',function(){showScreen('s-login')});
 
-document.addEventListener('DOMContentLoaded', function(){ showScreen('s-login') });
-
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
-  var el=document.getElementById(id);
-  if(el) el.classList.add('active');
-}
+function showScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});var e=document.getElementById(id);if(e)e.classList.add('active')}
 
 function switchTab(name){
   _stack=[];
-  if(_tab) document.getElementById('s-'+_tab) && document.getElementById('s-'+_tab).classList.remove('active');
-  _tab=name;
+  var map=_mode==='coach'?COACH_TABS:ATH_TABS;
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
-  var el=document.getElementById('s-'+name);
-  if(el) el.classList.add('active');
-  document.querySelectorAll('.ti').forEach(function(t){t.classList.remove('on')});
+  var screenId=map[name]||('s-'+name);
+  var el=document.getElementById(screenId);if(el)el.classList.add('active');
+  _tab=name;
+  // Update tab icons
+  document.querySelectorAll('.ti').forEach(function(t){t.classList.remove('on');t.querySelector('.ti-lbl').style.color=''});
   var ti=document.getElementById('ti-'+name);
-  if(ti) ti.classList.add('on');
+  if(ti){ti.classList.add('on');ti.querySelector('.ti-lbl').style.color='var(--brand)'}
   document.getElementById('tabbar').style.display='flex';
 }
 
 function pushScreen(id){
   var cur=document.querySelector('.screen.active');
-  if(cur){
-    cur.classList.add('push-prev');
-    _stack.push(cur.id);
-    setTimeout(function(){if(cur){cur.classList.remove('active','push-prev')}},340);
-  }
-  var next=document.getElementById(id);
-  if(next){
-    next.classList.add('active','push-in');
-    setTimeout(function(){next.classList.remove('push-in')},340);
-  }
+  if(cur){cur.classList.add('p-out');_stack.push(cur.id);setTimeout(function(){if(cur){cur.classList.remove('active','p-out')}},300);}
+  var nxt=document.getElementById(id);
+  if(nxt){nxt.classList.add('active','p-in');setTimeout(function(){nxt.classList.remove('p-in')},300);}
   document.getElementById('tabbar').style.display='none';
 }
 
 function popScreen(){
   if(!_stack.length){if(_tab)switchTab(_tab);return}
   var cur=document.querySelector('.screen.active');
-  if(cur){
-    cur.classList.add('pop-out');
-    setTimeout(function(){cur.classList.remove('active','pop-out')},280);
-  }
-  var prevId=_stack.pop();
-  var prev=document.getElementById(prevId);
-  if(prev){
-    prev.classList.add('active','pop-prev');
-    setTimeout(function(){prev.classList.remove('pop-prev')},280);
-  }
-  var isTab=Object.values(TAB_MAP).indexOf(prevId)>=0;
-  document.getElementById('tabbar').style.display=isTab?'flex':'none';
+  if(cur){cur.classList.add('pop-out');setTimeout(function(){cur.classList.remove('active','pop-out')},260);}
+  var pid=_stack.pop();var prev=document.getElementById(pid);
+  if(prev){prev.classList.add('active','pop-in');setTimeout(function(){prev.classList.remove('pop-in')},260);}
+  // Show tabbar if returning to a tab screen
+  var allTabScreens=Object.values(COACH_TABS).concat(Object.values(ATH_TABS));
+  document.getElementById('tabbar').style.display=allTabScreens.indexOf(pid)>=0?'flex':'none';
 }
 
-function doLogin(){
-  switchTab('home');_tab='home';_stack=[];
-  setTimeout(function(){toast('👋','Welcome back, Coach Willy!','3 new video submissions')},350);
+var _selectedRole='coach';
+function pickRole(el,role){
+  document.querySelectorAll('.role-btn').forEach(function(b){b.classList.remove('on')});
+  el.classList.add('on');_selectedRole=role;
 }
-function doSignOut(){document.getElementById('tabbar').style.display='none';showScreen('s-login');_tab=null;_stack=[]}
-function pickRole(el){document.querySelectorAll('.role-btn').forEach(function(b){b.classList.remove('on')});el.classList.add('on')}
-function setFilter(el){document.querySelectorAll('.f-chip').forEach(function(c){c.classList.remove('on')});el.classList.add('on')}
+function doLogin(){
+  var email=document.getElementById('login-email').value||'';
+  var isAthlete=_selectedRole==='athlete'||email.toLowerCase().indexOf('athlete')>=0;
+  _mode=isAthlete?'athlete':'coach';
+  startApp(_mode);
+}
+function demoLogin(role){_mode=role;startApp(role)}
+function startApp(mode){
+  _stack=[];_tab=null;
+  // Set up correct tab bar for this mode
+  setupTabBar(mode);
+  if(mode==='coach'){
+    switchTab('home');
+    setTimeout(function(){toast('👋','Welcome back, Coach Willy!','3 new video submissions waiting')},350);
+  } else {
+    switchTab('home');
+    setTimeout(function(){toast('🛹','Hey Alex!','Willy reviewed your kickflip — check your feedback!')},350);
+  }
+}
+function setupTabBar(mode){
+  var tb=document.getElementById('tabbar');
+  if(mode==='coach'){
+    // Coach tabs: Home, Athletes, Videos, Schedule, Messages
+    tb.innerHTML=`
+      <div class="ti on" id="ti-home" onclick="switchTab('home')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3L21 9.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V9.5Z" stroke="#FC5200" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <div class="ti-lbl" style="color:var(--brand)">Home</div>
+      </div>
+      <div class="ti" id="ti-athletes" onclick="switchTab('athletes')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M2 21c0-4 3-6 7-6" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="10" r="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M14 21c0-2.5 1.3-4 3-4s3 1.5 3 4" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div class="ti-lbl">Athletes</div>
+      </div>
+      <div class="ti" id="ti-library" onclick="switchTab('library')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M10 8l5 3-5 3V8z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 21h10M12 17v4" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div class="ti-lbl">Videos</div>
+        <div class="ti-dot"></div>
+      </div>
+      <div class="ti" id="ti-schedule" onclick="switchTab('schedule')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M3 9H21M8 2v3M16 2v3" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div class="ti-lbl">Schedule</div>
+        <div class="ti-dot"></div>
+      </div>
+      <div class="ti" id="ti-messages" onclick="switchTab('messages')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 4H20C21.1 4 22 4.9 22 6V16C22 17.1 21.1 18 20 18H6L2 22V6C2 4.9 2.9 4 4 4Z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <div class="ti-lbl">Messages</div>
+        <div class="ti-dot"></div>
+      </div>`;
+    // Remap tabs
+    COACH_TABS={home:'s-coach-home',athletes:'s-coach-athletes',library:'s-coach-library',schedule:'s-coach-schedule',messages:'s-messages',profile:'s-coach-profile'};
+    window._tabMap=COACH_TABS;
+  } else {
+    // Athlete tabs: Home, My Videos, 400 Tricks, Messages
+    tb.innerHTML=`
+      <div class="ti on" id="ti-home" onclick="switchTab('home')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3L21 9.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V9.5Z" stroke="#FC5200" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <div class="ti-lbl" style="color:var(--brand)">Home</div>
+      </div>
+      <div class="ti" id="ti-library" onclick="switchTab('library')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M10 8l5 3-5 3V8z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 21h10M12 17v4" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <div class="ti-lbl">My Videos</div>
+        <div class="ti-dot"></div>
+      </div>
+      <div class="ti" id="ti-tricks" onclick="pushScreen('s-trick-library')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <div class="ti-lbl">Tricks</div>
+      </div>
+      <div class="ti" id="ti-messages" onclick="switchTab('messages')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 4H20C21.1 4 22 4.9 22 6V16C22 17.1 21.1 18 20 18H6L2 22V6C2 4.9 2.9 4 4 4Z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        <div class="ti-lbl">Messages</div>
+        <div class="ti-dot"></div>
+      </div>`;
+    window._tabMap={home:'s-athlete-home',library:'s-athlete-library',messages:'s-messages'};
+  }
+}
+
+function switchTab(name){
+  _stack=[];
+  var map=window._tabMap||COACH_TABS;
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  var screenId=map[name]||('s-'+(_mode==='coach'?'coach-':'')+name);
+  var el=document.getElementById(screenId)||document.getElementById('s-'+name);
+  if(el)el.classList.add('active');
+  _tab=name;
+  document.querySelectorAll('.ti').forEach(function(t){t.classList.remove('on');t.querySelector && t.querySelector('.ti-lbl') && (t.querySelector('.ti-lbl').style.color='')});
+  var ti=document.getElementById('ti-'+name);
+  if(ti){ti.classList.add('on');ti.querySelector('.ti-lbl') && (ti.querySelector('.ti-lbl').style.color='var(--brand)')}
+  document.getElementById('tabbar').style.display='flex';
+}
+
+function doSignOut(){document.getElementById('tabbar').style.display='none';showScreen('s-login');_tab=null;_stack=[];_mode='coach'}
 
 function openChat(ini,name,avClass,preview){
-  var av=document.getElementById('chat-av');
-  av.textContent=ini;
-  av.className='av av-40 '+avClass;
+  var av=document.getElementById('chat-av');av.textContent=ini;av.className='av av44 '+avClass;
   document.getElementById('chat-name').textContent=name;
   var box=document.getElementById('chat-msgs');
-  box.innerHTML='<div class="chat-date">TODAY</div><div class="bbl in">Hey Coach! 🔥</div><div class="bbl out">Checking your clip now 👀<small>Just now</small></div><div class="bbl in">'+preview+'</div>';
-  pushScreen('s-chat');
-  setTimeout(function(){box.scrollTop=9999},80);
+  box.innerHTML='<div class="chat-date">TODAY</div><div class="bbl in">Hey! 🔥</div><div class="bbl out">On it 👀<small>Just now</small></div><div class="bbl in">'+preview+'</div>';
+  pushScreen('s-chat');setTimeout(function(){box.scrollTop=9999},80);
 }
-
 function sendMsg(){
-  var inp=document.getElementById('chat-inp');
-  var txt=inp.value.trim();if(!txt)return;
-  var box=document.getElementById('chat-msgs');
-  var now=new Date(),h=now.getHours()%12||12,m=now.getMinutes();
+  var inp=document.getElementById('chat-inp'),txt=inp.value.trim();if(!txt)return;
+  var box=document.getElementById('chat-msgs'),n=new Date(),h=n.getHours()%12||12,m=n.getMinutes();
   box.innerHTML+='<div class="bbl out">'+txt+'<small>'+h+':'+(m<10?'0':'')+m+'</small></div>';
   inp.value='';box.scrollTop=9999;
-  var replies=['Got it! 🙏','Makes sense 🛹','On it! 👊','Appreciate it 🤙','Let\'s get it! 🔥','Fire 🔥','Thanks Coach!'];
-  setTimeout(function(){
-    box.innerHTML+='<div class="bbl in">'+replies[Math.floor(Math.random()*replies.length)]+'</div>';
-    box.scrollTop=9999;
-  },1100);
+  var r=['Got it! 🙏','Makes sense 🛹','On it! 👊','Thanks Willy! 🤙','Let\'s get it! 🔥','Appreciate it! 🛹'];
+  setTimeout(function(){box.innerHTML+='<div class="bbl in">'+r[Math.floor(Math.random()*r.length)]+'</div>';box.scrollTop=9999},1100);
 }
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.activeElement.id==='chat-inp')sendMsg()});
 
 function toast(icon,text,sub){
-  document.getElementById('t-icon').textContent=icon;
-  document.getElementById('t-text').textContent=text;
-  document.getElementById('t-sub').textContent=sub||'';
-  var el=document.getElementById('toast');
-  el.classList.add('show');clearTimeout(_toastT);
+  document.getElementById('ti').textContent=icon;document.getElementById('tt').textContent=text;document.getElementById('ts').textContent=sub||'';
+  var el=document.getElementById('toast');el.classList.add('show');clearTimeout(_toastT);
   _toastT=setTimeout(function(){el.classList.remove('show')},3400);
 }
+function toggleLike(id){var el=document.getElementById(id);el.classList.toggle('liked');el.textContent=el.classList.contains('liked')?'✅ Seen':'🤍 Seen'}
+function setLibFilter(el){document.querySelectorAll('[id^="lf-"], [onclick="setLibFilter(this)"]').forEach(function(c){c.style.background='var(--s1)';c.style.borderColor='var(--b2)';c.style.color='var(--t2)'});el.style.background='var(--brand)';el.style.borderColor='var(--brand)';el.style.color='#fff'}
+function setStage(el){document.querySelectorAll('.stage-tab').forEach(function(t){t.classList.remove('on')});el.classList.add('on')}
 
-function toggleLike(id){
-  var el=document.getElementById(id);
-  el.classList.toggle('liked');
-  el.textContent=el.classList.contains('liked')?'❤️ Liked':'🤍 Like';
-  if(el.classList.contains('liked'))toast('❤️','Liked!','');
-}
-
+var SHEETS={
+  'coach-add':{title:'Add',rows:[
+    {i:'📹',bg:'rgba(252,82,0,.12)',l:'Upload Video',cb:"toast('📹','Upload','Camera picker opening');closeSheet()"},
+    {i:'📅',bg:'rgba(10,132,255,.12)',l:'New Session',cb:"switchTab('schedule');closeSheet()"},
+    {i:'📨',bg:'rgba(48,209,88,.12)',l:'Invite Athlete',cb:"toast('📨','Invite copied','Share with your athlete');closeSheet()"},
+  ]},
+  'settings':{title:'Settings',rows:[
+    {i:'🔔',bg:'rgba(255,69,58,.12)',l:'Notifications',cb:"toast('🔔','Notifications','');closeSheet()"},
+    {i:'💳',bg:'rgba(48,209,88,.12)',l:'Billing',cb:"toast('💳','Pro Plan · $49/mo','');closeSheet()"},
+    {i:'🚪',bg:'rgba(255,69,58,.06)',l:'Sign Out',cb:"doSignOut();closeSheet()",d:true},
+  ]},
+  'athlete-actions':{title:'Alex Johnson',rows:[
+    {i:'📹',bg:'rgba(252,82,0,.12)',l:'Request a Video',cb:"toast('📹','Request sent','Alex will be notified');closeSheet()"},
+    {i:'📅',bg:'rgba(10,132,255,.12)',l:'Schedule Session',cb:"switchTab('schedule');closeSheet()"},
+    {i:'📊',bg:'rgba(48,209,88,.12)',l:'Progress Report',cb:"toast('📊','Report','Sponsor-ready PDF generating…');closeSheet()"},
+    {i:'⚠️',bg:'rgba(255,69,58,.06)',l:'Remove Athlete',cb:"toast('Done','Removed','');closeSheet()",d:true},
+  ]}
+};
 function showSheet(type){
-  var cfg={
-    upload:{title:'Add Content',rows:[
-      {icon:'🎥',bg:'rgba(252,82,0,.12)',label:'Upload Video',cb:"toast('🎥','Picker','');closeSheet()"},
-      {icon:'📝',bg:'rgba(10,132,255,.12)',label:'Create Post',cb:"toast('📝','Post creator','');closeSheet()"},
-      {icon:'📅',bg:'rgba(48,209,88,.12)',label:'Add Session',cb:"switchTab('schedule');closeSheet()"},
-      {icon:'🔗',bg:'rgba(191,90,242,.12)',label:'Share Profile',cb:"toast('🔗','Copied!','');closeSheet()"},
-    ]},
-    settings:{title:'Settings',rows:[
-      {icon:'🔔',bg:'rgba(255,69,58,.12)',label:'Notifications',cb:"toast('🔔','Notifications','');closeSheet()"},
-      {icon:'🔒',bg:'rgba(255,214,10,.12)',label:'Privacy',cb:"toast('🔒','Privacy','');closeSheet()"},
-      {icon:'🎨',bg:'rgba(10,132,255,.12)',label:'Appearance',cb:"toast('🎨','Appearance','');closeSheet()"},
-      {icon:'🚪',bg:'rgba(255,69,58,.06)',label:'Sign Out',cb:"doSignOut();closeSheet()",danger:true},
-    ]},
-    athlete:{title:'Alex Johnson',rows:[
-      {icon:'📹',bg:'rgba(252,82,0,.12)',label:'Request Video',cb:"toast('📹','Request sent','Alex notified');closeSheet()"},
-      {icon:'📅',bg:'rgba(10,132,255,.12)',label:'Schedule Session',cb:"switchTab('schedule');closeSheet()"},
-      {icon:'📊',bg:'rgba(48,209,88,.12)',label:'Progress Report',cb:"toast('📊','Progress','Loading...');closeSheet()"},
-      {icon:'⚠️',bg:'rgba(255,69,58,.06)',label:'Remove Athlete',cb:"toast('✅','Done','');closeSheet()",danger:true},
-    ]}
-  };
-  var c=cfg[type]||cfg.upload;
-  document.getElementById('s-title-text').textContent=c.title;
-  var html='';
-  c.rows.forEach(function(r){
-    html+='<div class="s-row" onclick="'+r.cb+'">';
-    html+='<div class="s-row-icon" style="background:'+r.bg+'">'+r.icon+'</div>';
-    html+='<div class="s-row-lbl"'+(r.danger?' style="color:var(--red)"':'')+'>'+r.label+'</div>';
-    html+='</div>';
-  });
-  document.getElementById('s-body').innerHTML=html;
-  document.getElementById('overlay').style.display='block';
-  setTimeout(function(){document.getElementById('sheet').classList.add('open')},10);
+  var c=SHEETS[type]||SHEETS['coach-add'];
+  document.getElementById('sh-t').textContent=c.title;
+  var html='';c.rows.forEach(function(r){html+='<div class="sh-row" onclick="'+r.cb+'"><div class="sh-ico" style="background:'+r.bg+'">'+r.i+'</div><div class="sh-lbl"'+(r.d?' style="color:var(--red)"':'')+'>'+r.l+'</div></div>'});
+  document.getElementById('sh-b').innerHTML=html;
+  document.getElementById('ov').style.display='block';
+  setTimeout(function(){document.getElementById('sh').classList.add('open')},10);
 }
-function closeSheet(){
-  document.getElementById('sheet').classList.remove('open');
-  setTimeout(function(){document.getElementById('overlay').style.display='none'},380);
-}
+function closeSheet(){document.getElementById('sh').classList.remove('open');setTimeout(function(){document.getElementById('ov').style.display='none'},360)}
 
-function vrToggle(){
-  _vrPlaying=!_vrPlaying;
-  document.getElementById('vp-play').textContent=_vrPlaying?'⏸':'▶';
-  if(_vrPlaying){
-    _vrTimer=setInterval(function(){
-      _vrPos=(_vrPos+1)%101;
-      var f=document.getElementById('vp-fill'),th=document.getElementById('vp-thumb');
-      if(f)f.style.width=_vrPos+'%';if(th)th.style.left=_vrPos+'%';
-      var s=Math.round(_vrPos*.34);
-      var c=document.getElementById('vp-cur');if(c)c.textContent='0:'+(s<10?'0':'')+s;
-    },340);
-  }else clearInterval(_vrTimer);
-}
-function vrSeek(e,bar){
-  var r=bar.getBoundingClientRect();
-  _vrPos=Math.max(0,Math.min(100,Math.round((e.clientX-r.left)/r.width*100)));
-  var f=document.getElementById('vp-fill'),th=document.getElementById('vp-thumb');
-  if(f)f.style.width=_vrPos+'%';if(th)th.style.left=_vrPos+'%';
-}
-function vrSpeed(el){_si=(_si+1)%_speeds.length;el.textContent=_speeds[_si]}
+/* VIDEO PLAYER */
+function vrToggle(){_vrPlaying=!_vrPlaying;document.getElementById('vp-play').textContent=_vrPlaying?'⏸':'▶';
+  if(_vrPlaying){_vrTimer=setInterval(function(){_vrPos=(_vrPos+1)%101;var f=document.getElementById('vp-fill'),th=document.getElementById('vp-thumb');if(f)f.style.width=_vrPos+'%';if(th)th.style.left=_vrPos+'%';var s=Math.round(_vrPos*.34);var c=document.getElementById('vp-cur');if(c)c.textContent='0:'+(s<10?'0':'')+s},340);}
+  else clearInterval(_vrTimer);}
+function vrSeek(e,bar){var r=bar.getBoundingClientRect();_vrPos=Math.max(0,Math.min(100,Math.round((e.clientX-r.left)/r.width*100)));var f=document.getElementById('vp-fill'),th=document.getElementById('vp-thumb');if(f)f.style.width=_vrPos+'%';if(th)th.style.left=_vrPos+'%'}
+function vrSpeed(el){_vrSi=(_vrSi+1)%SPEEDS.length;el.textContent=SPEEDS[_vrSi]}
 function annTool(el){document.querySelectorAll('.ann-t').forEach(function(t){t.classList.remove('on')});el.classList.add('on')}
 function annColor(el){document.querySelectorAll('.ann-c').forEach(function(d){d.classList.remove('on')});el.classList.add('on')}
-function vsSeek(e,bar){
-  var r=bar.getBoundingClientRect();
-  var p=Math.max(0,Math.min(100,Math.round((e.clientX-r.left)/r.width*100)));
-  document.getElementById('vs-fill').style.width=p+'%';
-  var s=Math.round(p*.72);
-  document.getElementById('vs-cur').textContent='0:'+(s<10?'0':'')+s;
-}
 </script>
 </body>
 </html>
