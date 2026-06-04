@@ -352,7 +352,7 @@ html,body{height:100%;background:#000;overflow:hidden;font-family:-apple-system,
 <div class="screen" id="s-login">
   <div class="lg-hero">
     <div class="lg-glow"></div>
-    <div class="lg-logo">🛹</div>
+    <div class="lg-logo" style="padding:0;overflow:hidden"><img src="https://media.base44.com/images/public/6a1c702701883397050a31b0/09f1ad15b_generated_image.png" style="width:100%;height:100%;object-fit:cover;border-radius:24px"></div>
     <div class="lg-brand">The Skate Workshop</div>
     <div class="lg-tag">Mobile coaching from a coach of Olympians</div>
   </div>
@@ -1181,48 +1181,144 @@ Strong foundations make everything easier. Keep going!</textarea>
 </div><!-- #app -->
 
 <script>
-var _mode='coach'; // 'coach' or 'athlete'
+var _mode='coach';
 var _tab=null,_stack=[];
 var _vrPlaying=false,_vrPos=35,_vrTimer=null,_vrSi=1,_toastT=null;
-var SPEEDS=['0.25×','0.5×','1×','2×'];
-var COACH_TABS={home:'s-coach-home',athletes:'s-coach-athletes',library:'s-coach-library',schedule:'s-coach-schedule',messages:'s-messages',profile:'s-coach-profile'};
-var ATH_TABS={home:'s-athlete-home',library:'s-athlete-library',tricks:'s-trick-library',messages:'s-messages',profile:'s-coach-profile'};
+var SPEEDS=['0.25x','0.5x','1x','2x'];
+
+var COACH_MAP={home:'s-coach-home',athletes:'s-coach-athletes',library:'s-coach-library',schedule:'s-coach-schedule',messages:'s-messages',profile:'s-coach-profile'};
+var ATH_MAP={home:'s-athlete-home',library:'s-athlete-library',messages:'s-messages'};
 
 document.addEventListener('DOMContentLoaded',function(){showScreen('s-login')});
 
-function showScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});var e=document.getElementById(id);if(e)e.classList.add('active')}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  var e=document.getElementById(id);
+  if(e) e.classList.add('active');
+}
 
 function switchTab(name){
   _stack=[];
-  var map=_mode==='coach'?COACH_TABS:ATH_TABS;
+  var map=_mode==='coach'?COACH_MAP:ATH_MAP;
+  var screenId=map[name];
+  if(!screenId) return;
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
-  var screenId=map[name]||('s-'+name);
-  var el=document.getElementById(screenId);if(el)el.classList.add('active');
+  var el=document.getElementById(screenId);
+  if(el) el.classList.add('active');
   _tab=name;
-  // Update tab icons
-  document.querySelectorAll('.ti').forEach(function(t){t.classList.remove('on');t.querySelector('.ti-lbl').style.color=''});
+  document.querySelectorAll('.ti').forEach(function(t){
+    t.classList.remove('on');
+    var lbl=t.querySelector('.ti-lbl');
+    if(lbl) lbl.style.color='';
+  });
   var ti=document.getElementById('ti-'+name);
-  if(ti){ti.classList.add('on');ti.querySelector('.ti-lbl').style.color='var(--brand)'}
+  if(ti){
+    ti.classList.add('on');
+    var lbl=ti.querySelector('.ti-lbl');
+    if(lbl) lbl.style.color='var(--brand)';
+  }
   document.getElementById('tabbar').style.display='flex';
 }
 
 function pushScreen(id){
   var cur=document.querySelector('.screen.active');
-  if(cur){cur.classList.add('p-out');_stack.push(cur.id);setTimeout(function(){if(cur){cur.classList.remove('active','p-out')}},300);}
+  if(cur){
+    cur.classList.add('p-out');
+    _stack.push(cur.id);
+    setTimeout(function(){cur.classList.remove('active','p-out')},300);
+  }
   var nxt=document.getElementById(id);
-  if(nxt){nxt.classList.add('active','p-in');setTimeout(function(){nxt.classList.remove('p-in')},300);}
+  if(nxt){
+    nxt.classList.add('active','p-in');
+    setTimeout(function(){nxt.classList.remove('p-in')},300);
+  }
   document.getElementById('tabbar').style.display='none';
 }
 
 function popScreen(){
-  if(!_stack.length){if(_tab)switchTab(_tab);return}
+  if(!_stack.length){if(_tab) switchTab(_tab); return;}
   var cur=document.querySelector('.screen.active');
-  if(cur){cur.classList.add('pop-out');setTimeout(function(){cur.classList.remove('active','pop-out')},260);}
-  var pid=_stack.pop();var prev=document.getElementById(pid);
-  if(prev){prev.classList.add('active','pop-in');setTimeout(function(){prev.classList.remove('pop-in')},260);}
-  // Show tabbar if returning to a tab screen
-  var allTabScreens=Object.values(COACH_TABS).concat(Object.values(ATH_TABS));
-  document.getElementById('tabbar').style.display=allTabScreens.indexOf(pid)>=0?'flex':'none';
+  if(cur){
+    cur.classList.add('pop-out');
+    setTimeout(function(){cur.classList.remove('active','pop-out')},260);
+  }
+  var pid=_stack.pop();
+  var prev=document.getElementById(pid);
+  if(prev){
+    prev.classList.add('active','pop-in');
+    setTimeout(function(){prev.classList.remove('pop-in')},260);
+  }
+  var tabScreens=Object.values(COACH_MAP).concat(Object.values(ATH_MAP));
+  document.getElementById('tabbar').style.display=(tabScreens.indexOf(pid)>=0)?'flex':'none';
+}
+
+function doLogin(){
+  var role=_selectedRole||'coach';
+  _mode=role;
+  startApp(role);
+}
+function demoLogin(role){_mode=role;startApp(role);}
+function startApp(mode){
+  _stack=[];_tab=null;
+  buildTabBar(mode);
+  setTimeout(function(){
+    switchTab('home');
+    if(mode==='coach'){
+      setTimeout(function(){toast('👋','Welcome back, Coach Willy!','3 new clips waiting for your feedback')},350);
+    } else {
+      setTimeout(function(){toast('🛹','Hey Alex!','Willy reviewed your kickflip — check the feedback!')},350);
+    }
+  },20);
+}
+
+function buildTabBar(mode){
+  var tb=document.getElementById('tabbar');
+  if(mode==='coach'){
+    tb.innerHTML=
+      '<div class="ti on" id="ti-home" onclick="switchTab('home')">'+
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3L21 9.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V9.5Z" stroke="#FC5200" stroke-width="1.8" stroke-linejoin="round"/></svg>'+
+        '<div class="ti-lbl" style="color:var(--brand)">Home</div>'+
+      '</div>'+
+      '<div class="ti" id="ti-athletes" onclick="switchTab('athletes')">'+
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M2 21c0-4 3-6 7-6" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="10" r="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M14 21c0-2.5 1.3-4 3-4s3 1.5 3 4" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>'+
+        '<div class="ti-lbl">Athletes</div>'+
+      '</div>'+
+      '<div class="ti" id="ti-library" onclick="switchTab('library')">'+
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M10 8l5 3-5 3V8z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 21h10M12 17v4" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>'+
+        '<div class="ti-lbl">Videos</div>'+
+        '<div class="ti-dot"></div>'+
+      '</div>'+
+      '<div class="ti" id="ti-schedule" onclick="switchTab('schedule')">'+
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M3 9H21M8 2v3M16 2v3" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>'+
+        '<div class="ti-lbl">Schedule</div>'+
+        '<div class="ti-dot"></div>'+
+      '</div>'+
+      '<div class="ti" id="ti-messages" onclick="switchTab('messages')">'+
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 4H20C21.1 4 22 4.9 22 6V16C22 17.1 21.1 18 20 18H6L2 22V6C2 4.9 2.9 4 4 4Z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/></svg>'+
+        '<div class="ti-lbl">Messages</div>'+
+        '<div class="ti-dot"></div>'+
+      '</div>';
+  } else {
+    tb.innerHTML=
+      '<div class="ti on" id="ti-home" onclick="switchTab('home')">'+
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3L21 9.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V9.5Z" stroke="#FC5200" stroke-width="1.8" stroke-linejoin="round"/></svg>'+
+        '<div class="ti-lbl" style="color:var(--brand)">Home</div>'+
+      '</div>'+
+      '<div class="ti" id="ti-library" onclick="switchTab('library')">'+
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M10 8l5 3-5 3V8z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 21h10M12 17v4" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>'+
+        '<div class="ti-lbl">My Videos</div>'+
+        '<div class="ti-dot"></div>'+
+      '</div>'+
+      '<div class="ti" id="ti-tricks" onclick="pushScreen('s-trick-library')">'+
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/></svg>'+
+        '<div class="ti-lbl">Tricks</div>'+
+      '</div>'+
+      '<div class="ti" id="ti-messages" onclick="switchTab('messages')">'+
+        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 4H20C21.1 4 22 4.9 22 6V16C22 17.1 21.1 18 20 18H6L2 22V6C2 4.9 2.9 4 4 4Z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/></svg>'+
+        '<div class="ti-lbl">Messages</div>'+
+        '<div class="ti-dot"></div>'+
+      '</div>';
+  }
 }
 
 var _selectedRole='coach';
@@ -1230,159 +1326,128 @@ function pickRole(el,role){
   document.querySelectorAll('.role-btn').forEach(function(b){b.classList.remove('on')});
   el.classList.add('on');_selectedRole=role;
 }
-function doLogin(){
-  var email=document.getElementById('login-email').value||'';
-  var isAthlete=_selectedRole==='athlete'||email.toLowerCase().indexOf('athlete')>=0;
-  _mode=isAthlete?'athlete':'coach';
-  startApp(_mode);
+function doSignOut(){
+  document.getElementById('tabbar').style.display='none';
+  showScreen('s-login');
+  _tab=null;_stack=[];_mode='coach';
 }
-function demoLogin(role){_mode=role;startApp(role)}
-function startApp(mode){
-  _stack=[];_tab=null;
-  // Set up correct tab bar for this mode
-  setupTabBar(mode);
-  if(mode==='coach'){
-    switchTab('home');
-    setTimeout(function(){toast('👋','Welcome back, Coach Willy!','3 new video submissions waiting')},350);
-  } else {
-    switchTab('home');
-    setTimeout(function(){toast('🛹','Hey Alex!','Willy reviewed ✓ your kickflip — check your feedback!')},350);
-  }
-}
-function setupTabBar(mode){
-  var tb=document.getElementById('tabbar');
-  if(mode==='coach'){
-    // Coach tabs: Home, Athletes, Videos, Schedule, Messages
-    tb.innerHTML=`
-      <div class="ti on" id="ti-home" onclick="switchTab('home')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3L21 9.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V9.5Z" stroke="#FC5200" stroke-width="1.8" stroke-linejoin="round"/></svg>
-        <div class="ti-lbl" style="color:var(--brand)">Home</div>
-      </div>
-      <div class="ti" id="ti-athletes" onclick="switchTab('athletes')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M2 21c0-4 3-6 7-6" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="10" r="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M14 21c0-2.5 1.3-4 3-4s3 1.5 3 4" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <div class="ti-lbl">Athletes</div>
-      </div>
-      <div class="ti" id="ti-library" onclick="switchTab('library')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M10 8l5 3-5 3V8z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 21h10M12 17v4" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <div class="ti-lbl">Videos</div>
-        <div class="ti-dot"></div>
-      </div>
-      <div class="ti" id="ti-schedule" onclick="switchTab('schedule')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M3 9H21M8 2v3M16 2v3" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <div class="ti-lbl">Schedule</div>
-        <div class="ti-dot"></div>
-      </div>
-      <div class="ti" id="ti-messages" onclick="switchTab('messages')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 4H20C21.1 4 22 4.9 22 6V16C22 17.1 21.1 18 20 18H6L2 22V6C2 4.9 2.9 4 4 4Z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/></svg>
-        <div class="ti-lbl">Messages</div>
-        <div class="ti-dot"></div>
-      </div>`;
-    // Remap tabs
-    COACH_TABS={home:'s-coach-home',athletes:'s-coach-athletes',library:'s-coach-library',schedule:'s-coach-schedule',messages:'s-messages',profile:'s-coach-profile'};
-    window._tabMap=COACH_TABS;
-  } else {
-    // Athlete tabs: Home, My Videos, 400 Tricks, Messages
-    tb.innerHTML=`
-      <div class="ti on" id="ti-home" onclick="switchTab('home')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3L21 9.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V9.5Z" stroke="#FC5200" stroke-width="1.8" stroke-linejoin="round"/></svg>
-        <div class="ti-lbl" style="color:var(--brand)">Home</div>
-      </div>
-      <div class="ti" id="ti-library" onclick="switchTab('library')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" stroke="rgba(255,255,255,.35)" stroke-width="1.8"/><path d="M10 8l5 3-5 3V8z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 21h10M12 17v4" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <div class="ti-lbl">My Videos</div>
-        <div class="ti-dot"></div>
-      </div>
-      <div class="ti" id="ti-tricks" onclick="pushScreen('s-trick-library')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/></svg>
-        <div class="ti-lbl">Tricks</div>
-      </div>
-      <div class="ti" id="ti-messages" onclick="switchTab('messages')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 4H20C21.1 4 22 4.9 22 6V16C22 17.1 21.1 18 20 18H6L2 22V6C2 4.9 2.9 4 4 4Z" stroke="rgba(255,255,255,.35)" stroke-width="1.8" stroke-linejoin="round"/></svg>
-        <div class="ti-lbl">Messages</div>
-        <div class="ti-dot"></div>
-      </div>`;
-    window._tabMap={home:'s-athlete-home',library:'s-athlete-library',messages:'s-messages'};
-  }
-}
-
-function switchTab(name){
-  _stack=[];
-  var map=window._tabMap||COACH_TABS;
-  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
-  var screenId=map[name]||('s-'+(_mode==='coach'?'coach-':'')+name);
-  var el=document.getElementById(screenId)||document.getElementById('s-'+name);
-  if(el)el.classList.add('active');
-  _tab=name;
-  document.querySelectorAll('.ti').forEach(function(t){t.classList.remove('on');t.querySelector && t.querySelector('.ti-lbl') && (t.querySelector('.ti-lbl').style.color='')});
-  var ti=document.getElementById('ti-'+name);
-  if(ti){ti.classList.add('on');ti.querySelector('.ti-lbl') && (ti.querySelector('.ti-lbl').style.color='var(--brand)')}
-  document.getElementById('tabbar').style.display='flex';
-}
-
-function doSignOut(){document.getElementById('tabbar').style.display='none';showScreen('s-login');_tab=null;_stack=[];_mode='coach'}
 
 function openChat(ini,name,avClass,preview){
-  var av=document.getElementById('chat-av');av.textContent=ini;av.className='av av44 '+avClass;
+  var av=document.getElementById('chat-av');
+  av.textContent=ini;av.className='av av44 '+avClass;
   document.getElementById('chat-name').textContent=name;
   var box=document.getElementById('chat-msgs');
-  box.innerHTML='<div class="chat-date">TODAY</div><div class="bbl in">Hey! 🔥</div><div class="bbl out">On it 👀<small>Just now</small></div><div class="bbl in">'+preview+'</div>';
-  pushScreen('s-chat');setTimeout(function(){box.scrollTop=9999},80);
+  box.innerHTML='<div class="chat-date">TODAY</div>'+
+    '<div class="bbl in">Hey! 🔥</div>'+
+    '<div class="bbl out">On it 👀<small>Just now</small></div>'+
+    '<div class="bbl in">'+preview+'</div>';
+  pushScreen('s-chat');
+  setTimeout(function(){box.scrollTop=9999},80);
 }
 function sendMsg(){
-  var inp=document.getElementById('chat-inp'),txt=inp.value.trim();if(!txt)return;
-  var box=document.getElementById('chat-msgs'),n=new Date(),h=n.getHours()%12||12,m=n.getMinutes();
+  var inp=document.getElementById('chat-inp'),txt=inp.value.trim();
+  if(!txt) return;
+  var box=document.getElementById('chat-msgs');
+  var n=new Date(),h=n.getHours()%12||12,m=n.getMinutes();
   box.innerHTML+='<div class="bbl out">'+txt+'<small>'+h+':'+(m<10?'0':'')+m+'</small></div>';
   inp.value='';box.scrollTop=9999;
-  var r=['Got it! 🙏','Makes sense 🛹','On it! 👊','Thanks Willy! 🤙','Let\'s get it! 🔥','Appreciate it! 🛹'];
-  setTimeout(function(){box.innerHTML+='<div class="bbl in">'+r[Math.floor(Math.random()*r.length)]+'</div>';box.scrollTop=9999},1100);
+  var replies=['Got it! 🙏','Makes sense 🛹','On it! 👊','Thanks Willy! 🤙','Let's get it! 🔥','Appreciate it! 🛹'];
+  setTimeout(function(){
+    box.innerHTML+='<div class="bbl in">'+replies[Math.floor(Math.random()*replies.length)]+'</div>';
+    box.scrollTop=9999;
+  },1100);
 }
-document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.activeElement.id==='chat-inp')sendMsg()});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&document.activeElement.id==='chat-inp') sendMsg();
+});
 
 function toast(icon,text,sub){
-  document.getElementById('ti').textContent=icon;document.getElementById('tt').textContent=text;document.getElementById('ts').textContent=sub||'';
-  var el=document.getElementById('toast');el.classList.add('show');clearTimeout(_toastT);
+  document.getElementById('ti').textContent=icon;
+  document.getElementById('tt').textContent=text;
+  document.getElementById('ts').textContent=sub||'';
+  var el=document.getElementById('toast');
+  el.classList.add('show');
+  clearTimeout(_toastT);
   _toastT=setTimeout(function(){el.classList.remove('show')},3400);
 }
-function toggleLike(id){var el=document.getElementById(id);el.classList.toggle('liked');el.textContent=el.classList.contains('liked')?'✅ Seen':'🤍 Seen'}
-function setLibFilter(el){document.querySelectorAll('[id^="lf-"], [onclick="setLibFilter(this)"]').forEach(function(c){c.style.background='var(--s1)';c.style.borderColor='var(--b2)';c.style.color='var(--t2)'});el.style.background='var(--brand)';el.style.borderColor='var(--brand)';el.style.color='#fff'}
-function setStage(el){document.querySelectorAll('.stage-tab').forEach(function(t){t.classList.remove('on')});el.classList.add('on')}
+function toggleLike(id){
+  var el=document.getElementById(id);
+  el.classList.toggle('liked');
+  el.textContent=el.classList.contains('liked')?'✅ Seen':'🤍 Seen';
+}
+function setLibFilter(el){
+  document.querySelectorAll('.lib-filter').forEach(function(c){
+    c.style.background='var(--s1)';c.style.borderColor='var(--b2)';c.style.color='var(--t2)';
+  });
+  el.style.background='var(--brand)';el.style.borderColor='var(--brand)';el.style.color='#fff';
+}
+function setStage(el){
+  document.querySelectorAll('.stage-tab').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+}
 
 var SHEETS={
   'coach-add':{title:'Add',rows:[
-    {i:'📹',bg:'rgba(252,82,0,.12)',l:'Upload Video',cb:"toast('📹','Send a clip','Willy will review it and give you personal feedback');closeSheet()"},
+    {i:'📹',bg:'rgba(252,82,0,.12)',l:'Upload Video',cb:"toast('📹','Send a clip','Willy will review and give you personal feedback');closeSheet()"},
     {i:'📅',bg:'rgba(10,132,255,.12)',l:'New Session',cb:"switchTab('schedule');closeSheet()"},
-    {i:'📨',bg:'rgba(48,209,88,.12)',l:'Invite Athlete',cb:"toast('📨','Invite copied','Share with your athlete');closeSheet()"},
+    {i:'📨',bg:'rgba(48,209,88,.12)',l:'Invite Athlete',cb:"toast('📨','Invite copied!','Share this link to add an athlete to your roster');closeSheet()"}
   ]},
   'settings':{title:'Settings',rows:[
     {i:'🔔',bg:'rgba(255,69,58,.12)',l:'Notifications',cb:"toast('🔔','Notifications','');closeSheet()"},
-    {i:'💳',bg:'rgba(48,209,88,.12)',l:'Billing',cb:"toast('💳','Pro Plan · $49/mo','');closeSheet()"},
-    {i:'🚪',bg:'rgba(255,69,58,.06)',l:'Sign Out',cb:"doSignOut();closeSheet()",d:true},
+    {i:'💳',bg:'rgba(48,209,88,.12)',l:'Billing',cb:"toast('💳','Elite 1-on-1 Access · $49.99/mo','Renews July 1');closeSheet()"},
+    {i:'🚪',bg:'rgba(255,69,58,.06)',l:'Sign Out',cb:"doSignOut();closeSheet()",d:true}
   ]},
   'athlete-actions':{title:'Alex Johnson',rows:[
     {i:'📹',bg:'rgba(252,82,0,.12)',l:'Request a Video',cb:"toast('📹','Request sent','Alex will be notified');closeSheet()"},
     {i:'📅',bg:'rgba(10,132,255,.12)',l:'Schedule Session',cb:"switchTab('schedule');closeSheet()"},
-    {i:'📊',bg:'rgba(48,209,88,.12)',l:'Progress Report',cb:"toast('📊','Report','Sponsor-ready PDF generating…');closeSheet()"},
-    {i:'⚠️',bg:'rgba(255,69,58,.06)',l:'Remove Athlete',cb:"toast('Done','Removed','');closeSheet()",d:true},
+    {i:'📊',bg:'rgba(48,209,88,.12)',l:'Progress Report',cb:"toast('📊','Report','Sponsor-ready PDF generating...');closeSheet()"},
+    {i:'⚠️',bg:'rgba(255,69,58,.06)',l:'Remove Athlete',cb:"toast('Done','Removed','');closeSheet()",d:true}
   ]}
 };
 function showSheet(type){
   var c=SHEETS[type]||SHEETS['coach-add'];
   document.getElementById('sh-t').textContent=c.title;
-  var html='';c.rows.forEach(function(r){html+='<div class="sh-row" onclick="'+r.cb+'"><div class="sh-ico" style="background:'+r.bg+'">'+r.i+'</div><div class="sh-lbl"'+(r.d?' style="color:var(--red)"':'')+'>'+r.l+'</div></div>'});
+  var html='';
+  c.rows.forEach(function(r){
+    html+='<div class="sh-row" onclick="'+r.cb+'">'+
+      '<div class="sh-ico" style="background:'+r.bg+'">'+r.i+'</div>'+
+      '<div class="sh-lbl"'+(r.d?' style="color:var(--red)"':'')+'>'+r.l+'</div>'+
+    '</div>';
+  });
   document.getElementById('sh-b').innerHTML=html;
   document.getElementById('ov').style.display='block';
   setTimeout(function(){document.getElementById('sh').classList.add('open')},10);
 }
-function closeSheet(){document.getElementById('sh').classList.remove('open');setTimeout(function(){document.getElementById('ov').style.display='none'},360)}
+function closeSheet(){
+  document.getElementById('sh').classList.remove('open');
+  setTimeout(function(){document.getElementById('ov').style.display='none'},360);
+}
 
-/* VIDEO PLAYER */
-function vrToggle(){_vrPlaying=!_vrPlaying;document.getElementById('vp-play').textContent=_vrPlaying?'⏸':'▶';
-  if(_vrPlaying){_vrTimer=setInterval(function(){_vrPos=(_vrPos+1)%101;var f=document.getElementById('vp-fill'),th=document.getElementById('vp-thumb');if(f)f.style.width=_vrPos+'%';if(th)th.style.left=_vrPos+'%';var s=Math.round(_vrPos*.34);var c=document.getElementById('vp-cur');if(c)c.textContent='0:'+(s<10?'0':'')+s},340);}
-  else clearInterval(_vrTimer);}
-function vrSeek(e,bar){var r=bar.getBoundingClientRect();_vrPos=Math.max(0,Math.min(100,Math.round((e.clientX-r.left)/r.width*100)));var f=document.getElementById('vp-fill'),th=document.getElementById('vp-thumb');if(f)f.style.width=_vrPos+'%';if(th)th.style.left=_vrPos+'%'}
-function vrSpeed(el){_vrSi=(_vrSi+1)%SPEEDS.length;el.textContent=SPEEDS[_vrSi]}
-function annTool(el){document.querySelectorAll('.ann-t').forEach(function(t){t.classList.remove('on')});el.classList.add('on')}
-function annColor(el){document.querySelectorAll('.ann-c').forEach(function(d){d.classList.remove('on')});el.classList.add('on')}
+function vrToggle(){
+  _vrPlaying=!_vrPlaying;
+  document.getElementById('vp-play').textContent=_vrPlaying?'⏸':'▶';
+  if(_vrPlaying){
+    _vrTimer=setInterval(function(){
+      _vrPos=(_vrPos+1)%101;
+      var f=document.getElementById('vp-fill'),th=document.getElementById('vp-thumb');
+      if(f) f.style.width=_vrPos+'%';
+      if(th) th.style.left=_vrPos+'%';
+      var s=Math.round(_vrPos*.34);
+      var cur=document.getElementById('vp-cur');
+      if(cur) cur.textContent='0:'+(s<10?'0':'')+s;
+    },340);
+  } else clearInterval(_vrTimer);
+}
+function vrSeek(e,bar){
+  var r=bar.getBoundingClientRect();
+  _vrPos=Math.max(0,Math.min(100,Math.round((e.clientX-r.left)/r.width*100)));
+  var f=document.getElementById('vp-fill'),th=document.getElementById('vp-thumb');
+  if(f) f.style.width=_vrPos+'%';
+  if(th) th.style.left=_vrPos+'%';
+}
+function vrSpeed(el){_vrSi=(_vrSi+1)%SPEEDS.length;el.textContent=SPEEDS[_vrSi];}
+function annTool(el){document.querySelectorAll('.ann-t').forEach(function(t){t.classList.remove('on')});el.classList.add('on');}
+function annColor(el){document.querySelectorAll('.ann-c').forEach(function(d){d.classList.remove('on')});el.classList.add('on');}
 </script>
 </body>
 </html>
